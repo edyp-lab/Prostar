@@ -368,13 +368,19 @@ loadObjectInMemoryFromConverter <- function(){
     names(rv$current.obj@experimentData@other) <- gsub(".", "_", names(rv$current.obj@experimentData@other), fixed=TRUE)
     pData(rv$current.obj)$Sample.name <- gsub(".", "_", pData(rv$current.obj)$Sample.name, fixed=TRUE)
     
-    #If there are already pVal values, then do no compute them
-    # if (G_logFC_Column %in% names(fData(rv$current.obj) )){
-    #     rv$resAnaDiff <- list(logFC = fData(rv$current.obj)$logFC,
-    #                           P_Value = fData(rv$current.obj)$P_Value)
-    #     rv$widgets$hypothesisTest$th_logFC <- rv$current.obj@experimentData@other$threshold_logFC
-    #     #rv$widgets$anaDiff$th_pval  <- rv$current.obj@experimentData@other$threshold_p_value
-    # }
+    # If there are already pVal values (differential analysis already done),
+    # then do no compute them
+    if (G_logFC_Column %in% names(fData(rv$current.obj) )){
+        rv$resAnaDiff <- list(logFC = fData(rv$current.obj)$logFC,
+                              P_Value = fData(rv$current.obj)$P_Value)
+        
+        rv$widgets$anaDiff$th_pval  <- rv$current.obj@experimentData@other$threshold_p_value
+    }
+    
+    # Get the logFC threshold of the hypothesis test to show it in the volcanoplots
+    tmp <- rv$current.obj@experimentData@other$Params
+    
+    rv$widgets$hypothesisTest$th_logFC <- tmp[[grep('th_logFC', tmp)]]$HypothesisTest$th_logFC
     
     if (is.null(rv$current.obj@experimentData@other$RawPValues ))
       rv$current.obj@experimentData@other$RawPValues <- FALSE

@@ -262,9 +262,10 @@ output$screenHypoTest1 <- renderUI({
                                        width='150px'))
         ),
         tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
-                  textInput("seuilLogFC", "log(FC) threshold",  
-                               value=rv$widgets$hypothesisTest$th_logFC,
-                               width='150px'),
+                  textInput("seuilLogFC", 
+                            "log(FC) threshold", 
+                            value = rv$widgets$hypothesisTest$th_logFC,
+                            width = '150px'),
                   module_Not_a_numericUI("test_seuillogFC")
                   
         ),
