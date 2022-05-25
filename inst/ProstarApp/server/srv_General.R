@@ -397,7 +397,7 @@ loadObjectInMemoryFromConverter <- function(){
     }
     
     m <- match.metacell(DAPAR::GetMetacell(rv$current.obj), 
-                        pattern="missing",
+                        pattern = "missing",
                         level = DAPAR::GetTypeofData(rv$current.obj)
     )
 

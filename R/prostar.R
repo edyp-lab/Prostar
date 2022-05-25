@@ -1,12 +1,14 @@
-##' Prostar : a GUI for DAPAR
-##' 
-##' @title Prostar
-##' @return A new window in the default internet browser
-##' @author Samuel Wieczorek
-##' @examples
-##' if(interactive()) {Prostar()}
-Prostar <-
-function(){
+#' Prostar : a GUI for DAPAR
+#' 
+#' @title Prostar
+#' @return A new window in the default internet browser
+#' @author Samuel Wieczorek
+#' @examples
+#' if(interactive()) {Prostar()}
+#' 
+#' @export
+#' 
+Prostar <- function(){
         G <- .GlobalEnv
 if (interactive()){
     options(shiny.maxRequestSize=1024^3)

@@ -14,6 +14,7 @@ Prostar : a GUI for DAPAR
 }
 \examples{
 if(interactive()) {Prostar()}
+
 }
 \author{
 Samuel Wieczorek

@@ -1,8 +1,8 @@
 Package: Prostar
 Type: Package
 Title: Provides a GUI for DAPAR
-Version: 1.28.0
-Date: 2022-04-21
+Version: 1.28.1
+Date: 2022-05-25
 Authors@R: c(person(given = "Samuel", family = "Wieczorek",
 	            email = "samuel.wieczorek@cea.fr",
  		    role = c("aut","cre")),
@@ -26,7 +26,7 @@ Imports: DAPAR (>= 1.27.7), DAPARdata (>= 1.22.2), rhandsontable, data.table,
         shinythemes, XML,later, shinycssloaders, future, promises, 
         colourpicker, shinyjqui, shinyWidgets, sass, tibble
 NeedsCompilation: no
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.0
 Packaged: 2017-10-13 06:25:55 UTC; sw175264
 Encoding: UTF-8
 URL: http://www.prostar-proteomics.org/
