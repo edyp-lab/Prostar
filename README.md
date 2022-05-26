@@ -22,7 +22,7 @@ DAPAR and ProStaR are implemented in the R language and are available on the web
 
 
 ```r
-BiocManager::install("DAPAR2")
+BiocManager::install("DAPAR")
 
 library(prostar)
 prostar()
@@ -34,7 +34,7 @@ cd ~; mkdir rlib
 mkdir rlib/www
 chmod -R 777 rlib/www
 
-R CMD INSTALL Prostar_0.97.0.tar.gz --library=rlib
+R CMD INSTALL Prostar_1.28.0.tar.gz --library=rlib
 If you would prefer to install the package from R, do this:
 
 ### From CRAN
