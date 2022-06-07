@@ -15,11 +15,8 @@ observeEvent( req(input$datasets),ignoreInit = TRUE,{
  # isolate({
     
     if (rv$processSaved== TRUE) {
-      print("---- changement de dataset par mise à jour de input$datasets !!!!-----")
       rv$processSaved <- FALSE
     } else {
-      print("---- changement de dataset par le menu - Utilisateur !!!!-----")
-      print("---- => On fait un reset de l'interface -----")
       rv$current.obj <- rv$dataset[[input$datasets]]
       if (!is.null( rv$current.obj)){
         rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData

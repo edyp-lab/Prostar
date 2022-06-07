@@ -48,23 +48,24 @@ shinyServer(function(input, output, session) {
   
   #Set up writing
   logfilename <- tempfile(fileext=".log")
-  con <- file(logfilename,open="wt")
-  if(!interactive()){
-    sink(con, append=TRUE)
-    sink(con, append=TRUE, type="message")
-  }
+  # con <- file(logfilename,open="wt")
+  # if(!interactive()){
+  #   sink(con, append=TRUE)
+  #   sink(con, append=TRUE, type="message")
+  # }
   
-  message(tempdir())
-  
-  message(tempdir())
-  message(normalizePath(tempdir()))
-  message(getwd())
-  message("TEST=")
-  message(Sys.getenv('TEST'))
-  
-  message(Sys.getenv('TMP'))
-  message(Sys.getenv('TMPDIR'))
-  message(Sys.getenv('TEMP'))
+  write(paste0('tempDir() = ', tempDir), logfilename, append=TRUE)
+  # message(tempdir())
+  # 
+  # message(tempdir())
+  # message(normalizePath(tempdir()))
+  # message(getwd())
+  # message("TEST=")
+  # message(Sys.getenv('TEST'))
+  # 
+  # message(Sys.getenv('TMP'))
+  # message(Sys.getenv('TMPDIR'))
+  # message(Sys.getenv('TEMP'))
   
   # unsuspendAll(session)
   
