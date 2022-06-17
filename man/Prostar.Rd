@@ -10,10 +10,12 @@ Prostar()
 A new window in the default internet browser
 }
 \description{
-Prostar : a GUI for DAPAR
+Prostar
 }
 \examples{
-if(interactive()) {Prostar()}
+if (interactive()) {
+    Prostar()
+}
 
 }
 \author{

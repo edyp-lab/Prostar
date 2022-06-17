@@ -1,5 +1,4 @@
 tabPanel("Normalization",
-         value = "NormalizationTab",
-         moduleProcessUI("moduleProcess_Normalization")
-         
+    value = "NormalizationTab",
+    moduleProcessUI("moduleProcess_Normalization")
 )

@@ -1,4 +1,4 @@
 tabPanel("Go enrichment",
-         value = "GoTab",
-         moduleProcessUI("moduleProcess_GO")
+    value = "GoTab",
+    moduleProcessUI("moduleProcess_GO")
 )

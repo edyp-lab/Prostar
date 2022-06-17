@@ -6,12 +6,6 @@
 
 
 tabPanel("Miss. values imputation",
-         value = "imputationProteinLevelTabs",
-         moduleProcessUI("moduleProcess_ProtImputation")
-        
+    value = "imputationProteinLevelTabs",
+    moduleProcessUI("moduleProcess_ProtImputation")
 )
-
-
-
-
-
