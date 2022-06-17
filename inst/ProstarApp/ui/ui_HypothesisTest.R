@@ -1,5 +1,4 @@
 tabPanel("Hypothesis testing",
-         value = "testTab",
-         moduleProcessUI("moduleProcess_HypothesisTest")
-         
+    value = "testTab",
+    moduleProcessUI("moduleProcess_HypothesisTest")
 )
