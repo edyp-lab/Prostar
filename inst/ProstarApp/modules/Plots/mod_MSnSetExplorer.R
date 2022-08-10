@@ -187,10 +187,10 @@ mod_MSnSetExplorer_server <- function(id,
                         )
                     )
                 ) %>%
-                    formatStyle(
+                    DT::formatStyle(
                         columns = colnames(data)[1:2],
                         valueColumns = colnames(data)[2],
-                        backgroundColor = styleEqual(
+                        backgroundColor = DT::styleEqual(
                             unique(data$Condition),
                             palette.conds()
                         )
@@ -253,10 +253,10 @@ mod_MSnSetExplorer_server <- function(id,
                             )
                         )
                     ) %>%
-                        formatStyle(
+                        DT::formatStyle(
                             columns = "Significant",
                             target = "row",
-                            background = styleEqual(1, "lightblue")
+                            background = DT::styleEqual(1, "lightblue")
                         )
                 } else {
                     dat <- DT::datatable(as.data.frame(fData(data())),
@@ -351,10 +351,10 @@ mod_MSnSetExplorer_server <- function(id,
                         )
                     )
                 ) %>%
-                    formatStyle(
+                    DT::formatStyle(
                         colnames(df)[2:(1 + (.n - 1) / 2)],
                         colnames(df)[((2 + (.n - 1) / 2)):.n],
-                        backgroundColor = styleEqual(
+                        backgroundColor = DT::styleEqual(
                             names(colors),
                             unlist(colors)
                         ),

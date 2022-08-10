@@ -23,8 +23,8 @@ License: Artistic-2.0
 Depends: R (>= 4.1.0)
 Suggests: BiocStyle, BiocManager, testthat, shinyTree, knitr, future, sass, 
     R.utils, gplots, ggplot2, vioplot, promises, colourpicker, tibble,
-    DAPARdata (>= 1.22.2), webshot, shinythemes, XML, gtools, compiler
-Imports: DAPAR (>= 1.28.5), rhandsontable, data.table, shinyjs, DT, shiny, 
+    DAPARdata (>= 1.22.2), webshot, shinythemes, XML, gtools, compiler, shinyjs, DT
+Imports: DAPAR (>= 1.28.5), rhandsontable, data.table, shiny,  
     shinyBS, shinyAce, highcharter, MSnbase, shinyWidgets, shinycssloaders,
     htmlwidgets, RColorBrewer, shinyjqui, later
 NeedsCompilation: no

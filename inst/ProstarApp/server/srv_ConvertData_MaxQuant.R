@@ -115,7 +115,7 @@ quantiDataTable <- reactive({
 
 
 
-output$x1 <- renderDataTable(
+output$x1 <- DT::renderDataTable(
     quantiDataTable(),
     escape = FALSE,
     rownames = FALSE,

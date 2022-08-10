@@ -8,8 +8,7 @@
 #'
 #' @export
 #'
-
-#' @import DT
+#' @import shiny
 #' @import highcharter
 #' @import shinyBS
 #' @import shinyjqui
@@ -19,8 +18,6 @@
 #' @import shinyWidgets
 #' @import shinycssloaders
 #' @import shinyAce
-#' @import shinyjs
-#' @import shiny
 #' @import data.table
 #' @import MSnbase
 #' @import DAPAR

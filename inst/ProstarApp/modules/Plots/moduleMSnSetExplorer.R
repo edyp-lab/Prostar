@@ -145,10 +145,10 @@ MSnSetExplorer <- function(input, output, session, data) {
                 ))
             )
         ) %>%
-            formatStyle(
+            DT::formatStyle(
                 columns = colnames(data)[1:2],
                 valueColumns = colnames(data)[2],
-                backgroundColor = styleEqual(unique(data$Condition), pal)
+                backgroundColor = DT::styleEqual(unique(data$Condition), pal)
             )
     })
 
@@ -189,10 +189,10 @@ MSnSetExplorer <- function(input, output, session, data) {
                         ))
                     )
                 ) %>%
-                    formatStyle(
+                    DT::formatStyle(
                         columns = "Significant",
                         target = "row",
-                        background = styleEqual(1, "lightblue")
+                        background = DT::styleEqual(1, "lightblue")
                     )
             } else {
                 dat <- DT::datatable(as.data.frame(fData(rv$current.obj)),
@@ -273,10 +273,10 @@ MSnSetExplorer <- function(input, output, session, data) {
                 )
             )
         ) %>%
-            formatStyle(
+            DT::formatStyle(
                 colnames(df)[1:(ncol(df) / 2)],
                 colnames(df)[((ncol(df) / 2) + 1):ncol(df)],
-                backgroundColor = styleEqual(c.tags, c.colors),
+                backgroundColor = DT::styleEqual(c.tags, c.colors),
                 backgroundSize = "98% 48%",
                 backgroundRepeat = "no-repeat",
                 backgroundPosition = "center"

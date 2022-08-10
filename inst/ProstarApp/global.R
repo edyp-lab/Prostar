@@ -18,7 +18,7 @@ loadLibraries <- function() {
     library(shinycssloaders)
     library(shinythemes)
 
-    library(DT)
+    #library(DT)
     library(highcharter)
 
     library(shinyBS)

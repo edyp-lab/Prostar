@@ -343,7 +343,7 @@ output$peptideLevel_detQuant_impValues <- renderUI({
     moduleDetQuantImpValuesUI("peptide_DetQuantValues_DT")
 })
 
-output$peptideLevel_TAB_detQuant_impValues <- renderDataTable(server = TRUE, {
+output$peptideLevel_TAB_detQuant_impValues <- DT::renderDataTable(server = TRUE, {
     values <- getQuantile4Imp(
         exprs(rv$current.obj),
         rv$widgets$peptideImput$pepLevel_detQuantile / 100,

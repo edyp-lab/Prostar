@@ -23,9 +23,12 @@
 #' @export
 #'
 #' @importFrom shiny NS tagList
-#' @import shinyjs
 #'
 mod_open_demoDataset_ui <- function(id) {
+    if (!requireNamespace("shinyjs", quietly = TRUE)) {
+        stop("Please install shinyjs: BiocManager::install('shinyjs')")
+    }
+    
     ns <- NS(id)
     tagList(
         shinyjs::useShinyjs(),

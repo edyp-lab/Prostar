@@ -2,7 +2,6 @@
 
 export(Prostar)
 import(DAPAR)
-import(DT)
 import(MSnbase)
 import(RColorBrewer)
 import(data.table)
@@ -16,4 +15,3 @@ import(shinyBS)
 import(shinyWidgets)
 import(shinycssloaders)
 import(shinyjqui)
-import(shinyjs)
