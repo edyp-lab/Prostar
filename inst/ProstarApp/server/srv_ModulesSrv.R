@@ -202,12 +202,12 @@ moduleVolcanoplot <- function(input, output, session,
         req(data()$P_Value)
         data()
 
-
-        m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
-            pattern = "missing",
-            level = "peptide"
-        )
-        req(length(which(m)) > 0)
+#browser()
+        # m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
+        #     pattern = "missing",
+        #     level = "peptide"
+        # )
+        # req(length(which(m)) > 0)
 
         p <- data()
         upItemsPVal <- NULL

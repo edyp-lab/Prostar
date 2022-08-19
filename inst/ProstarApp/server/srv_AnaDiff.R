@@ -946,7 +946,7 @@ output$screenAnaDiff3 <- renderUI({
                         )
                     )
                 ),
-                hidden(DTOutput("anaDiff_selectedItems"))
+                hidden(DT::DTOutput("anaDiff_selectedItems"))
             )
         )
     })
@@ -1029,7 +1029,7 @@ callModule(modulePopover, "modulePopover_pValThreshold",
 )
 
 
-output$anaDiff_selectedItems <- renderDT({
+output$anaDiff_selectedItems <- DT::renderDT({
     DT::datatable(GetSelectedItems(),
         escape = FALSE,
         rownames = FALSE,
