@@ -2,6 +2,9 @@
 
 
 mod_staticDT_ui <- function(id) {
+    if (!requireNamespace("shinyjs", quietly = TRUE)) {
+        stop("Please install shinyTree: BiocManager::install('shinyjs')")
+    }
     ns <- NS(id)
     tagList(
         useShinyjs(),
@@ -33,11 +36,19 @@ mod_staticDT_server <- function(id,
     moduleServer(
         id,
         function(input, output, session) {
-            proxy <- dataTableProxy(session$ns("StaticDataTable"), session)
+            if (!requireNamespace("DT", quietly = TRUE)) {
+                stop("Please install DT: BiocManager::install('DT')")
+            }
+            
+            if (!requireNamespace("shinyjs", quietly = TRUE)) {
+                stop("Please install shinyjs: BiocManager::install('shinyjs')")
+            }
+            
+            proxy <- DT::dataTableProxy(session$ns("StaticDataTable"), session)
 
 
             observe({
-                replaceData(proxy, data(), resetPaging = FALSE)
+                DT::replaceData(proxy, data(), resetPaging = FALSE)
             })
 
 

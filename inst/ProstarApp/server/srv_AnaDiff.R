@@ -217,6 +217,9 @@ output$screenAnaDiff1 <- renderUI({
 
 
 output$pushpval_ui <- renderUI({
+  if (!requireNamespace("shinyjs", quietly = TRUE)) {
+    stop("Please install shinyjs: BiocManager::install('shinyjs')")
+  }
     req(rv$widgets$anaDiff$Comparison != "None")
     callModule(modulePopover, "modulePopover_pushPVal",
         data = reactive(list(
@@ -349,6 +352,9 @@ AnaDiff_indices <- mod_query_metacell_server(
 
 
 observe({
+  if (!requireNamespace("shinyjs", quietly = TRUE)) {
+    stop("Please install shinyjs: BiocManager::install('shinyjs')")
+  }
     req(AnaDiff_indices()$params$MetacellTag)
 
     shinyjs::toggleState("AnaDiff_performFilteringMV",
@@ -560,6 +566,9 @@ observeEvent(input$nBinsHistpval, {
 
 
 observeEvent(input$calibrationMethod, {
+  if (!requireNamespace("shinyjs", quietly = TRUE)) {
+    stop("Please install shinyjs: BiocManager::install('shinyjs')")
+  }
     rv$widgets$anaDiff$calibMethod <- input$calibrationMethod
     shinyjs::toggle("numericValCalibration",
         condition = rv$widgets$anaDiff$calibMethod == "numeric value"
@@ -661,6 +670,9 @@ output$calibrationResults <- renderUI({
 
 
 calibrationPlot <- reactive({
+  if (!requireNamespace("shinyjs", quietly = TRUE)) {
+    stop("Please install shinyjs: BiocManager::install('shinyjs')")
+  }
     req(rv$widgets$anaDiff$calibMethod != "None")
     rv$widgets$hypothesisTest$th_logFC
     rv$resAnaDiff
@@ -934,7 +946,7 @@ output$screenAnaDiff3 <- renderUI({
                         )
                     )
                 ),
-                hidden(DTOutput("anaDiff_selectedItems"))
+                hidden(DT::DTOutput("anaDiff_selectedItems"))
             )
         )
     })
@@ -984,6 +996,9 @@ observeEvent(input$valid_seuilPVal, {
 
 
 observeEvent(input$showpvalTable, {
+  if (!requireNamespace("shinyjs", quietly = TRUE)) {
+    stop("Please install shinyjs: BiocManager::install('shinyjs')")
+  }
     print("show : anaDiff_selectedItems")
     shinyjs::toggle(
         id = "anaDiff_selectedItems",
@@ -1014,7 +1029,7 @@ callModule(modulePopover, "modulePopover_pValThreshold",
 )
 
 
-output$anaDiff_selectedItems <- renderDT({
+output$anaDiff_selectedItems <- DT::renderDT({
     DT::datatable(GetSelectedItems(),
         escape = FALSE,
         rownames = FALSE,
@@ -1026,13 +1041,13 @@ output$anaDiff_selectedItems <- renderDT({
             ordering = TRUE
         )
     ) %>%
-        formatStyle(
+    DT::formatStyle(
             paste0(
                 "isDifferential (",
                 as.character(rv$widgets$anaDiff$Comparison), ")"
             ),
             target = "row",
-            backgroundColor = styleEqual(c(0, 1), c("white", orangeProstar))
+            backgroundColor = DT::styleEqual(c(0, 1), c("white", orangeProstar))
         )
 })
 

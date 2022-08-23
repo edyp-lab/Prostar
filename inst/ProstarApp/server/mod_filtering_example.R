@@ -18,7 +18,7 @@ mod_filtering_example_ui <- function(id) {
                         nm = c("original dataset", "simulate filtered dataset")
                     )
                 ),
-                dataTableOutput(ns("example_tab_filtered"))
+                DT::dataTableOutput(ns("example_tab_filtered"))
             ),
             tags$head(tags$style(paste0(
                 "#", ns("example_modal"),
@@ -147,10 +147,10 @@ mod_filtering_example_server <- function(id, obj, indices, params, txt) {
                         )
                     )
                 ) %>%
-                    formatStyle(
+                    DT::formatStyle(
                         colnames(df)[1:(ncol(df) / 2)],
                         colnames(df)[range.invisible],
-                        backgroundColor = styleEqual(c.tags, c.colors)
+                        backgroundColor = DT::styleEqual(c.tags, c.colors)
                     )
             })
         }

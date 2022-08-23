@@ -120,6 +120,9 @@ observeEvent(input$nbPeptides, ignoreInit = TRUE, {
 #
 #-----------------------------------------------------
 output$screenAggregation1 <- renderUI({
+  if (!requireNamespace("shinyjs", quietly = TRUE)) {
+    stop("Please install shinyjs: BiocManager::install('shinyjs')")
+  }
     tagList(
         shinyjs::useShinyjs(),
         uiOutput("warningAgregationMethod"),
@@ -386,6 +389,9 @@ observeEvent(input$perform.aggregation, {
 })
 
 observe({
+  if (!requireNamespace("shinyjs", quietly = TRUE)) {
+    stop("Please install shinyjs: BiocManager::install('shinyjs')")
+  }
     rvModProcess$moduleAggregationDone[1]
     shinyjs::toggle("downloadAggregationIssues",
         condition = !rvModProcess$moduleAggregationDone[1] &&

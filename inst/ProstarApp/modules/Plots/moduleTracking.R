@@ -18,6 +18,10 @@ moduleTrackProtUI <- function(id) {
 moduleTrackProt <- function(input, output, session, params, reset) {
     ns <- session$ns
 
+    if (!requireNamespace("shinyjs", quietly = TRUE)) {
+        stop("Please install shinyTree: BiocManager::install('shinyjs')")
+    }
+    
     # rv.track <- reactiveValues(reset = FALSE)
     #
     # observeEvent(reset(),{

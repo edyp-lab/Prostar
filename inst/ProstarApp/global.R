@@ -18,7 +18,7 @@ loadLibraries <- function() {
     library(shinycssloaders)
     library(shinythemes)
 
-    library(DT)
+    #library(DT)
     library(highcharter)
 
     library(shinyBS)
@@ -422,12 +422,12 @@ GetChoices <- function() {
 
 #--------------------------------------------------------
 DeleteFileExtension <- function(name) {
-    return(strsplit(name, ".", fixed = T)[[1]][1])
+    return(strsplit(name, ".", fixed = TRUE)[[1]][1])
 }
 
 #--------------------------------------------------------
 GetExtension <- function(name) {
-    temp <- unlist(strsplit(name, ".", fixed = T))
+    temp <- unlist(strsplit(name, ".", fixed = TRUE))
     return(last(temp))
 }
 

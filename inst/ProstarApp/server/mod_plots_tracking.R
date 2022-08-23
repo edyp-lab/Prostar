@@ -19,6 +19,9 @@
 #' @importFrom shiny NS tagList
 #'
 mod_plots_tracking_ui <- function(id) {
+    if (!requireNamespace("shinyjs", quietly = TRUE)) {
+        stop("Please install shinyTree: BiocManager::install('shinyjs')")
+    }
     ns <- NS(id)
     tagList(
         shinyjs::useShinyjs(),
@@ -50,6 +53,9 @@ mod_plots_tracking_server <- function(input, output, session,
                                       params,
                                       reset = FALSE,
                                       slave = FALSE) {
+    if (!requireNamespace("shinyjs", quietly = TRUE)) {
+        stop("Please install shinyTree: BiocManager::install('shinyjs')")
+    }
     ns <- session$ns
 
     rv.track <- reactiveValues(

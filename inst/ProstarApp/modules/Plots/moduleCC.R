@@ -1,6 +1,12 @@
 library(visNetwork)
 
 mod_cc_ui <- function(id) {
+    
+    if (!requireNamespace("shinyjs", quietly = TRUE)) {
+        stop("Please install shinyTree: BiocManager::install('shinyjs')")
+    }
+    
+    
     ns <- NS(id)
     tabPanel("Peptide-Protein Graph",
         value = "graphTab",
@@ -57,7 +63,7 @@ mod_cc_ui <- function(id) {
                             highchartOutput(ns("jiji")),
                             uiOutput(ns("CCMultiMulti_DL_btns_ui")),
                             shinyjs::hidden(
-                                dataTableOutput(ns("CCMultiMulti"))
+                                DT::dataTableOutput(ns("CCMultiMulti"))
                             )
                         )),
                         column(width = 6, tagList(
@@ -211,8 +217,7 @@ mod_cc_server <- function(id, obj, cc) {
                     nProt = cbind(lapply(
                         GetCC(obj())$allPep[Get_CC_Multi2Any()],
                         function(x) {
-                            l
-                            ength(x$proteins)
+                            length(x$proteins)
                         }
                     )),
                     nPep = cbind(lapply(
@@ -271,7 +276,7 @@ mod_cc_server <- function(id, obj, cc) {
 
 
 
-            output$CCMultiMulti <- renderDataTable(server = TRUE, {
+            output$CCMultiMulti <- DT::renderDataTable(server = TRUE, {
                 dat <- DT::datatable(GetDataFor_CCMultiMulti(),
                     selection = "single",
                     rownames = FALSE,
@@ -341,15 +346,15 @@ mod_cc_server <- function(id, obj, cc) {
                 # browser()
                 tagList(
                     h4("Proteins"),
-                    dataTableOutput(ns("CCDetailedProt")),
+                    DT::dataTableOutput(ns("CCDetailedProt")),
                     h4("Specific peptides"),
-                    dataTableOutput(ns("CCDetailedSpecPep")),
+                    DT::dataTableOutput(ns("CCDetailedSpecPep")),
                     h4("Shared peptides"),
-                    dataTableOutput(ns("CCDetailedSharedPep"))
+                    DT::dataTableOutput(ns("CCDetailedSharedPep"))
                 )
             })
 
-            output$CCDetailedProt <- renderDataTable(server = TRUE, {
+            output$CCDetailedProt <- DT::renderDataTable(server = TRUE, {
                 req(rvCC$selectedCC)
                 rvCC$detailedselectedNode
                 if (is.null(rvCC$detailedselectedNode$protLabels)) {
@@ -381,7 +386,7 @@ mod_cc_server <- function(id, obj, cc) {
 
             #######
 
-            output$CCDetailedSharedPep <- renderDataTable(server = TRUE, {
+            output$CCDetailedSharedPep <- DT::renderDataTable(server = TRUE, {
                 rvCC$detailedselectedNode
                 input$pepInfo
 
@@ -430,10 +435,10 @@ mod_cc_server <- function(id, obj, cc) {
                         )
                     )
                 ) %>%
-                    formatStyle(
+                    DT::formatStyle(
                         colnames(data)[1:((.n - offset) / 2)],
                         colnames(data)[(((.n - offset) / 2) + 1):(.n - offset)],
-                        backgroundColor = styleEqual(c.tags, c.colors)
+                        backgroundColor = DT::styleEqual(c.tags, c.colors)
                     )
 
                 dt
@@ -444,7 +449,7 @@ mod_cc_server <- function(id, obj, cc) {
 
 
             ##### -----------
-            output$CCDetailedSpecPep <- renderDataTable(server = TRUE, {
+            output$CCDetailedSpecPep <- DT::renderDataTable(server = TRUE, {
                 rvCC$detailedselectedNode
                 input$pepInfo
                 req(rvCC$detailedselectedNode$specPepLabels)
@@ -495,10 +500,10 @@ mod_cc_server <- function(id, obj, cc) {
                         )
                     )
                 ) %>%
-                    formatStyle(
+                    DT::formatStyle(
                         colnames(data)[1:((.n - offset) / 2)],
                         colnames(data)[(((.n - offset) / 2) + 1):(.n - offset)],
-                        backgroundColor = styleEqual(c.tags, c.colors)
+                        backgroundColor = DT::styleEqual(c.tags, c.colors)
                     )
 
                 dt
@@ -674,7 +679,7 @@ mod_cc_server <- function(id, obj, cc) {
             )
 
 
-            output$OneMultiDT <- renderDataTable(server = TRUE, {
+            output$OneMultiDT <- DT::renderDataTable(server = TRUE, {
                 req(GetCC(obj())$allPep)
                 df <- BuildOne2MultiTab()
                 colnames(df) <- c("Proteins Ids", "nPep", "Peptides Ids")
@@ -742,7 +747,7 @@ mod_cc_server <- function(id, obj, cc) {
             })
 
 
-            output$OneMultiDTDetailed <- renderDataTable(server = TRUE, {
+            output$OneMultiDTDetailed <- DT::renderDataTable(server = TRUE, {
                 input$pepInfo
                 req(input$OneMultiDT_rows_selected)
 
@@ -774,10 +779,10 @@ mod_cc_server <- function(id, obj, cc) {
                         )
                     )
                 ) %>%
-                    formatStyle(
+                    DT::formatStyle(
                         colnames(data)[1:((.n - offset) / 2)],
                         colnames(data)[(((.n - offset) / 2) + 1):(.n - offset)],
-                        backgroundColor = styleEqual(c.tags, c.colors)
+                        backgroundColor = DT::styleEqual(c.tags, c.colors)
                     )
 
                 dt
@@ -804,7 +809,7 @@ mod_cc_server <- function(id, obj, cc) {
             )
 
 
-            output$OneOneDT <- renderDataTable(server = TRUE, {
+            output$OneOneDT <- DT::renderDataTable(server = TRUE, {
                 req(GetCC(obj())$allPep)
                 df <- BuildOne2OneTab()
                 colnames(df) <- c("Proteins Ids", "Peptides Ids")
@@ -822,7 +827,7 @@ mod_cc_server <- function(id, obj, cc) {
                         scroller = TRUE,
                         orderClasses = TRUE,
                         autoWidth = FALSE,
-                        columns.searchable = F,
+                        columns.searchable = FALSE,
                         columnDefs = list(list(
                             width = c("60px"),
                             targets = c(list(0), list(1), list(2))
@@ -860,7 +865,7 @@ mod_cc_server <- function(id, obj, cc) {
             })
 
 
-            output$OneOneDTDetailed <- renderDataTable(server = TRUE, {
+            output$OneOneDTDetailed <- DT::renderDataTable(server = TRUE, {
                 req(GetCC(obj())$allPep)
                 req(input$OneOneDT_rows_selected)
                 data <- GetDataFor_OneOneDTDetailed()
@@ -891,10 +896,10 @@ mod_cc_server <- function(id, obj, cc) {
                         )
                     )
                 ) %>%
-                    formatStyle(
+                    DT::formatStyle(
                         colnames(data)[1:((.n - offset) / 2)],
                         colnames(data)[(((.n - offset) / 2) + 1):(.n - offset)],
-                        backgroundColor = styleEqual(c.tags, c.colors)
+                        backgroundColor = DT::styleEqual(c.tags, c.colors)
                     )
 
                 dt

@@ -584,7 +584,7 @@ output$GOdotplotEnrich <- renderHighchart({
 })
 
 
-output$GODatatable <- renderDataTable(server = TRUE, {
+output$GODatatable <- DT::renderDataTable(server = TRUE, {
     req(rv$widgets$go$enrichGO_data)
     req(rv$widgets$go$groupGO_data)
 
@@ -659,7 +659,7 @@ GetDataFor_nonIdentifiedProteins <- reactive({
     data
 })
 
-output$nonIdentifiedProteins <- renderDataTable(server = TRUE, {
+output$nonIdentifiedProteins <- DT::renderDataTable(server = TRUE, {
     req(rv$widgets$go$ProtIDList)
     req(rv$current.obj)
     req(rv$widgets$go$gene)

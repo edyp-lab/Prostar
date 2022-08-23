@@ -719,10 +719,10 @@ output$VizualizeFilteredData <- DT::renderDataTable(server = TRUE, {
                 )
             )
         ) %>%
-            formatStyle(
+            DT::formatStyle(
                 colnames(data)[2:(1 + (ncol(data) - 1) / 2)],
                 colnames(data)[((2 + (ncol(data) - 1) / 2)):ncol(data)],
-                backgroundColor = styleEqual(c.tags, c.colors)
+                backgroundColor = DT::styleEqual(c.tags, c.colors)
             )
     } else {
         dt <- DT::datatable(data,

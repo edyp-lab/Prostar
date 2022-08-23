@@ -3,6 +3,9 @@
 moduleProcessUI <- function(id) {
     ns <- NS(id)
 
+    if (!requireNamespace("shinyjs", quietly = TRUE)) {
+        stop("Please install shinyTree: BiocManager::install('shinyjs')")
+    }
     tagList(
         shinyjs::useShinyjs(),
         div(

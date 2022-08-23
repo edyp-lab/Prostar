@@ -36,6 +36,10 @@ Pipelines <- function() {
 #'
 #'
 mod_choose_pipeline_ui <- function(id) {
+  if (!requireNamespace("shinyjs", quietly = TRUE)) {
+    stop("Please install shinyTree: BiocManager::install('shinyjs')")
+  }
+  
     ns <- NS(id)
     tagList(
         shinyjs::useShinyjs(),
