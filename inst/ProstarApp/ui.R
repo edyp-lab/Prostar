@@ -16,15 +16,21 @@ theme <- shinythemes::shinytheme("cerulean")
 jsResetCode <- "shinyjs.resetProstar = function() {history.go(0)}"
 
 shinyUI <- fluidPage(
+    
+    if (!requireNamespace("sass", quietly = TRUE)) {
+        stop("Please install sass: BiocManager::install('sass')")
+    },
+    
+    
     # theme = "css/ceruleanProstar.css",
     theme = shinythemes::shinytheme("cerulean"),
     tagList(
         shinyjs::useShinyjs(),
         extendShinyjs(text = jsResetCode, functions = c("resetProstar")),
         includeCSS("www/progressBar/progressBar.css"),
-        tags$head(tags$style(sass(
-            sass_file("www/css/sass-size.scss"),
-            sass_options(output_style = "expanded")
+        tags$head(tags$style(sass::sass(
+            sass::sass_file("www/css/sass-size.scss"),
+            sass::sass_options(output_style = "expanded")
         ))),
         titlePanel("", windowTitle = "Prostar"),
 

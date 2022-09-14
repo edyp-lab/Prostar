@@ -1,36 +1,22 @@
 
 mod_plotsMetacellHistos_server(
     id = "MVPlots_DS",
-    obj = reactive({
-        rv$current.obj
-    }),
-    pattern = reactive({
-        input$choose_metacell_DS
-    }),
-    pal = reactive({
-        rv$PlotParams$paletteForConditions
-    })
+    obj = reactive({rv$current.obj}),
+    pattern = reactive({input$choose_metacell_DS}),
+    pal = reactive({rv$PlotParams$paletteForConditions})
 )
 
 callModule(moduleDensityplot, "densityPlot_DS",
-    data = reactive({
-        rv$current.obj
-    })
+    data = reactive({rv$current.obj})
 )
 
 callModule(moduleBoxplot, "boxPlot_DS",
-    data = reactive({
-        rv$current.obj
-    }),
-    pal = reactive({
-        rv$PlotParams$paletteForConditions
-    })
+    data = reactive({rv$current.obj}),
+    pal = reactive({ unique(rv$PlotParams$paletteForConditions)})
 )
 
 mod_staticDT_server("overview_DS",
-    data = reactive({
-        GetDatasetOverview()
-    }),
+    data = reactive({GetDatasetOverview()}),
     filename = "DescriptiveStats_Overview"
 )
 
@@ -111,37 +97,37 @@ output$IntensityStatsPlots <- renderUI({
             tags$div(
                 style = "display:inline-block; vertical-align: middle;",
                 tags$p("Plot options")
-            ),
-            tags$div(
-                style = "display:inline-block; vertical-align: middle;",
-                tags$div(
-                    tags$div(
-                        style = "display:inline-block; vertical-align: top;",
-                        shinyWidgets::dropdownButton(
-                            tags$div(
-                                tags$div(
-                                    style = "display:inline-block; vertical-align: bottom;",
-                                    selectInput("whichGroup2Color",
-                                        "Color lines",
-                                        choices = list(
-                                            "By condition" = "Condition",
-                                            "By replicate" = "Replicate"
-                                        ),
-                                        selected = GetWhichGroup2Color(), width = "150px"
-                                    )
-                                ),
-                                tags$div(
-                                    style = "display:inline-block; vertical-align: bottom;",
-                                    uiOutput("ChooseLegendForSamples")
-                                )
-                            ),
-                            tooltip = "Plots parameters",
-                            style = "material-circle", icon = icon("gear"),
-                            status = optionsBtnClass
-                        )
-                    )
-                )
             )
+            # tags$div(
+            #     style = "display:inline-block; vertical-align: middle;",
+            #     tags$div(
+            #         tags$div(
+            #             style = "display:inline-block; vertical-align: top;",
+            #             shinyWidgets::dropdownButton(
+            #                 tags$div(
+            #                     tags$div(
+            #                         style = "display:inline-block; vertical-align: bottom;",
+            #                         selectInput("whichGroup2Color",
+            #                             "Color lines",
+            #                             choices = list(
+            #                                 "By condition" = "Condition",
+            #                                 "By replicate" = "Replicate"
+            #                             ),
+            #                             selected = GetWhichGroup2Color(), width = "150px"
+            #                         )
+            #                     ),
+            #                     tags$div(
+            #                         style = "display:inline-block; vertical-align: bottom;",
+            #                         uiOutput("ChooseLegendForSamples")
+            #                     )
+            #                 ),
+            #                 tooltip = "Plots parameters",
+            #                 style = "material-circle", icon = icon("gear"),
+            #                 status = optionsBtnClass
+            #             )
+            #         )
+            #     )
+            # )
         ),
         fluidRow(
             column(width = 6, moduleDensityplotUI("densityPlot_DS")),
@@ -394,15 +380,9 @@ output$DS_sidebarPanel_heatmap <- renderUI({
 
 mod_MSnSetExplorer_server(
     id = "test",
-    data = reactive({
-        rv$current.obj
-    }),
-    digits = reactive({
-        rv$settings_nDigits
-    }),
-    palette.conds = reactive({
-        rv$PlotParams$paletteForConditions
-    })
+    data = reactive({rv$current.obj}),
+    digits = reactive({rv$settings_nDigits}),
+    palette.conds = reactive({rv$PlotParams$paletteForConditions})
 )
 
 
@@ -519,7 +499,7 @@ observeEvent(input$legendForSamples, {
 })
 
 
-addPopover(session, "histo_missvalues_per_lines_per_conditions", "Info",
+shinyBS::addPopover(session, "histo_missvalues_per_lines_per_conditions", "Info",
     content = paste0(
         "<p>Test",
         "test</p><p>Explanation .</p>"

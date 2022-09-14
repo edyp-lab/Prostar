@@ -104,7 +104,7 @@ moduleDesignExample <- function(input, output, session, n) {
 
 
 moduleDetQuantImpValues <- function(input, output, session, quant, factor) {
-    output$detQuantValues_DT <- renderDataTable(server = TRUE, {
+    output$detQuantValues_DT <- DT::renderDataTable(server = TRUE, {
         req(rv$current.obj, quant(), factor())
 
         values <- getQuantile4Imp(
@@ -319,7 +319,7 @@ moduleVolcanoplot <- function(input, output, session,
         data
     })
 
-    output$sharedPeptidesInfos <- renderDataTable(server = TRUE, {
+    output$sharedPeptidesInfos <- DT::renderDataTable(server = TRUE, {
         data <- GetDataFor_sharedPeptidesInfos()
         c.tags <- BuildColorStyles(rv$current.obj)$tags
         c.colors <- BuildColorStyles(rv$current.obj)$colors
@@ -342,12 +342,12 @@ moduleVolcanoplot <- function(input, output, session,
                 )
             )
         ) %>%
-            formatStyle(
+          DT::formatStyle(
                 colnames(data)[1:(ncol(data) / 2)],
                 colnames(data)[((ncol(data) / 2) + 1):(ncol(data))],
-                backgroundColor = styleEqual(c.tags, c.colors)
+                backgroundColor = DT::styleEqual(c.tags, c.colors)
             ) %>%
-            formatStyle(borders_index, borderLeft = "3px solid #000000")
+          DT::formatStyle(borders_index, borderLeft = "3px solid #000000")
 
         dt
     })
@@ -383,7 +383,7 @@ moduleVolcanoplot <- function(input, output, session,
     })
 
 
-    output$specificPeptidesInfos <- renderDataTable(server = TRUE, {
+    output$specificPeptidesInfos <- DT::renderDataTable(server = TRUE, {
         data <- GetDataFor_specificPeptidesInfos()
         c.tags <- BuildColorStyles(rv$current.obj)$tags
         c.colors <- BuildColorStyles(rv$current.obj)$colors
@@ -407,12 +407,12 @@ moduleVolcanoplot <- function(input, output, session,
                 )
             )
         ) %>%
-            formatStyle(
+          DT::formatStyle(
                 colnames(data)[1:(ncol(data) / 2)],
                 colnames(data)[((ncol(data) / 2) + 1):(ncol(data))],
-                backgroundColor = styleEqual(c.tags, c.colors)
+                backgroundColor = DT::styleEqual(c.tags, c.colors)
             ) %>%
-            formatStyle(borders_index, borderLeft = "3px solid #000000")
+          DT::formatStyle(borders_index, borderLeft = "3px solid #000000")
 
         dt
     })
@@ -468,7 +468,7 @@ moduleVolcanoplot <- function(input, output, session,
     })
 
     ## -------------------------------------------------------------
-    output$Infos <- renderDataTable(server = TRUE, {
+    output$Infos <- DT::renderDataTable(server = TRUE, {
         req(comp())
 
         borders_index <- GetBorderIndices()
@@ -494,12 +494,12 @@ moduleVolcanoplot <- function(input, output, session,
                 )
             )
         ) %>%
-            formatStyle(
+          DT::formatStyle(
                 colnames(data)[1:(ncol(data) / 2)],
                 colnames(data)[((ncol(data) / 2) + 1):(ncol(data))],
-                backgroundColor = styleEqual(c.tags, c.colors)
+                backgroundColor = DT::styleEqual(c.tags, c.colors)
             ) %>%
-            formatStyle(borders_index, borderLeft = "3px solid #000000")
+          DT::formatStyle(borders_index, borderLeft = "3px solid #000000")
 
 
 
@@ -576,12 +576,12 @@ moduleDensityplot <- function(input, output, session, data) {
         rv$PlotParams$paletteForConditions
         rv$PlotParams$legendForSamples
         tmp <- NULL
-        isolate({
+         isolate({
             withProgress(message = "Making plot", value = 100, {
                 pattern <- paste0(GetCurrentObjName(), ".densityplot")
                 tmp <- DAPAR::densityPlotD_HC(data(),
                     legend = rv$PlotParams$legendForSamples,
-                    pal = rv$PlotParams$paletteForConditions
+                    pal = unique(rv$PlotParams$paletteForConditions)
                 )
                 future(createPNGFromWidget(rv$tempplot$boxplot, pattern))
             })

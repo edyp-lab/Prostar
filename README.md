@@ -57,18 +57,6 @@ If you would prefer to install the package from R, do this:
 ### From CRAN
 install.packages("Prostar", lib="~/rlib")
 
-# Launch from Docker
-
-Create a script launch_Prostar.sh which contains: 
-```
-#!/bin/bash
-
-
-docker run -it -d -p 3838:3838 ghcr.io/prostarproteomics/prostar:latest
-#docker run -it -d -p 3838:3838 prostar-minideb
-python -m webbrowser http://localhost:3838
-```
-
 ## Usage
 
 ### Example of a small size protein dataset.

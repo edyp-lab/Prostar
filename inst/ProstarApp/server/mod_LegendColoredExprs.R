@@ -1,14 +1,13 @@
 
-#' importFrom shinyBS bsCollapse, bsCollapsePanel
 #'
 mod_LegendColoredExprs_ui <- function(id) {
     ns <- NS(id)
 
 
-    bsCollapse(
+    shinyBS::bsCollapse(
         id = "collapseExample",
         open = "",
-        bsCollapsePanel(
+        shinyBS::bsCollapsePanel(
             title = "Legend of colors",
             uiOutput(ns("legend")),
             style = ""

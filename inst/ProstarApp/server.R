@@ -56,55 +56,29 @@ shinyServer(function(input, output, session) {
     # Hide the loading message when the rest of the server function has executed
 
     env <- environment()
-    source(file.path("server", "mod_staticDT.R"),
-        local = TRUE
-    )$value
-    source(file.path("server", "mod_popover.R"),
-        local = TRUE
-    )$value
-    source(file.path("server", "mod_download_btns.R"),
-        local = TRUE
-    )$value
-    source(file.path("modules/Plots", "mod_MSnSetExplorer.R"),
-        local = TRUE
-    )$value
-    source(file.path("server", "mod_LegendColoredExprs.R"),
-        local = TRUE
-    )$value
+    source(file.path("server", "mod_staticDT.R"), local = TRUE)$value
+    source(file.path("server", "mod_popover.R"), local = TRUE)$value
+    source(file.path("server", "mod_download_btns.R"), local = TRUE)$value
+    source(file.path("modules/Plots", "mod_MSnSetExplorer.R"), local = TRUE)$value
+    source(file.path("server", "mod_LegendColoredExprs.R"), local = TRUE)$value
 
 
 
-    source(file.path("server", "srv_NavbarPage.R"),
-        local = TRUE
-    )$value
-    source(file.path("server", "srv_ModulesSrv.R"),
-        local = TRUE
-    )$value
-    source(file.path("server", "srv_ModuleProcess.R"),
-        local = TRUE
-    )$value
-    source(file.path("server", "srv_General.R"),
-        local = TRUE
-    )$value
-    source(file.path("server", "srv_DefineRVmoduleProcess.R"),
-        local = TRUE
-    )$value
-    source(file.path("server", "srv_Home.R"),
-        local = TRUE
-    )$value
-    source(file.path("server", "srv_Settings.R"),
-        local = TRUE
-    )$value
-    source(file.path("server", "srv_ParamsManager.R"),
-        local = TRUE
-    )$value
+    source(file.path("server", "srv_NavbarPage.R"), local = TRUE)$value
+    source(file.path("server", "srv_ModulesSrv.R"), local = TRUE)$value
+    source(file.path("server", "srv_ModuleProcess.R"), local = TRUE)$value
+    source(file.path("server", "srv_General.R"), local = TRUE)$value
+    source(file.path("server", "srv_DefineRVmoduleProcess.R"), local = TRUE)$value
+    source(file.path("server", "srv_Home.R"), local = TRUE)$value
+    source(file.path("server", "srv_Settings.R"), local = TRUE)$value
+    source(file.path("server", "srv_ParamsManager.R"), local = TRUE)$value
 
     # source(file.path(".", "modules/Plots/modulePlots.R"),  local = TRUE)$value
     source(file.path(".", "modules/Plots/moduleCC.R"),
         local = TRUE
     )$value
 
-    loadLibraries()
+    #loadLibraries()
 
     observeEvent(input$distance, {
         rv$PlotParams$heatmap.distance <- input$distance
@@ -133,48 +107,26 @@ shinyServer(function(input, output, session) {
                 )$value
             },
             openMSnsetTab = {
-                source(file.path("server", "srv_OpenMSnset.R"),
-                    local = TRUE
-                )$value
+                source(file.path("server", "srv_OpenMSnset.R"),local = TRUE)$value
             },
             demoTab =
-                source(file.path("server", "srv_DemoMode.R"),
-                    local = TRUE
-                )$value,
+                source(file.path("server", "srv_DemoMode.R"),local = TRUE)$value,
             convertTab = {
-                source(file.path("server", "srv_ConvertData.R"),
-                    local = TRUE
-                )$value
-                source(file.path("server", "srv_BuildDesign.R"),
-                    local = TRUE
-                )$value
+                source(file.path("server", "srv_ConvertData.R"),local = TRUE)$value
+                source(file.path("server", "srv_BuildDesign.R"),local = TRUE)$value
             },
             ExportTab = {
-                source(file.path("server", "srv_Export.R"),
-                    local = TRUE
-                )$value
-                source(file.path("server", "srv_SaveGraphics.R"),
-                    local = TRUE
-                )$value
+                source(file.path("server", "srv_Export.R"),local = TRUE)$value
+                source(file.path("server", "srv_SaveGraphics.R"),local = TRUE)$value
             },
             ReloadTab = {
-                source(file.path("server", "srv_ReloadProstar.R"),
-                    local = TRUE
-                )$value
+                source(file.path("server", "srv_ReloadProstar.R"),local = TRUE)$value
             },
             FilteringTab = {
-                source(file.path("server", "mod_plots_metacell_histo.R"),
-                    local = TRUE
-                )$value
-                source(file.path("server", "mod_filtering_example.R"),
-                    local = TRUE
-                )$value
-                source(file.path("server", "srv_Filtering.R"),
-                    local = TRUE
-                )$value
-                source(file.path("server", "mod_filtering_example.R"),
-                    local = TRUE
-                )$value
+                source(file.path("server", "mod_plots_metacell_histo.R"),local = TRUE)$value
+                source(file.path("server", "mod_filtering_example.R"),local = TRUE)$value
+                source(file.path("server", "srv_Filtering.R"),local = TRUE)$value
+                source(file.path("server", "mod_filtering_example.R"),local = TRUE)$value
             },
             NormalizationTab = {
                 source(file.path("server", "mod_plots_tracking.R"),
@@ -208,12 +160,8 @@ shinyServer(function(input, output, session) {
             },
             graphTab = {
                 mod_cc_server("CC_Multi_Any",
-                    obj = reactive({
-                        rv$current.obj
-                    }),
-                    cc = reactive({
-                        GetCC(rv$current.obj)$allPep
-                    })
+                    obj = reactive({rv$current.obj}),
+                    cc = reactive({GetCC(rv$current.obj)$allPep})
                 )
             },
             GoTab =

@@ -273,7 +273,7 @@ server <- function(input, output, session){
                     options = list(
                       paging = FALSE,
                       searching = FALSE)) %>%
-        formatStyle(
+        DT::formatStyle(
           .,
           columns = 1,
           valueColumns = 0,

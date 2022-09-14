@@ -1026,13 +1026,13 @@ output$anaDiff_selectedItems <- renderDT({
             ordering = TRUE
         )
     ) %>%
-        formatStyle(
+    DT::formatStyle(
             paste0(
                 "isDifferential (",
                 as.character(rv$widgets$anaDiff$Comparison), ")"
             ),
             target = "row",
-            backgroundColor = styleEqual(c(0, 1), c("white", orangeProstar))
+            backgroundColor = DT::styleEqual(c(0, 1), c("white", orangeProstar))
         )
 })
 

@@ -51,6 +51,10 @@ observe({
 
 ##########
 output$defineColorsUI <- renderUI({
+    if (!requireNamespace("colourpicker", quietly = TRUE)) {
+        stop("Please install colourpicker: BiocManager::install('colourpicker')")
+    }
+    
     shinyBS::bsCollapse(
         id = "collapseExample", open = "",
         shinyBS::bsCollapsePanel("Colors for conditions",
@@ -109,30 +113,31 @@ output$defineColorsForConditionsUI <- renderUI({
             ),
             column(
                 width = 6,
-                highchartOutput("displayPalette",
-                    width = "300px",
-                    height = "200px"
-                )
+                highchartOutput("displayPalette")
             )
         ),
-        uiOutput("choosePalette_UI"),
-        uiOutput("customPaletteUI"),
-        hr()
+        #uiOutput("choosePalette_UI"),
+        #uiOutput("customPaletteUI"),
+        
+        selectInput("choosePalette", "Palette",
+            choices = listBrewerPalettes,
+            selected = rv$typeOfPalette,
+            width = "200px"
+        ),
+        uiOutput("customPaletteUI")
     )
 })
 
 
-output$choosePalette_UI <- renderUI({
-    rv$typeOfPalette
-    if (rv$typeOfPalette != "predefined") {
-        return(NULL)
-    }
-    selectInput("choosePalette", "Palette",
-        choices = listBrewerPalettes,
-        selected = rv$typeOfPalette,
-        width = "200px"
-    )
-})
+# output$choosePalette_UI <- renderUI({
+#     rv$typeOfPalette
+#     req(rv$typeOfPalette == "predefined")
+#     selectInput("choosePalette", "Palette",
+#         choices = listBrewerPalettes,
+#         selected = rv$typeOfPalette,
+#         width = "200px"
+#     )
+# })
 
 observeEvent(input$choosePalette, {
     rv$choosePalette <- input$choosePalette
@@ -141,7 +146,7 @@ observeEvent(input$choosePalette, {
 
 GetTest <- reactive({
     req(rv$current.obj)
-    rv$whichGroup2Color
+    #rv$whichGroup2Color
 
     nbConds <- length(unique(pData(rv$current.obj)$Condition))
     pal <- rep("#000000", length(pData(rv$current.obj)$Condition))
@@ -149,7 +154,7 @@ GetTest <- reactive({
 
     nbColors <- NULL
     temp <- NULL
-    if (is.null(rv$whichGroup2Color) || (rv$whichGroup2Color == "Condition")) {
+    #if (is.null(rv$whichGroup2Color) || (rv$whichGroup2Color == "Condition")) {
         nbColors <- length(unique(pData(rv$current.obj)$Condition))
         nbColors <- brewer.pal.info[listBrewerPalettes[1], ]$mincolors
         nbColors <- max(nbColors, nbConds)
@@ -161,25 +166,26 @@ GetTest <- reactive({
             .cond <- pData(rv$current.obj)$Condition
             temp[i] <- pal[which(.cond[i] == unique(.cond))]
         }
-    } else if (rv$whichGroup2Color == "Replicate") {
-        nbColors <- length((pData(rv$current.obj)$Condition))
-        for (i in 1:nbColors) {
-            temp <- c(temp, input[[paste0("customColorCondition_", i)]])
-        }
-    }
+    #}
+    # else if (rv$whichGroup2Color == "Replicate") {
+    #     nbColors <- length((pData(rv$current.obj)$Condition))
+    #     for (i in 1:nbColors) {
+    #         temp <- c(temp, input[[paste0("customColorCondition_", i)]])
+    #     }
+    # }
 
     temp
 })
 
 
-GetWhichGroup2Color <- reactive({
-    rv$whichGroup2Color
-})
+#GetWhichGroup2Color <- reactive({
+#    rv$whichGroup2Color
+#})
 
-observeEvent(input$whichGroup2Color, {
-    rv$whichGroup2Color <- input$whichGroup2Color
-    rv$PlotParams$paletteForConditions <- GetPaletteForConditions()
-})
+# observeEvent(input$whichGroup2Color, {
+#     rv$whichGroup2Color <- input$whichGroup2Color
+#     rv$PlotParams$paletteForConditions <- GetPaletteForConditions()
+# })
 
 
 
@@ -187,14 +193,19 @@ GetPaletteForConditions <- reactive({
     req(rv$current.obj)
     rv$typeOfPalette
 
-    nbConds <- length(pData(rv$current.obj)$Condition)
-    nbUniqueConds <- length(unique(pData(rv$current.obj)$Condition))
+    conds <- pData(rv$current.obj)$Condition
+    #nbConds <- length(conds)
+    nbUniqueConds <- length(unique(conds))
 
-    pal <- rep("#000000", nbUniqueConds)
-
+    #pal <- rep("#000000", nbUniqueConds)
+    pal <- NULL
+    
     switch(rv$typeOfPalette,
         predefined = {
-            temp <- DAPAR::ExtendPalette(nbUniqueConds, rv$choosePalette)
+            pal <- DAPAR::ExtendPalette(nbUniqueConds, rv$choosePalette)
+            # if (!is.null(temp)) {
+            #     pal[1:length(temp)] <- temp
+            # }
         },
         custom = {
             pal <- NULL
@@ -204,11 +215,9 @@ GetPaletteForConditions <- reactive({
         }
     )
 
-    if (!is.null(temp)) {
-        pal[1:length(temp)] <- temp
-    }
+    
 
-    pal
+    DAPAR::GetColorsForConditions(pData(rv$current.obj)$Condition, pal)
 })
 
 
@@ -217,23 +226,28 @@ observeEvent(input$typeOfPalette, {
 })
 
 output$customPaletteUI <- renderUI({
-    rv$typeOfPalette
-    if (rv$typeOfPalette != "custom") {
-        return(NULL)
+    
+    if (!requireNamespace("colourpicker", quietly = TRUE)) {
+        stop("Please install colourpicker: BiocManager::install('colourpicker')")
     }
+    req(rv$typeOfPalette == "custom")
     rv$whichGroup2Color
     ll <- list()
     nbColors <- NULL
-    switch(rv$whichGroup2Color,
-        Condition = {
-            nbColors <- length(unique(pData(rv$current.obj)$Condition))
-            labels <- unique(pData(rv$current.obj)$Condition)
-        },
-        Replicate = {
-            nbColors <- length((pData(rv$current.obj)$Condition))
-            labels <- pData(rv$current.obj)$Condition
-        }
-    )
+    # switch(rv$whichGroup2Color,
+    #     Condition = {
+    #         nbColors <- length(unique(pData(rv$current.obj)$Condition))
+    #         labels <- unique(pData(rv$current.obj)$Condition)
+    #     }
+    #     # Replicate = {
+    #     #     nbColors <- length((pData(rv$current.obj)$Condition))
+    #     #     labels <- pData(rv$current.obj)$Condition
+    #     # }
+    # )
+
+    
+    nbColors <- length(unique(pData(rv$current.obj)$Condition))
+    labels <- unique(pData(rv$current.obj)$Condition)
 
     for (i in 1:nbColors) {
         ll <- list(
@@ -251,12 +265,14 @@ output$customPaletteUI <- renderUI({
 
 
 
+
+
 observeEvent(
     c(
         rv$choosePalette,
         rv$typeOfPalette,
-        rv$current.obj, GetTest(),
-        rv$whichGroup2Color
+        rv$current.obj, GetTest()
+        #rv$whichGroup2Color
     ),
     {
         rv$PlotParams$paletteForConditions <- GetPaletteForConditions()
@@ -277,9 +293,7 @@ observeEvent(input$colVolcanoOut, {
 })
 
 output$displayPalette <- renderHighchart({
-    # req(input$chooseNbColors)
-    # GetTest()
-    rv$PlotParams$paletteForConditions
+    req(rv$PlotParams$paletteForConditions)
     nbConds <- length(unique(pData(rv$current.obj)$Condition))
 
     highchart() %>%
@@ -297,6 +311,6 @@ output$displayPalette <- renderHighchart({
             animation = list(duration = 1)
         ) %>%
         hc_legend(enabled = FALSE) %>%
-        hc_yAxis(labels = FALSE, title = list(text = "")) %>%
-        hc_xAxis(categories = 1:nbConds, title = list(text = ""))
+        hc_xAxis(categories = 1:nbConds, title = list(text = "")) %>%
+        hc_yAxis(title = list(text = ""))
 })

@@ -22,40 +22,40 @@ output$plotintensitylarge <- renderUI({
             tags$div(
                 style = "display:inline-block; vertical-align: middle;",
                 tags$p("Plot options")
-            ),
-            tags$div(
-                style = "display:inline-block; vertical-align: middle;",
-                tags$div(
-                    tags$div(
-                        style = "display:inline-block; vertical-align: top;",
-                        shinyWidgets::dropdownButton(
-                            tags$div(
-                                tags$div(
-                                    style = "display:inline-block;
-                                    vertical-align: bottom;",
-                                    selectInput(ns("whichGroup2Color"),
-                                        "Color lines",
-                                        choices = list(
-                                            "By condition" = "Condition",
-                                            "By replicate" = "Replicate"
-                                        ),
-                                        selected = GetWhichGroup2Color(),
-                                        width = "150px"
-                                    )
-                                ),
-                                tags$div(
-                                    style = "display:inline-block;
-                                    vertical-align: bottom;",
-                                    uiOutput(ns("ChooseLegendForSamples"))
-                                )
-                            ),
-                            tooltip = "Plots parameters",
-                            style = "material-circle", icon = icon("gear"),
-                            status = optionsBtnClass
-                        )
-                    )
-                )
             )
+            # tags$div(
+            #     style = "display:inline-block; vertical-align: middle;",
+            #     tags$div(
+            #         tags$div(
+            #             style = "display:inline-block; vertical-align: top;",
+            #             shinyWidgets::dropdownButton(
+            #                 tags$div(
+            #                     tags$div(
+            #                         style = "display:inline-block;
+            #                         vertical-align: bottom;",
+            #                         selectInput(ns("whichGroup2Color"),
+            #                             "Color lines",
+            #                             choices = list(
+            #                                 "By condition" = "Condition",
+            #                                 "By replicate" = "Replicate"
+            #                             ),
+            #                             selected = GetWhichGroup2Color(),
+            #                             width = "150px"
+            #                         )
+            #                     ),
+            #                     tags$div(
+            #                         style = "display:inline-block;
+            #                         vertical-align: bottom;",
+            #                         uiOutput(ns("ChooseLegendForSamples"))
+            #                     )
+            #                 ),
+            #                 tooltip = "Plots parameters",
+            #                 style = "material-circle", icon = icon("gear"),
+            #                 status = optionsBtnClass
+            #             )
+            #         )
+            #     )
+            # )
         ),
         fluidRow(
             column(width = 6, moduleDensityplotUI(ns("densityPlot"))),

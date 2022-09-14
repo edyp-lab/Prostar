@@ -1,6 +1,6 @@
 mod_MSnSetExplorer_ui <- function(id) {
     ns <- NS(id)
-
+    
     tagList(
         #     tags$head(tags$style("
         #   table.dataTable thead th {
@@ -24,25 +24,25 @@ mod_MSnSetExplorer_ui <- function(id) {
 #' import DT
 #'
 mod_MSnSetExplorer_server <- function(id,
-                                      data,
-                                      digits = 2,
-                                      palette.conds = NULL) {
+    data,
+    digits = 2,
+    palette.conds = NULL) {
     moduleServer(
         id,
         function(input, output, session) {
             ns <- session$ns
-
-
+            
+            
             observeEvent(req(data()), {
                 if (class(data())[1] != "MSnSet") {
                     stop("The dataset is not of 'MSnSet' class. Abort.")
                 }
             })
-
-
+            
+            
             output$DS_sidebarPanel_tab <- renderUI({
                 req(GetTypeofData(data()))
-
+                
                 .choices <- NULL
                 .choices <- switch(GetTypeofData(data()),
                     protein = list(
@@ -61,7 +61,7 @@ mod_MSnSetExplorer_server <- function(id,
                         "Experimental design" = "tabpData"
                     )
                 )
-
+                
                 tagList(
                     tags$div(
                         tags$div(
@@ -82,26 +82,26 @@ mod_MSnSetExplorer_server <- function(id,
                     )
                 )
             })
-
-
+            
+            
             mod_LegendColoredExprs_server("ExprsColorLegend_DS",
                 obj = reactive({
                     data()
                 })
             )
-
+            
             output$legendForExprsData <- renderUI({
                 req(input$DS_TabsChoice == "tabExprs")
                 mod_LegendColoredExprs_ui(id = ns("ExprsColorLegend_DS"))
             })
-
-
-
-
+            
+            
+            
+            
             #----------------------------------------------
             output$tabToShow <- renderUI({
                 req(input$DS_TabsChoice)
-
+                
                 switch(input$DS_TabsChoice,
                     None = return(NULL),
                     tabExprs = tagList(
@@ -136,9 +136,9 @@ mod_MSnSetExplorer_server <- function(id,
                     )
                 )
             })
-
-
-
+            
+            
+            
             mod_download_btns_server("pData_DL_btns",
                 df.data = reactive({
                     pData(data())
@@ -160,46 +160,51 @@ mod_MSnSetExplorer_server <- function(id,
                     tags
                 })
             )
-
+            
             ##' show pData of the MSnset object
             ##' @author Samuel Wieczorek
-            output$viewpData <- DT::renderDataTable(server = TRUE, {
-                req(data())
-                data <- as.data.frame(pData(data()))
-                dt <- DT::datatable(data,
-                    extensions = c("Scroller"),
-                    rownames = FALSE,
-                    options = list(
-                        initComplete = initComplete(),
-                        dom = "frtip",
-                        pageLength = DT_pagelength,
-                        orderClasses = TRUE,
-                        autoWidth = TRUE,
-                        deferRender = TRUE,
-                        bLengthChange = FALSE,
-                        scrollX = 200,
-                        scrollY = 500,
-                        scroller = TRUE,
-                        columnDefs = list(
-                            list(
-                                width = "60px", targets = "_all"
-                            )
-                        )
-                    )
-                ) %>%
-                    DT::formatStyle(
-                        columns = colnames(data)[1:2],
-                        valueColumns = colnames(data)[2],
-                        backgroundColor = DT::styleEqual(
-                            unique(data$Condition),
-                            unique(palette.conds())
-                        )
-                    )
+            output$viewpData <- DT::renderDataTable(
+                server = TRUE, {
+                #req(data())
+                
+                #.data <- as.data.frame(pData(data()))
+                DT::datatable(as.data.frame(head(expres(data()))))
+                    #extensions = c("Scroller"),
+                    #rownames = FALSE
+                    # options = list(
+                    #     initComplete = initComplete(),
+                    #     dom = "frtip",
+                    #     pageLength = DT_pagelength,
+                    #     orderClasses = TRUE,
+                    #     autoWidth = TRUE,
+                    #     deferRender = TRUE,
+                    #     bLengthChange = FALSE,
+                    #     scrollX = 200,
+                    #     scrollY = 500,
+                    #     scroller = TRUE,
+                    #     columnDefs = list(
+                    #         list(
+                    #             width = "60px", targets = "_all"
+                    #         )
+                    #     )
+                    # )
+                #)
+                # %>%
+                #     DT::formatStyle(
+                #         columns = colnames(.data)[1:2],
+                #         valueColumns = colnames(.data)[2],
+                #         backgroundColor = DT::styleEqual(
+                #             unique(.data$Condition),
+                #             unique(palette.conds())
+                #         )
+                #     )
+                #     
+
             })
-
-
-
-
+            
+            
+            
+            
             mod_download_btns_server("fData_DL_btns",
                 df.data = reactive({
                     fData(data())
@@ -214,16 +219,16 @@ mod_MSnSetExplorer_server <- function(id,
                     NULL
                 })
             )
-
-
+            
+            
             ##' show fData of the MSnset object in a table
             ##' @author Samuel Wieczorek
             output$viewfData <- DT::renderDataTable(server = TRUE, {
                 req(data())
                 .jscode <- JS("$.fn.dataTable.render.ellipsis(30)")
-
-
-
+                
+                
+                
                 if ("Significant" %in% colnames(fData(data()))) {
                     dat <- DT::datatable(
                         as.data.frame(fData(data())),
@@ -286,13 +291,13 @@ mod_MSnSetExplorer_server <- function(id,
                         )
                     )
                 }
-
+                
                 return(dat)
             })
-
-
-
-
+            
+            
+            
+            
             mod_download_btns_server("table_DL_btns",
                 df.data = reactive({
                     cbind(
@@ -314,9 +319,9 @@ mod_MSnSetExplorer_server <- function(id,
                     )
                 })
             )
-
-
-
+            
+            
+            
             #################
             output$table <- DT::renderDataTable(server = TRUE, {
                 req(data())
@@ -328,7 +333,7 @@ mod_MSnSetExplorer_server <- function(id,
                 mc <- metacell.def(GetTypeofData(data()))
                 colors <- as.list(setNames(mc$color, mc$node))
                 .n <- ncol(df)
-
+                
                 DT::datatable(df,
                     extensions = c("Scroller"),
                     #

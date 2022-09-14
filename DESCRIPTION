@@ -1,8 +1,8 @@
 Package: Prostar
 Type: Package
 Title: Provides a GUI for DAPAR
-Version: 1.29.1
-Date: 2022-06-17
+Version: 1.29.2
+Date: 2022-09-14
 Authors@R: c(
     person("Thomas", "Burger", email = "thomas.burger@cea.fr", role = c("aut")),
     person("Florence", "Combes", email = "florence.combes@cea.fr", 
@@ -21,14 +21,14 @@ biocViews: Proteomics, MassSpectrometry, Normalization, Preprocessing,
     Software, GUI
 License: Artistic-2.0
 Depends: R (>= 4.2.0)
-Suggests: BiocStyle, BiocManager, testthat, shinyTree, knitr
+Suggests: BiocStyle, BiocManager, testthat, shinyTree, knitr, colourpicker, 
+    gtools, XML, R.utils, RColorBrewer, DT, shinyWidgets, sass
 Imports: DAPAR (>= 1.27.7), DAPARdata (>= 1.22.2), rhandsontable, 
-    data.table, shinyjs, DT, shiny, shinyBS, shinyAce, highcharter, 
-    htmlwidgets, webshot, R.utils, shinythemes, XML,later, gtools, 
-    shinycssloaders, future, promises, colourpicker, shinyjqui, 
-    shinyWidgets, sass, tibble, MSnbase, RColorBrewer, ggplot2, gplots, vioplot
+    data.table, shiny, shinyBS, shinyAce, highcharter, htmlwidgets, webshot, 
+    shinythemes, later, shinycssloaders, future, promises,  shinyjqui, tibble, 
+    ggplot2, gplots, shinyjs, vioplot
 NeedsCompilation: no
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.1
 Packaged: 2017-10-13 06:25:55 UTC; sw175264
 Encoding: UTF-8
 URL: http://www.prostar-proteomics.org/

@@ -33,11 +33,11 @@ mod_staticDT_server <- function(id,
     moduleServer(
         id,
         function(input, output, session) {
-            proxy <- dataTableProxy(session$ns("StaticDataTable"), session)
+            proxy <- DT::dataTableProxy(session$ns("StaticDataTable"), session)
 
 
             observe({
-                replaceData(proxy, data(), resetPaging = FALSE)
+                DT::replaceData(proxy, data(), resetPaging = FALSE)
             })
 
 

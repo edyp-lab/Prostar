@@ -76,21 +76,11 @@ mod_plots_intensity_server <- function(input, output, session,
 
     rv.modboxplot$varTrack <- callModule(mod_plots_tracking_server,
         "slave_tracking",
-        obj = reactive({
-            dataIn()
-        }),
-        keyId = reactive({
-            keyId()
-        }),
-        params = reactive({
-            params()
-        }),
-        reset = reactive({
-            reset()
-        }),
-        slave = reactive({
-            slave()
-        })
+        obj = reactive({dataIn()}),
+        keyId = reactive({keyId()}),
+        params = reactive({params()}),
+        reset = reactive({reset()}),
+        slave = reactive({slave()})
     )
 
 

@@ -15,25 +15,25 @@ DAPAR.loc <- DAPARdata.loc <- Prostar.loc <- NULL
 
 
 loadLibraries <- function() {
-    library(shinycssloaders)
-    library(shinythemes)
+    #library(shinycssloaders)
+    #library(shinythemes)
 
-    library(DT)
+    #library(DT)
     library(highcharter)
 
-    library(shinyBS)
-
-    library(shinyAce)
-    library(shinyWidgets)
-    library(vioplot)
+    #library(shinyBS)
+    #library(R.utils)
+    
+    #library(shinyAce)
+    #library(shinyWidgets)
+    #library(vioplot)
     library(ggplot2)
-    library(colourpicker)
+    #library(colourpicker)
     library(gplots)
     library(data.table)
-    library(MSnbase)
-    library(RColorBrewer)
+    #library(MSnbase)
+    #library(RColorBrewer)
     library(DAPAR, lib.loc = DAPAR.loc)
-    library(R.utils)
     library(rhandsontable)
     library(future)
     library(promises)

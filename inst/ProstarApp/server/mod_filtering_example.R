@@ -147,10 +147,10 @@ mod_filtering_example_server <- function(id, obj, indices, params, txt) {
                         )
                     )
                 ) %>%
-                    formatStyle(
+                    DT::formatStyle(
                         colnames(df)[1:(ncol(df) / 2)],
                         colnames(df)[range.invisible],
-                        backgroundColor = styleEqual(c.tags, c.colors)
+                        backgroundColor = DT::styleEqual(c.tags, c.colors)
                     )
             })
         }

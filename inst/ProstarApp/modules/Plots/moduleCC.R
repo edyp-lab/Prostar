@@ -271,7 +271,7 @@ mod_cc_server <- function(id, obj, cc) {
 
 
 
-            output$CCMultiMulti <- renderDataTable(server = TRUE, {
+            output$CCMultiMulti <- DT::renderDataTable(server = TRUE, {
                 dat <- DT::datatable(GetDataFor_CCMultiMulti(),
                     selection = "single",
                     rownames = FALSE,
@@ -349,7 +349,7 @@ mod_cc_server <- function(id, obj, cc) {
                 )
             })
 
-            output$CCDetailedProt <- renderDataTable(server = TRUE, {
+            output$CCDetailedProt <- DT::renderDataTable(server = TRUE, {
                 req(rvCC$selectedCC)
                 rvCC$detailedselectedNode
                 if (is.null(rvCC$detailedselectedNode$protLabels)) {
@@ -381,7 +381,7 @@ mod_cc_server <- function(id, obj, cc) {
 
             #######
 
-            output$CCDetailedSharedPep <- renderDataTable(server = TRUE, {
+            output$CCDetailedSharedPep <- DT::renderDataTable(server = TRUE, {
                 rvCC$detailedselectedNode
                 input$pepInfo
 
@@ -430,10 +430,10 @@ mod_cc_server <- function(id, obj, cc) {
                         )
                     )
                 ) %>%
-                    formatStyle(
+                    DT::formatStyle(
                         colnames(data)[1:((.n - offset) / 2)],
                         colnames(data)[(((.n - offset) / 2) + 1):(.n - offset)],
-                        backgroundColor = styleEqual(c.tags, c.colors)
+                        backgroundColor = DT::styleEqual(c.tags, c.colors)
                     )
 
                 dt
@@ -444,7 +444,7 @@ mod_cc_server <- function(id, obj, cc) {
 
 
             ##### -----------
-            output$CCDetailedSpecPep <- renderDataTable(server = TRUE, {
+            output$CCDetailedSpecPep <- DT::renderDataTable(server = TRUE, {
                 rvCC$detailedselectedNode
                 input$pepInfo
                 req(rvCC$detailedselectedNode$specPepLabels)
@@ -495,10 +495,10 @@ mod_cc_server <- function(id, obj, cc) {
                         )
                     )
                 ) %>%
-                    formatStyle(
+                    DT::formatStyle(
                         colnames(data)[1:((.n - offset) / 2)],
                         colnames(data)[(((.n - offset) / 2) + 1):(.n - offset)],
-                        backgroundColor = styleEqual(c.tags, c.colors)
+                        backgroundColor = DT::styleEqual(c.tags, c.colors)
                     )
 
                 dt
@@ -674,7 +674,7 @@ mod_cc_server <- function(id, obj, cc) {
             )
 
 
-            output$OneMultiDT <- renderDataTable(server = TRUE, {
+            output$OneMultiDT <- DT::renderDataTable(server = TRUE, {
                 req(GetCC(obj())$allPep)
                 df <- BuildOne2MultiTab()
                 colnames(df) <- c("Proteins Ids", "nPep", "Peptides Ids")
@@ -742,7 +742,7 @@ mod_cc_server <- function(id, obj, cc) {
             })
 
 
-            output$OneMultiDTDetailed <- renderDataTable(server = TRUE, {
+            output$OneMultiDTDetailed <- DT::renderDataTable(server = TRUE, {
                 input$pepInfo
                 req(input$OneMultiDT_rows_selected)
 
@@ -774,10 +774,10 @@ mod_cc_server <- function(id, obj, cc) {
                         )
                     )
                 ) %>%
-                    formatStyle(
+                    DT::formatStyle(
                         colnames(data)[1:((.n - offset) / 2)],
                         colnames(data)[(((.n - offset) / 2) + 1):(.n - offset)],
-                        backgroundColor = styleEqual(c.tags, c.colors)
+                        backgroundColor = DT::styleEqual(c.tags, c.colors)
                     )
 
                 dt
@@ -804,7 +804,7 @@ mod_cc_server <- function(id, obj, cc) {
             )
 
 
-            output$OneOneDT <- renderDataTable(server = TRUE, {
+            output$OneOneDT <- DT::renderDataTable(server = TRUE, {
                 req(GetCC(obj())$allPep)
                 df <- BuildOne2OneTab()
                 colnames(df) <- c("Proteins Ids", "Peptides Ids")
@@ -860,7 +860,7 @@ mod_cc_server <- function(id, obj, cc) {
             })
 
 
-            output$OneOneDTDetailed <- renderDataTable(server = TRUE, {
+            output$OneOneDTDetailed <- DT::renderDataTable(server = TRUE, {
                 req(GetCC(obj())$allPep)
                 req(input$OneOneDT_rows_selected)
                 data <- GetDataFor_OneOneDTDetailed()
@@ -891,10 +891,10 @@ mod_cc_server <- function(id, obj, cc) {
                         )
                     )
                 ) %>%
-                    formatStyle(
+                    DT::formatStyle(
                         colnames(data)[1:((.n - offset) / 2)],
                         colnames(data)[(((.n - offset) / 2) + 1):(.n - offset)],
-                        backgroundColor = styleEqual(c.tags, c.colors)
+                        backgroundColor = DT::styleEqual(c.tags, c.colors)
                     )
 
                 dt
