@@ -74,7 +74,7 @@ mod_staticDT_server <- function(id,
             )
 
             output$StaticDataTable <- DT::renderDataTable(server = TRUE, {
-                req(length(data) > 0)
+                req(length(data()) > 0)
                 .jscode <- JS("$.fn.dataTable.render.ellipsis( 30 )")
                 DT::datatable(data(),
                     escape = FALSE,

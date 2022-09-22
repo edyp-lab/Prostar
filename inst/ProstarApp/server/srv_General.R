@@ -120,10 +120,8 @@ GetDatasetOverview <- reactive({
     NA.count <- length(which(m))
     .ncol <- ncol(rv$current.obj)
     .nrow <- nrow(rv$current.obj)
-    pourcentage <- round(NA.count / (.ncol * .nrow),
-        digits = 4
-    )
-    pourentage <- 100 * pourcentage
+    pourcentage <- round(NA.count / (.ncol * .nrow),digits = 4)
+    pourcentage <- 100 * pourcentage
     nb.empty.lines <- sum(apply(m, 1, all))
 
 
@@ -394,7 +392,8 @@ loadObjectInMemoryFromConverter <- function() {
         # the volcanoplots
         tmp <- rv$current.obj@experimentData@other$Params
 
-        rv$widgets$hypothesisTest$th_logFC <- tmp[[grep("th_logFC", tmp)]]$HypothesisTest$th_logFC
+        if (length(grep("th_logFC", tmp)) > 0)
+            rv$widgets$hypothesisTest$th_logFC <- tmp[[grep("th_logFC", tmp)]]$HypothesisTest$th_logFC
 
         if (is.null(rv$current.obj@experimentData@other$RawPValues)) {
             rv$current.obj@experimentData@other$RawPValues <- FALSE
