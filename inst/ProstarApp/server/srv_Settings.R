@@ -156,7 +156,7 @@ GetTest <- reactive({
     temp <- NULL
     #if (is.null(rv$whichGroup2Color) || (rv$whichGroup2Color == "Condition")) {
         nbColors <- length(unique(pData(rv$current.obj)$Condition))
-        nbColors <- brewer.pal.info[listBrewerPalettes[1], ]$mincolors
+        nbColors <- RColorBrewer::brewer.pal.info[listBrewerPalettes[1], ]$mincolors
         nbColors <- max(nbColors, nbConds)
         pal <- NULL
         for (i in 1:nbConds) {

@@ -1,7 +1,7 @@
 
 library(shiny)
 library(shinyjs)
-# library(shinyjqui)
+
 library(sass)
 source(file.path("ui", "ui_Configure.R"), local = TRUE)$value
 source(file.path(".", "modules/Plots/modulePlots.R"), local = TRUE)$value
@@ -11,33 +11,34 @@ source(file.path("modules/Plots", "mod_MSnSetExplorer.R"), local = TRUE)$value
 source(file.path("server", "mod_LegendColoredExprs.R"), local = TRUE)$value
 source(file.path("server", "mod_staticDT.R"), local = TRUE)$value
 
-theme <- shinythemes::shinytheme("cerulean")
+theme <- shinythemes::shinytheme(theme = "cerulean")
 #---------------------------------------------------------------------
 jsResetCode <- "shinyjs.resetProstar = function() {history.go(0)}"
 
-shinyUI <- fluidPage(
+shinyUI(
+    fluidPage(
     
     if (!requireNamespace("sass", quietly = TRUE)) {
         stop("Please install sass: BiocManager::install('sass')")
     },
     
     
-    # theme = "css/ceruleanProstar.css",
-    theme = shinythemes::shinytheme("cerulean"),
+     #theme = "css/ceruleanProstar.css",
+     theme = shinythemes::shinytheme(theme = "cerulean"),
     tagList(
         shinyjs::useShinyjs(),
         extendShinyjs(text = jsResetCode, functions = c("resetProstar")),
         includeCSS("www/progressBar/progressBar.css"),
         tags$head(tags$style(sass::sass(
-            sass::sass_file("www/css/sass-size.scss"),
-            sass::sass_options(output_style = "expanded")
+           sass::sass_file("www/css/sass-size.scss"),
+           sass::sass_options(output_style = "expanded")
         ))),
         titlePanel("", windowTitle = "Prostar"),
 
         ###### DIV LOADING PAGE  #######
-        div(
-            id = "loading_page",
-            absolutePanel(
+         div(
+             id = "loading_page",
+             absolutePanel(
                 id = "AbsolutePanel",
                 class = "panel panel-default",
                 style = "text-align: center; background-color: #25949A;",
@@ -59,6 +60,7 @@ shinyUI <- fluidPage(
                     )
                 )
             )
+
         ),
 
         ###### DIV MAIN CONTENT  #######
@@ -154,7 +156,9 @@ shinyUI <- fluidPage(
                         )
                     ) ## end navbarPage
                 ) ## end div for main content 2
-            ) ## end div for main content 1
-        ) ## end hidden
+            #) ## end div for main content 1
+        )
+        )
     )
 ) ## end fluid
+)

@@ -1,16 +1,21 @@
+library(shiny)
+
 rm(list = ls())
 
-options(shiny.maxRequestSize = 300 * 1024^2)
-options(encoding = "UTF-8")
-
-options(shiny.fullstacktrace = T)
+options(
+    shiny.maxRequestSize = 300 * 1024^2,
+    encoding = "UTF-8",
+    shiny.fullstacktrace = TRUE
+    )
 
 require(compiler)
 enableJIT(3)
 
-source(file.path("ui", "ui_Configure.R"), local = TRUE)$value
 
-# initialize data with colnames
+source(file.path("ui", "ui_Configure.R"), local = TRUE)$value
+source(file.path("server", "mod_errorModal.R"), local = TRUE)$value
+
+# # initialize data with colnames
 df <- data.frame(matrix(c("0", "0"), 1, 2))
 colnames(df) <- c("Input1", "Input2")
 
@@ -34,62 +39,79 @@ onStart <- function() {
 
 
 
-
-shinyServer(function(input, output, session) {
+shinyServer(
+    function(input, output, session) {
     # Sys.setlocale("LC_ALL","English")
     # Sys.setlocale("LC_ALL", 'en_GB.UTF-8')
     # Sys.setlocale("LC_ALL", 'fr_FR.UTF-8')
     # Sys.setenv(LANG = "fr")
+    # sink()
+    # sink()
+    #  logfilename <- tempfile(fileext=".log")
+    #  print(logfilename)
+    #  showErrLog <- TRUE
+    #showErrLog <- FALSE
     
-    loadLibraries()
-    Sys.setenv("R_ZIPCMD" = Sys.which("zip"))
-    sessionID <- Sys.getpid()
-
-    # Set up writing
-    logfilename <- tempfile(fileext = ".log")
-
-    write(paste0("tempdir() = ", tempdir()), logfilename, append = TRUE)
-
-    # Simulate work being done for 1 second
-    # Sys.sleep(1)
-
-    # Hide the loading message when the rest of the server function has executed
-
-    env <- environment()
-    source(file.path("server", "mod_staticDT.R"), local = TRUE)$value
-    source(file.path("server", "mod_popover.R"), local = TRUE)$value
-    source(file.path("server", "mod_download_btns.R"), local = TRUE)$value
-    source(file.path("modules/Plots", "mod_MSnSetExplorer.R"), local = TRUE)$value
-    source(file.path("server", "mod_LegendColoredExprs.R"), local = TRUE)$value
+    # Redirect both message() and error outputs to a file
+     # if (showErrLog){
+     #     con <- file(logfilename, open="wt")
+     #     #sink(con, append=TRUE, type="message")
+     #     sink(con, append=TRUE, type="output")
+     # }
+    
+    #message(paste0('message : tempdir() = ', tempdir()))
+    #warning("A warning from warning()")
 
 
+     tryCatch({
+         loadLibraries()
+         Sys.setenv("R_ZIPCMD" = Sys.which("zip"))
+         sessionID <- Sys.getpid()
+    
+    
+     # Hide the loading message when the rest of the server function has executed
+    
+         env <- environment()
+         source(file.path("server", "mod_staticDT.R"), local = TRUE)$value
+         source(file.path("server", "mod_popover.R"), local = TRUE)$value
+         source(file.path("server", "mod_download_btns.R"), local = TRUE)$value
+         source(file.path("modules/Plots", "mod_MSnSetExplorer.R"), local = TRUE)$value
+         source(file.path("server", "mod_LegendColoredExprs.R"), local = TRUE)$value
+    
+         source(file.path("server", "srv_NavbarPage.R"), local = TRUE)$value
+         source(file.path("server", "srv_ModulesSrv.R"), local = TRUE)$value
+         source(file.path("server", "srv_ModuleProcess.R"), local = TRUE)$value
+         source(file.path("server", "srv_General.R"), local = TRUE)$value
+         source(file.path("server", "srv_DefineRVmoduleProcess.R"), local = TRUE)$value
+         source(file.path("server", "srv_Home.R"), local = TRUE)$value
+         source(file.path("server", "srv_Settings.R"), local = TRUE)$value
+         source(file.path("server", "srv_ParamsManager.R"), local = TRUE)$value
+    
+         # source(file.path(".", "modules/Plots/modulePlots.R"),  local = TRUE)$value
+         source(file.path(".", "modules/Plots/moduleCC.R"), local = TRUE)$value
+         #stop('simulated error')
+         },
+     error = function(e) {
+         #if(showErrLog)
+             shinyjs::info(conditionMessage(e))
+         return(NULL)
+         #     mod_errorModal_server("test_error",
+         #         reactive({readLines(logfilename)})
+         # )
+         # return(NULL)
+     })
 
-    source(file.path("server", "srv_NavbarPage.R"), local = TRUE)$value
-    source(file.path("server", "srv_ModulesSrv.R"), local = TRUE)$value
-    source(file.path("server", "srv_ModuleProcess.R"), local = TRUE)$value
-    source(file.path("server", "srv_General.R"), local = TRUE)$value
-    source(file.path("server", "srv_DefineRVmoduleProcess.R"), local = TRUE)$value
-    source(file.path("server", "srv_Home.R"), local = TRUE)$value
-    source(file.path("server", "srv_Settings.R"), local = TRUE)$value
-    source(file.path("server", "srv_ParamsManager.R"), local = TRUE)$value
-
-    # source(file.path(".", "modules/Plots/modulePlots.R"),  local = TRUE)$value
-    source(file.path(".", "modules/Plots/moduleCC.R"),
-        local = TRUE
-    )$value
-
-    #loadLibraries()
-
-    observeEvent(input$distance, {
-        rv$PlotParams$heatmap.distance <- input$distance
-    })
-    observeEvent(input$distance, {
-        rv$PlotParams$heatmap.linkage <- input$linkage
-    })
+#loadLibraries()
+         observeEvent(input$distance, {
+         rv$PlotParams$heatmap.distance <- input$distance
+     })
+     observeEvent(input$linkage, {
+             rv$PlotParams$heatmap.linkage <- input$linkage
+         })
 
 
 
-    observe({
+     observe({
         req(input$navPage)
         shinyjs::toggle("tete",
             condition = !(input$navPage %in% c(
@@ -97,6 +119,8 @@ shinyServer(function(input, output, session) {
                 "checkForUpdatesTab", "faqTab"
             ))
         )
+    
+        tryCatch({
         switch(input$navPage,
             DescriptiveStatisticsTab = {
                 source(file.path("server", "mod_plots_metacell_histo.R"),
@@ -194,12 +218,19 @@ shinyServer(function(input, output, session) {
                 local = TRUE
             )$value
         )
-    })
+        },
+            error = function(e) {
+                if(showErrLog)
+                    mod_errorModal_server("err2",
+                        reactive({readLines(logfilename)})
+                    )
+                return(NULL)
+            })
 
+    })
+    
 
     shinyjs::hide(id = "loading_page", anim = FALSE)
-
     shinyjs::show("main_content", anim = TRUE, animType = "fade")
 
-    print(ls())
 })

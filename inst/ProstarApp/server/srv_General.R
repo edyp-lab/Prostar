@@ -356,6 +356,7 @@ Compute_PCA_nbDimensions <- reactive({
 
 ######################################
 loadObjectInMemoryFromConverter <- function() {
+    
     rv$proteinId <- rv$current.obj@experimentData@other$proteinId
     rv$typeOfDataset <- ""
     if (!is.null(GetTypeofData(rv$current.obj))) {
@@ -393,8 +394,9 @@ loadObjectInMemoryFromConverter <- function() {
         # Get the logFC threshold of the hypothesis test to show it in
         # the volcanoplots
         tmp <- rv$current.obj@experimentData@other$Params
-
-        rv$widgets$hypothesisTest$th_logFC <- tmp[[grep("th_logFC", tmp)]]$HypothesisTest$th_logFC
+#browser()
+        if (length(grep("th_logFC", tmp)) > 0)
+            rv$widgets$hypothesisTest$th_logFC <- tmp[[grep("th_logFC", tmp)]]$HypothesisTest$th_logFC
 
         if (is.null(rv$current.obj@experimentData@other$RawPValues)) {
             rv$current.obj@experimentData@other$RawPValues <- FALSE
