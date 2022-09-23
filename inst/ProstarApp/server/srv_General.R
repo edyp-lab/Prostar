@@ -123,7 +123,7 @@ GetDatasetOverview <- reactive({
     pourcentage <- round(NA.count / (.ncol * .nrow),
         digits = 4
     )
-    pourentage <- 100 * pourcentage
+    pourcentage <- 100 * pourcentage
     nb.empty.lines <- sum(apply(m, 1, all))
 
 
@@ -394,7 +394,7 @@ loadObjectInMemoryFromConverter <- function() {
         # Get the logFC threshold of the hypothesis test to show it in
         # the volcanoplots
         tmp <- rv$current.obj@experimentData@other$Params
-#browser()
+
         if (length(grep("th_logFC", tmp)) > 0)
             rv$widgets$hypothesisTest$th_logFC <- tmp[[grep("th_logFC", tmp)]]$HypothesisTest$th_logFC
 
