@@ -152,7 +152,7 @@ output$screenGO1 <- renderUI({
         br(), br(),
         uiOutput("GeneMappedRatio"),
         br(), br(),
-        if (nrow(pData(rv$current.obj)) > 153) {
+        if (nrow(Biobase::pData(rv$current.obj)) > 153) {
             p("The size of the table is too big to be exported with the buttons
       below (only the first 154 rows will be exported). It is advised to use
       the Export tool of Prostar.")
@@ -303,8 +303,8 @@ GetDataIndexForAnalysis <- reactive({
     req(rv$current.obj)
 
     index <- NULL
-    if ("Significant" %in% names(fData(rv$current.obj))) {
-        index <- which(fData(rv$current.obj)$Significant == TRUE)
+    if ("Significant" %in% names(Biobase::fData(rv$current.obj))) {
+        index <- which(Biobase::fData(rv$current.obj)$Significant == TRUE)
     } else {
         index <- seq(1:nrow(rv$current.obj))
     }
@@ -320,7 +320,7 @@ output$chooseSourceForProtID <- renderUI({
 
     if (rv$widgets$go$sourceOfProtID == "colInDataset") {
         selectInput("UniprotIDCol", "Protein IDs",
-            choices = c("", colnames(fData(rv$current.obj))),
+            choices = c("", colnames(Biobase::fData(rv$current.obj))),
             selected = rv$widgets$go$UniprotIDCol
         )
     } else if (rv$widgets$go$sourceOfProtID == "extFile") {
@@ -340,7 +340,7 @@ observeEvent(req(rv$widgets$go$UniprotIDCol), ignoreInit = TRUE, {
         rv$widgets$go$ProtIDList <- return(NULL)
     } else {
         rv$widgets$go$ProtIDList <-
-            fData(rv$current.obj)[, rv$widgets$go$UniprotIDCol]
+          Biobase::fData(rv$current.obj)[, rv$widgets$go$UniprotIDCol]
     }
 })
 
@@ -381,7 +381,7 @@ observeEvent(input$mapProtein.GO.button, ignoreInit = TRUE, {
     isolate({
         rv$widgets$go$gene <- NULL
         rv$widgets$go$ProtIDList <-
-            fData(rv$current.obj)[, rv$widgets$go$UniprotIDCol]
+          Biobase::fData(rv$current.obj)[, rv$widgets$go$UniprotIDCol]
         index <- GetDataIndexForAnalysis()
 
         tryCatch(
@@ -654,7 +654,7 @@ GetDataFor_nonIdentifiedProteins <- reactive({
 
     index <- GetDataIndexForAnalysis()
     rv$widgets$go$proteinsNotMapped <- which((rv$widgets$go$ProtIDList[index] %in% rv$widgets$go$gene[, rv$widgets$go$idFrom]) == FALSE)
-    data <- as.data.frame(fData(rv$current.obj)[index[rv$widgets$go$proteinsNotMapped], ])
+    data <- as.data.frame(Biobase::fData(rv$current.obj)[index[rv$widgets$go$proteinsNotMapped], ])
 
     data
 })

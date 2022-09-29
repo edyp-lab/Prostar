@@ -744,7 +744,7 @@ observeEvent(input$createMSnsetButton, ignoreInit = TRUE, {
                 rv$current.obj <- tmp
 
                 rv$current.obj.name <- input$filenameToCreate
-                rv$indexNA <- which(is.na(exprs(rv$current.obj)))
+                rv$indexNA <- which(is.na(Biobase::exprs(rv$current.obj)))
 
                 l.params <- list(filename = input$filenameToCreate)
 

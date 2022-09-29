@@ -128,12 +128,12 @@ observeEvent(input$peptideLevel_imp4pLAPALA_distrib, {
 output$screenPepImputation1 <- renderUI({
     # req(rv$current.obj)
     # isolate({
-    nbEmptyLines <- getNumberOfEmptyLines(exprs(rv$current.obj))
+    nbEmptyLines <- getNumberOfEmptyLines(Biobase::exprs(rv$current.obj))
     if (nbEmptyLines > 0) {
         tags$p("Your dataset contains empty lines (fully filled with missing
     values). In order to use the imputation tool, you must delete them by
       using the filter tool.")
-    } else if (sum(is.na(exprs(rv$current.obj))) == 0) {
+    } else if (sum(is.na(Biobase::exprs(rv$current.obj))) == 0) {
         tags$p("Your dataset does not contains missing values.")
     } else {
         tabPanel("Miss. values imputation",
@@ -345,7 +345,7 @@ output$peptideLevel_detQuant_impValues <- renderUI({
 
 output$peptideLevel_TAB_detQuant_impValues <- DT::renderDataTable(server = TRUE, {
     values <- getQuantile4Imp(
-        exprs(rv$current.obj),
+      Biobase::exprs(rv$current.obj),
         rv$widgets$peptideImput$pepLevel_detQuantile / 100,
         rv$widgets$peptideImput$pepLevel_detQuant_factor
     )

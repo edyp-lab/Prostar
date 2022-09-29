@@ -266,13 +266,13 @@ Get_Dataset_to_Analyze <- reactive({
     datasetToAnalyze <- NULL
 
     if (length(grep("all-", rv$widgets$anaDiff$Comparison)) == 1) {
-        .conds <- pData(rv$current.obj)$Condition
+        .conds <- Biobase::pData(rv$current.obj)$Condition
         condition1 <- strsplit(
             as.character(rv$widgets$anaDiff$Comparison), "_vs_"
         )[[1]][1]
         ind_virtual_cond2 <- which(.conds != condition1)
         datasetToAnalyze <- rv$current.obj
-        pData(datasetToAnalyze)$Condition[ind_virtual_cond2] <- "virtual_cond_2"
+        Biobase::pData(datasetToAnalyze)$Condition[ind_virtual_cond2] <- "virtual_cond_2"
     } else {
         condition1 <- strsplit(
             as.character(rv$widgets$anaDiff$Comparison), "_vs_"
@@ -294,8 +294,8 @@ Get_Dataset_to_Analyze <- reactive({
 
 
         ind <- c(
-            which(pData(rv$current.obj)$Condition == condition1),
-            which(pData(rv$current.obj)$Condition == condition2)
+            which(Biobase::pData(rv$current.obj)$Condition == condition1),
+            which(Biobase::pData(rv$current.obj)$Condition == condition2)
         )
 
         datasetToAnalyze <- rv$current.obj[, ind]
@@ -416,7 +416,7 @@ output$volcanoTooltip_UI <- renderUI({
             modulePopoverUI("modulePopover_volcanoTooltip"),
             selectInput("tooltipInfo",
                 label = NULL,
-                choices = colnames(fData(rv$current.obj)),
+                choices = colnames(Biobase::fData(rv$current.obj)),
                 selected = rv$widgets$anaDiff$tooltipInfo,
                 multiple = TRUE,
                 selectize = FALSE,
@@ -1207,7 +1207,7 @@ GetSelectedItems <- reactive({
     }
 
     t <- data.frame(
-        id = rownames(exprs(rv$current.obj))[selectedItems],
+        id = rownames(Biobase::exprs(rv$current.obj))[selectedItems],
         logFC = round(rv$resAnaDiff$logFC[selectedItems],
             digits = rv$settings_nDigits
         ),
@@ -1215,7 +1215,7 @@ GetSelectedItems <- reactive({
         isDifferential = significant
     )
     tmp <- as.data.frame(
-        fData(rv$current.obj)[selectedItems, rv$widgets$anaDiff$tooltipInfo]
+      Biobase::fData(rv$current.obj)[selectedItems, rv$widgets$anaDiff$tooltipInfo]
     )
     names(tmp) <- rv$widgets$anaDiff$tooltipInfo
     t <- cbind(t, tmp)

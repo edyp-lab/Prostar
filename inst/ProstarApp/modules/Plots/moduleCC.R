@@ -106,7 +106,7 @@ mod_cc_server <- function(id, obj, cc) {
             output$pepInfo_ui <- renderUI({
                 selectInput(ns("pepInfo"),
                     "Peptide Info",
-                    choices = colnames(fData(obj())),
+                    choices = colnames(Biobase::fData(obj())),
                     multiple = TRUE
                 )
             })
@@ -176,7 +176,7 @@ mod_cc_server <- function(id, obj, cc) {
                     )
 
                     if (!is.null(tooltip)) {
-                        df <- cbind(df, fData(obj())[tooltip])
+                        df <- cbind(df, Biobase::fData(obj())[tooltip])
                     }
 
                     colnames(df) <- gsub(".", "_", colnames(df), fixed = TRUE)
@@ -398,7 +398,7 @@ mod_cc_server <- function(id, obj, cc) {
                 data <- data[indices, c(ind, (ind + .n / 2))]
 
                 if (!is.null(input$pepInfo)) {
-                    data <- cbind(data, fData(obj())[pepLine, input$pepInfo])
+                    data <- cbind(data, Biobase::fData(obj())[pepLine, input$pepInfo])
                     colnames(data)[(1 + .n - length(input$pepInfo)):.n] <-
                         input$pepInfo
                 }
@@ -462,7 +462,7 @@ mod_cc_server <- function(id, obj, cc) {
                 data <- data[indices, c(ind, (ind + .n / 2))]
 
                 if (!is.null(input$pepInfo)) {
-                    data <- cbind(data, fData(obj())[pepLine, input$pepInfo])
+                    data <- cbind(data, Biobase::fData(obj())[pepLine, input$pepInfo])
                     colnames(data)[(1 + .n - length(input$pepInfo)):.n] <-
                         input$pepInfo
                 }
@@ -734,7 +734,7 @@ mod_cc_server <- function(id, obj, cc) {
                 data <- data[indices, c(ind, (ind + .n / 2))]
 
                 if (!is.null(.pep)) {
-                    data <- cbind(data, fData(obj())[pepLine, .pep])
+                    data <- cbind(data, Biobase::fData(obj())[pepLine, .pep])
                     colnames(data)[(1 + .n - length(.pep)):.n] <- .pep
                 }
 
@@ -852,7 +852,7 @@ mod_cc_server <- function(id, obj, cc) {
                 }))
                 data <- data[indices, c(ind, (ind + .n / 2))]
                 if (!is.null(.pep)) {
-                    data <- cbind(data, fData(obj())[pepLine, .pep])
+                    data <- cbind(data, Biobase::fData(obj())[pepLine, .pep])
                     colnames(data)[(1 + .n - length(.pep)):.n] <- .pep
                 }
 

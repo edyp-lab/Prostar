@@ -479,7 +479,7 @@ output$DS_PlotHeatmap <- renderUI({
 output$ChooseLegendForSamples <- renderUI({
     req(rv$current.obj)
 
-    .names <- colnames(pData(rv$current.obj))
+    .names <- colnames(Biobase::pData(rv$current.obj))
 
 
     checkboxGroupInput("legendForSamples",
@@ -492,7 +492,7 @@ output$ChooseLegendForSamples <- renderUI({
 observeEvent(input$legendForSamples, {
     rv$PlotParams$legendForSamples <- as.vector(
         apply(
-            as.data.frame(pData(rv$current.obj)[, input$legendForSamples]), 1,
+            as.data.frame(Biobase::pData(rv$current.obj)[, input$legendForSamples]), 1,
             function(x) paste(x, collapse = "_")
         )
     )
@@ -519,9 +519,20 @@ output$heatmap <- renderImage(
         outfile <- tempfile(fileext = ".png")
 
         # Generate a png
-        png(outfile, width = 900, height = 600)
+        tryCatch({
+          png(outfile, width = 900, height = 600)
         heatmap()
         dev.off()
+    },
+  error = function(e) {
+    #if(showErrLog)
+    shinyjs::info(conditionMessage(e))
+    return(NULL)
+    #     mod_errorModal_server("test_error",
+    #         reactive({readLines(logfilename)})
+    # )
+    # return(NULL)
+  })
 
         # Return a list
         list(

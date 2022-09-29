@@ -212,8 +212,8 @@ output$downloadMSnSet <- downloadHandler(
                 incProgress(0.3, detail = "Preparing dataset")
                 .data <- input$chooseDatasetToExportToMSnset
                 dataToExport <- rv$dataset[[.data]]
-                colnames(fData(dataToExport)) <- gsub(".", "_",
-                    colnames(fData(dataToExport)),
+                colnames(Biobase::fData(dataToExport)) <- gsub(".", "_",
+                    colnames(Biobase::fData(dataToExport)),
                     fixed = TRUE
                 )
                 names(dataToExport@experimentData@other) <- gsub(".", "_",

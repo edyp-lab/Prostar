@@ -148,22 +148,22 @@ GetTest <- reactive({
     req(rv$current.obj)
     #rv$whichGroup2Color
 
-    nbConds <- length(unique(pData(rv$current.obj)$Condition))
-    pal <- rep("#000000", length(pData(rv$current.obj)$Condition))
+    nbConds <- length(unique(Biobase::pData(rv$current.obj)$Condition))
+    pal <- rep("#000000", length(Biobase::pData(rv$current.obj)$Condition))
 
 
     nbColors <- NULL
     temp <- NULL
     #if (is.null(rv$whichGroup2Color) || (rv$whichGroup2Color == "Condition")) {
-        nbColors <- length(unique(pData(rv$current.obj)$Condition))
+        nbColors <- length(unique(Biobase::pData(rv$current.obj)$Condition))
         nbColors <- RColorBrewer::brewer.pal.info[listBrewerPalettes[1], ]$mincolors
         nbColors <- max(nbColors, nbConds)
         pal <- NULL
         for (i in 1:nbConds) {
             pal <- c(pal, input[[paste0("customColorCondition_", i)]])
         }
-        for (i in 1:ncol(exprs(rv$current.obj))) {
-            .cond <- pData(rv$current.obj)$Condition
+        for (i in 1:ncol(Biobase::exprs(rv$current.obj))) {
+            .cond <- Biobase::pData(rv$current.obj)$Condition
             temp[i] <- pal[which(.cond[i] == unique(.cond))]
         }
     #}
@@ -193,7 +193,7 @@ GetPaletteForConditions <- reactive({
     req(rv$current.obj)
     rv$typeOfPalette
 
-    conds <- pData(rv$current.obj)$Condition
+    conds <- Biobase::pData(rv$current.obj)$Condition
     #nbConds <- length(conds)
     nbUniqueConds <- length(unique(conds))
 
@@ -217,7 +217,7 @@ GetPaletteForConditions <- reactive({
 
     
 
-    DAPAR::GetColorsForConditions(pData(rv$current.obj)$Condition, pal)
+    DAPAR::GetColorsForConditions(Biobase::pData(rv$current.obj)$Condition, pal)
 })
 
 
@@ -246,8 +246,8 @@ output$customPaletteUI <- renderUI({
     # )
 
     
-    nbColors <- length(unique(pData(rv$current.obj)$Condition))
-    labels <- unique(pData(rv$current.obj)$Condition)
+    nbColors <- length(unique(Biobase::pData(rv$current.obj)$Condition))
+    labels <- unique(Biobase::pData(rv$current.obj)$Condition)
 
     for (i in 1:nbColors) {
         ll <- list(
@@ -294,13 +294,13 @@ observeEvent(input$colVolcanoOut, {
 
 output$displayPalette <- renderHighchart({
     req(rv$PlotParams$paletteForConditions)
-    nbConds <- length(unique(pData(rv$current.obj)$Condition))
+    nbConds <- length(unique(Biobase::pData(rv$current.obj)$Condition))
 
     highchart() %>%
         my_hc_chart(chartType = "column") %>%
         hc_add_series(
             data = data.frame(
-                y = abs(1 + rnorm(ncol(exprs(rv$current.obj))))
+                y = abs(1 + rnorm(ncol(Biobase::exprs(rv$current.obj))))
             ),
             type = "column",
             colorByPoint = TRUE

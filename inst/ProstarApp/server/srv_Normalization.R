@@ -98,13 +98,13 @@ rv.norm$trackFromBoxplot <- callModule(mod_plots_intensity_server,
         rv$current.obj
     }),
     meta = reactive({
-        fData(rv$current.obj)
+      Biobase::fData(rv$current.obj)
     }),
     keyId = reactive({
         rv$current.obj@experimentData@other$proteinId
     }),
     conds = reactive({
-        pData(rv$current.obj)$Condition
+      Biobase::pData(rv$current.obj)$Condition
     }),
     pal = reactive({
         rv$PlotParams$paletteForConditions
@@ -368,7 +368,7 @@ GetIndicesOfSelectedProteins_ForNorm <- reactive({
     req(rv.norm$selectProt())
 
     ind <- NULL
-    ll <- fData(rv$current.obj)[, rv$current.obj@experimentData@other$proteinId]
+    ll <- Biobase::fData(rv$current.obj)[, rv$current.obj@experimentData@other$proteinId]
     tt <- rv.norm$selectProt()$type
     switch(tt,
         ProteinList = ind <- rv.norm$selectProt()$list.indices,
@@ -388,7 +388,7 @@ GetIndicesOfSelectedProteins <- reactive({
     # print('in GetIndicesOfSelectedProteins')
     # print(rv.norm$trackFromBoxplot())
     ind <- NULL
-    ll <- fData(rv$current.obj)[, rv$current.obj@experimentData@other$proteinId]
+    ll <- Biobase::fData(rv$current.obj)[, rv$current.obj@experimentData@other$proteinId]
     tt <- rv.norm$trackFromBoxplot()$type
     switch(tt,
         ProteinList = ind <- rv.norm$trackFromBoxplot()$list.indices,
@@ -429,7 +429,7 @@ observeEvent(input$perform.normalization, {
                 obj = rv$dataset[[input$datasets]],
                 method = rv$widgets$normalization$method,
                 type = rv$widgets$normalization$type,
-                cond = pData(rv$dataset[[input$datasets]])$Condition,
+                cond = Biobase::pData(rv$dataset[[input$datasets]])$Condition,
                 quantile = quant,
                 subset.norm = GetIndicesOfSelectedProteins_ForNorm()
             )
@@ -438,7 +438,7 @@ observeEvent(input$perform.normalization, {
             rv$current.obj <- wrapper.normalizeD(
                 obj = rv$dataset[[input$datasets]],
                 method = rv$widgets$normalization$method,
-                conds = pData(rv$dataset[[input$datasets]])$Condition,
+                conds = Biobase::pData(rv$dataset[[input$datasets]])$Condition,
                 type = rv$widgets$normalization$type,
                 scaling = rv$widgets$normalization$varReduction,
                 subset.norm = GetIndicesOfSelectedProteins_ForNorm()
@@ -448,7 +448,7 @@ observeEvent(input$perform.normalization, {
             rv$current.obj <- wrapper.normalizeD(
                 obj = rv$dataset[[input$datasets]],
                 method = rv$widgets$normalization$method,
-                conds = pData(rv$dataset[[input$datasets]])$Condition,
+                conds = Biobase::pData(rv$dataset[[input$datasets]])$Condition,
                 type = rv$widgets$normalization$type,
                 subset.norm = GetIndicesOfSelectedProteins_ForNorm()
             )
@@ -457,7 +457,7 @@ observeEvent(input$perform.normalization, {
             rv$current.obj <- wrapper.normalizeD(
                 obj = rv$dataset[[input$datasets]],
                 method = rv$widgets$normalization$method,
-                conds = pData(rv$dataset[[input$datasets]])$Condition,
+                conds = Biobase::pData(rv$dataset[[input$datasets]])$Condition,
                 type = rv$widgets$normalization$type,
                 span = as.numeric(rv$widgets$normalization$spanLOESS)
             )
@@ -466,7 +466,7 @@ observeEvent(input$perform.normalization, {
             rv$current.obj <- wrapper.normalizeD(
                 obj = rv$dataset[[input$datasets]],
                 method = rv$widgets$normalization$method,
-                conds = pData(rv$dataset[[input$datasets]])$Condition,
+                conds = Biobase::pData(rv$dataset[[input$datasets]])$Condition,
                 type = rv$widgets$normalization$type
             )
         }
@@ -515,7 +515,7 @@ output$ChooseLegendForNormTabPanel <- renderUI({
     if (is.null(rv$current.obj)) {
         return(NULL)
     }
-    .names <- colnames(pData(rv$current.obj))[-1]
+    .names <- colnames(Biobase::pData(rv$current.obj))[-1]
     checkboxGroupInput("legendXAxisNormTabPanel",
         label = "Data to show in legend",
         choices = .names,
@@ -548,10 +548,10 @@ output$viewComparisonNorm_HC <- renderHighchart({
     }
     protId <- rv$current.obj@experimentData@other$proteinId
     compareNormalizationD_HC(
-        qDataBefore = exprs(obj1),
-        qDataAfter = exprs(obj2),
-        keyId = fData(rv$current.obj)[, protId],
-        conds = pData(obj1)$Condition,
+        qDataBefore = Biobase::exprs(obj1),
+        qDataAfter = Biobase::exprs(obj2),
+        keyId = Biobase::fData(rv$current.obj)[, protId],
+        conds = Biobase::pData(obj1)$Condition,
         pal = rv$PlotParams$paletteForConditions,
         subset.view = if (rv.norm$sync) {
             GetIndicesOfSelectedProteins_ForNorm()

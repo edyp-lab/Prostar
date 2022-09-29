@@ -123,7 +123,7 @@ observeEvent(input$MEC_detQuant_factor, {
 
 
 output$screenProtImput1 <- renderUI({
-    if (sum(is.na(exprs(rv$current.obj))) == 0) {
+    if (sum(is.na(Biobase::exprs(rv$current.obj))) == 0) {
         tags$p("Your dataset does not contain missing values.")
     } else {
         tagList(
@@ -326,8 +326,10 @@ output$ImputationStep1Done <- renderUI({
 #                             SCREEN 2
 #------------------------------------------------------------
 output$screenProtImput2 <- renderUI({
-    if (sum(is.na(exprs(rv$current.obj))) == 0) {
-        tags$p("Your dataset does not contains missing values.")
+    imputationDone <- isTRUE(rvModProcess$moduleProtImputationDone[1])
+    
+    if (!imputationDone && sum(is.na(Biobase::exprs(rv$current.obj))) == 0) {
+        tags$p("Your dataset does not contain any missing values.")
     } else {
         tagList(
             uiOutput("warningMECImputation"),

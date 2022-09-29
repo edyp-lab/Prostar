@@ -371,10 +371,10 @@ output$FilterSummaryData <- DT::renderDataTable(server = TRUE, {
 output$screenFiltering3 <- renderUI({
     req(rv$current.obj)
 
-    ll <- lapply(fData(rv$current.obj), function(x) {
+    ll <- lapply(Biobase::fData(rv$current.obj), function(x) {
         is.numeric(x)
     })
-    choice <- c("None", colnames(fData(rv$current.obj))[which(ll == TRUE)])
+    choice <- c("None", colnames(Biobase::fData(rv$current.obj))[which(ll == TRUE)])
 
     tagList(
         tags$div(
@@ -476,7 +476,7 @@ observeEvent(input$btn_numFilter, ignoreInit = TRUE, {
 
 Get_symFilter_cname_choice <- reactive({
     req(rv$current.obj)
-    choice <- c("None", colnames(fData(rv$current.obj)))
+    choice <- c("None", colnames(Biobase::fData(rv$current.obj)))
     choice
 })
 
@@ -577,11 +577,11 @@ getDataForMetacellFiltered <- reactive({
     req(rv$settings_nDigits)
     rv$deleted.metacell
 
-    table <- as.data.frame(round(exprs(rv$deleted.metacell),
+    table <- as.data.frame(round(Biobase::exprs(rv$deleted.metacell),
         digits = rv$settings_nDigits
     ))
     table <- cbind(
-        id = fData(rv$deleted.metacell)[, GetKeyId(rv$deleted.metacell)],
+        id = Biobase::fData(rv$deleted.metacell)[, GetKeyId(rv$deleted.metacell)],
         table,
         DAPAR::GetMetacell(rv$deleted.metacell)
     )
@@ -591,11 +591,11 @@ getDataForMetacellFiltered <- reactive({
 getDataForNumericalFiltered <- reactive({
     req(rv$settings_nDigits)
     rv$deleted.numeric
-    table <- as.data.frame(round(exprs(rv$deleted.numeric),
+    table <- as.data.frame(round(Biobase::exprs(rv$deleted.numeric),
         digits = rv$settings_nDigits
     ))
     table <- cbind(
-        id = fData(rv$deleted.numeric)[, GetKeyId(rv$deleted.numeric)],
+        id = Biobase::fData(rv$deleted.numeric)[, GetKeyId(rv$deleted.numeric)],
         table,
         DAPAR::GetMetacell(rv$deleted.numeric)
     )
@@ -608,11 +608,11 @@ getDataForMVStringFiltered <- reactive({
     req(rv$settings_nDigits)
     rv$deleted.stringBased
     id <-
-        table <- as.data.frame(round(exprs(rv$deleted.stringBased),
+        table <- as.data.frame(round(Biobase::exprs(rv$deleted.stringBased),
             digits = rv$settings_nDigits
         ))
     table <- cbind(
-        id = fData(rv$deleted.stringBased)[, GetKeyId(rv$deleted.stringBased)],
+        id = Biobase::fData(rv$deleted.stringBased)[, GetKeyId(rv$deleted.stringBased)],
         table,
         DAPAR::GetMetacell(rv$deleted.stringBased)
     )
@@ -634,19 +634,19 @@ GetDataFor_VizualizeFilteredData <- reactive({
         Metacell = if (!is.null(rv$deleted.metacell)) {
             switch(input$ChooseTabAfterFiltering,
                 quantiData = getDataForMetacellFiltered(),
-                metaData = fData(rv$deleted.metacell)
+                metaData = Biobase::fData(rv$deleted.metacell)
             )
         },
         StringBased = if (!is.null(rv$deleted.stringBased)) {
             switch(input$ChooseTabAfterFiltering,
                 quantiData = getDataForMVStringFiltered(),
-                metaData = fData(rv$deleted.stringBased)
+                metaData = Biobase::fData(rv$deleted.stringBased)
             )
         },
         Numerical = if (!is.null(rv$deleted.numeric)) {
             switch(input$ChooseTabAfterFiltering,
                 quantiData = getDataForNumericalFiltered(),
-                metaData = fData(rv$deleted.numeric)
+                metaData = Biobase::fData(rv$deleted.numeric)
             )
         }
     )

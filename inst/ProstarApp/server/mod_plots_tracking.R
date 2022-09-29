@@ -85,9 +85,9 @@ mod_plots_tracking_server <- function(input, output, session,
 
     output$typeSelect_ui <- renderUI({
         logical.cols <- lapply(
-            colnames(fData(obj())),
+            colnames(Biobase::fData(obj())),
             function(x) {
-                is.logical(fData(obj())[, x])
+                is.logical(Biobase::fData(obj())[, x])
             }
         )
         logical.cols <- which(unlist(logical.cols))
@@ -113,7 +113,7 @@ mod_plots_tracking_server <- function(input, output, session,
     output$listSelect_UI <- renderUI({
         selectInput(ns("listSelect"),
             "Protein for normalization",
-            choices = fData(obj())[, keyId()],
+            choices = Biobase::fData(obj())[, keyId()],
             selected = rv.track$res$listSelect,
             multiple = TRUE,
             width = "400px"
@@ -131,16 +131,16 @@ mod_plots_tracking_server <- function(input, output, session,
 
     output$columnSelect_UI <- renderUI({
         logical.cols <- lapply(
-            colnames(fData(obj())),
+            colnames(Biobase::fData(obj())),
             function(x) {
-                is.logical(fData(obj())[, x])
+                is.logical(Biobase::fData(obj())[, x])
             }
         )
         logical.cols <- which(unlist(logical.cols))
         if (length(logical.cols) > 0) {
             selectInput(ns("colSelect"),
                 "Column",
-                choices = colnames(fData(obj()))[logical.cols],
+                choices = colnames(Biobase::fData(obj()))[logical.cols],
                 selected = rv.track$res$colSelect
             )
         }
@@ -279,7 +279,7 @@ mod_plots_tracking_server <- function(input, output, session,
         } else {
             rv.track$res$list.indices <- match(
                 rv.track$res$listSelect,
-                fData(obj())[, keyId()]
+                Biobase::fData(obj())[, keyId()]
             )
         }
     })
@@ -319,7 +319,7 @@ mod_plots_tracking_server <- function(input, output, session,
         if (is.null(rv.track$res$colSelect)) {
             rv.track$res$col.indices <- NULL
         } else {
-            ind <- which(fData(obj())[, rv.track$res$colSelect] == 1)
+            ind <- which(Biobase::fData(obj())[, rv.track$res$colSelect] == 1)
             rv.track$res$col.indices <- ind
         }
     })

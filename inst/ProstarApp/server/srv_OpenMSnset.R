@@ -155,10 +155,10 @@ observeEvent(input$loadMSnset, ignoreInit = TRUE, {
 
             rv$current.obj.name <- DeleteFileExtension(input$file$name)
             rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
-            rv$indexNA <- which(is.na(exprs(rv$current.obj)))
-            rv$updateDesign_designChecked <- check.design(pData(rv$current.obj))
-            colnames(fData(rv$current.obj)) <- gsub(".", "_",
-                colnames(fData(rv$current.obj)),
+            rv$indexNA <- which(is.na(Biobase::exprs(rv$current.obj)))
+            rv$updateDesign_designChecked <- check.design(Biobase::pData(rv$current.obj))
+            colnames(Biobase::fData(rv$current.obj)) <- gsub(".", "_",
+                colnames(Biobase::fData(rv$current.obj)),
                 fixed = TRUE
             )
             names(rv$current.obj@experimentData@other) <- gsub(".", "_",

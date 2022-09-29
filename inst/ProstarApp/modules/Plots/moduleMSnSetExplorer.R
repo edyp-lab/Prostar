@@ -94,15 +94,15 @@ MSnSetExplorer <- function(input, output, session, data) {
                 return(NULL)
             },
             tabExprs = tagList(
-                if (nrow(pData(rv$current.obj)) > 153) p(MSG_WARNING_SIZE_DT),
+                if (nrow(Biobase::pData(rv$current.obj)) > 153) p(MSG_WARNING_SIZE_DT),
                 DT::dataTableOutput(ns("table"))
             ),
             tabfData = tagList(
-                if (nrow(pData(rv$current.obj)) > 153) p(MSG_WARNING_SIZE_DT),
+                if (nrow(Biobase::pData(rv$current.obj)) > 153) p(MSG_WARNING_SIZE_DT),
                 DT::dataTableOutput(ns("viewfData"))
             ),
             tabpData = tagList(
-                if (nrow(pData(rv$current.obj)) > 153) p(MSG_WARNING_SIZE_DT),
+                if (nrow(Biobase::pData(rv$current.obj)) > 153) p(MSG_WARNING_SIZE_DT),
                 DT::dataTableOutput(ns("viewpData"))
             )
         )
@@ -115,7 +115,7 @@ MSnSetExplorer <- function(input, output, session, data) {
     output$viewpData <- DT::renderDataTable(server = TRUE, {
         req(rv$current.obj)
 
-        data <- as.data.frame(pData(rv$current.obj))
+        data <- as.data.frame(Biobase::pData(rv$current.obj))
         pal <- rv$PlotParams$paletteForConditions
         dt <- DT::datatable(data,
             extensions = c("Scroller", "Buttons"),
@@ -159,8 +159,8 @@ MSnSetExplorer <- function(input, output, session, data) {
             req(rv$current.obj)
 
 
-            if ("Significant" %in% colnames(fData(rv$current.obj))) {
-                dat <- DT::datatable(as.data.frame(fData(rv$current.obj)),
+            if ("Significant" %in% colnames(Biobase::fData(rv$current.obj))) {
+                dat <- DT::datatable(as.data.frame(Biobase::fData(rv$current.obj)),
                     rownames = TRUE,
                     extensions = c("Scroller", "Buttons", "FixedColumns"),
                     options = list(
@@ -195,7 +195,7 @@ MSnSetExplorer <- function(input, output, session, data) {
                         background = styleEqual(1, "lightblue")
                     )
             } else {
-                dat <- DT::datatable(as.data.frame(fData(rv$current.obj)),
+                dat <- DT::datatable(as.data.frame(Biobase::fData(rv$current.obj)),
                     rownames = TRUE,
                     extensions = c("Scroller", "Buttons", "FixedColumns"),
                     options = list(

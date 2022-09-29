@@ -63,10 +63,10 @@ getDataForExprs <- function(obj, digits = NULL) {
         digits <- 2
     }
 
-    test.table <- as.data.frame(round(exprs(obj)))
+    test.table <- as.data.frame(round(Biobase::exprs(obj)))
     if (!is.null(obj@experimentData@other$names_metacell)) { # agregated dataset
         test.table <- cbind(
-            round(exprs(obj), digits = digits),
+            round(Biobase::exprs(obj), digits = digits),
             DAPAR::GetMetacell(obj)
         )
     } else {
@@ -90,7 +90,8 @@ getData <- reactive({
     req(rv$settings_nDigits)
     rv$current$obj
 
-    test.table <- round(exprs(rv$current.obj), digits = rv$settings_nDigits)
+    test.table <- round(Biobase::exprs(rv$current.obj), 
+        digits = rv$settings_nDigits)
     test.table
 })
 
@@ -128,9 +129,9 @@ GetDatasetOverview <- reactive({
 
 
     val <- c(
-        ncol((exprs(rv$current.obj))),
-        length(unique(pData(rv$current.obj)$Condition)),
-        nrow((exprs(rv$current.obj))),
+        ncol((Biobase::exprs(rv$current.obj))),
+        length(unique(Biobase::pData(rv$current.obj)$Condition)),
+        nrow((Biobase::exprs(rv$current.obj))),
         NA.count,
         pourcentage,
         nb.empty.lines
@@ -149,7 +150,7 @@ data <- eventReactive(rv$current$obj,
         rv$settings_nDigits
         rv$current$obj
 
-        test.table <- round(exprs(rv$current.obj),
+        test.table <- round(Biobase::exprs(rv$current.obj),
             digits = rv$settings_nDigits
         )
         test.table
@@ -337,13 +338,13 @@ Compute_PCA_nbDimensions <- reactive({
     # ncp should not be greater than...
     nmax <- 12
 
-    y <- exprs(rv$current.obj)
+    y <- Biobase::exprs(rv$current.obj)
     nprot <- dim(y)[1]
     # If too big, take the number of conditions.
     n <- dim(y)[2]
 
     if (n > nmax) {
-        n <- length(unique(pData(rv$current.obj)$Condition))
+        n <- length(unique(Biobase::pData(rv$current.obj)$Condition))
     }
 
 
@@ -366,25 +367,25 @@ loadObjectInMemoryFromConverter <- function() {
 
     withProgress(message = "Loading memory", detail = "", value = 0, {
         incProgress(0.5, detail = "Miscellaneous updates")
-        colnames(fData(rv$current.obj)) <- gsub(".", "_",
-            colnames(fData(rv$current.obj)),
+        colnames(Biobase::fData(rv$current.obj)) <- gsub(".", "_",
+            colnames(Biobase::fData(rv$current.obj)),
             fixed = TRUE
         )
         names(rv$current.obj@experimentData@other) <- gsub(".", "_",
             names(rv$current.obj@experimentData@other),
             fixed = TRUE
         )
-        pData(rv$current.obj)$Sample.name <- gsub(".", "_",
-            pData(rv$current.obj)$Sample.name,
+        Biobase::pData(rv$current.obj)$Sample.name <- gsub(".", "_",
+            Biobase::pData(rv$current.obj)$Sample.name,
             fixed = TRUE
         )
 
         # If there are already pVal values (differential analysis already done),
         # then do no compute them
-        if (G_logFC_Column %in% names(fData(rv$current.obj))) {
+        if (G_logFC_Column %in% names(Biobase::fData(rv$current.obj))) {
             rv$resAnaDiff <- list(
-                logFC = fData(rv$current.obj)$logFC,
-                P_Value = fData(rv$current.obj)$P_Value
+                logFC = Biobase::fData(rv$current.obj)$logFC,
+                P_Value = Biobase::fData(rv$current.obj)$P_Value
             )
 
             thpval <- rv$current.obj@experimentData@other$threshold_p_value
@@ -1439,19 +1440,19 @@ catchToList <- function(expr) {
 
 retroCompatibility <- reactive({
     req(rv$current.obj)
-    if ("FC" %in% colnames(fData(rv$current.obj))) {
-        idx <- which(colnames(fData(rv$current.obj)) == "FC")
-        names(fData(rv$current.obj))[idx] <- "logFC"
+    if ("FC" %in% colnames(Biobase::fData(rv$current.obj))) {
+        idx <- which(colnames(Biobase::fData(rv$current.obj)) == "FC")
+        names(Biobase::fData(rv$current.obj))[idx] <- "logFC"
     }
 
-    if ("Experiment" %in% colnames(pData(rv$current.obj))) {
-        idx <- which(colnames(pData(rv$current.obj)) == "Experiment")
-        names(pData(rv$current.obj))[idx] <- "Sample.name"
+    if ("Experiment" %in% colnames(Biobase::pData(rv$current.obj))) {
+        idx <- which(colnames(Biobase::pData(rv$current.obj)) == "Experiment")
+        names(Biobase::pData(rv$current.obj))[idx] <- "Sample.name"
     }
 
-    if ("Label" %in% colnames(pData(rv$current.obj))) {
-        idx <- which(colnames(pData(rv$current.obj)) == "Label")
-        names(pData(rv$current.obj))[idx] <- "Condition"
+    if ("Label" %in% colnames(Biobase::pData(rv$current.obj))) {
+        idx <- which(colnames(Biobase::pData(rv$current.obj)) == "Label")
+        names(Biobase::pData(rv$current.obj))[idx] <- "Condition"
     }
 })
 
@@ -1473,7 +1474,7 @@ NeedsUpdate <- reactive({
 
     if (!is.null(PROSTAR.version) &&
         (compareVersion(PROSTAR.version, "1.12.9") != -1) &&
-        (DAPAR::check.design(pData(rv$current.obj))$valid)) {
+        (DAPAR::check.design(Biobase::pData(rv$current.obj))$valid)) {
         return(FALSE)
     } else {
         return(TRUE)

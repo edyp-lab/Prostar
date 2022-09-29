@@ -84,12 +84,12 @@ observeEvent(input$btn_SaveDesign, {
 
     rv$current.obj <- rv$current.obj[, rv$updateDesign_newOrder]
     tmp <- rv$updateDesign_hot
-    rownames(tmp) <- colnames(exprs(rv$current.obj))
+    rownames(tmp) <- colnames(Biobase::exprs(rv$current.obj))
     # if (is.character(rownames(tmp))){
     #     rownames(tmp) <- gsub(".", "_", rownames(tmp), fixed=TRUE)
     #
     # }
-    pData(rv$current.obj) <- tmp
+    Biobase::pData(rv$current.obj) <- tmp
     loadObjectInMemoryFromConverter()
 
     rv$updateDesign_designSaved <- TRUE
@@ -193,10 +193,10 @@ output$updateDesign_hot <- renderRHandsontable({
     rv$updateDesign_hot
     input$updateDesign_chooseExpDesign
 
-    n <- nrow(pData(rv$current.obj))
+    n <- nrow(Biobase::pData(rv$current.obj))
     if (is.null(rv$updateDesign_hot)) {
         rv$updateDesign_hot <- data.frame(
-            Sample.name = as.character(pData(rv$current.obj)$Sample.name),
+            Sample.name = as.character(Biobase::pData(rv$current.obj)$Sample.name),
             Condition = rep("", n),
             stringsAsFactors = FALSE
         )

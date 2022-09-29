@@ -35,9 +35,9 @@ moduleTrackProt <- function(input, output, session, params, reset) {
 
     output$typeSelect_ui <- renderUI({
         logical.cols <- lapply(
-            colnames(fData(rv$current.obj)),
+            colnames(Biobase::fData(rv$current.obj)),
             function(x) {
-                is.logical(fData(rv$current.obj)[, x])
+                is.logical(Biobase::fData(rv$current.obj)[, x])
             }
         )
         logical.cols <- which(unlist(logical.cols))
@@ -81,7 +81,7 @@ moduleTrackProt <- function(input, output, session, params, reset) {
     output$listSelect_UI <- renderUI({
         isolate({
             .protId <- rv$current.obj@experimentData@other$proteinId
-            ll <- fData(rv$current.obj)[, .protId]
+            ll <- Biobase::fData(rv$current.obj)[, .protId]
             selectInput(ns("listSelect"), "Protein for normalization",
                 choices = ll,
                 multiple = TRUE,
@@ -94,7 +94,7 @@ moduleTrackProt <- function(input, output, session, params, reset) {
     output$randomSelect_UI <- renderUI({
         isolate({
             .protId <- rv$current.obj@experimentData@other$proteinId
-            ll <- fData(rv$current.obj)[, .protId]
+            ll <- Biobase::fData(rv$current.obj)[, .protId]
             hidden(textInput(ns("randSelect"),
                 "Random",
                 value = "1",
@@ -105,7 +105,7 @@ moduleTrackProt <- function(input, output, session, params, reset) {
 
     output$columnSelect_UI <- renderUI({
         isolate({
-            ll <- colnames(fData(rv$current.obj))
+            ll <- colnames(Biobase::fData(rv$current.obj))
             hidden(selectInput(ns("colSelect"), "Column", choices = ll))
         })
     })

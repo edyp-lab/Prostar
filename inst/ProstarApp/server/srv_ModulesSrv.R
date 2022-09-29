@@ -108,7 +108,7 @@ moduleDetQuantImpValues <- function(input, output, session, quant, factor) {
         req(rv$current.obj, quant(), factor())
 
         values <- getQuantile4Imp(
-            exprs(rv$current.obj),
+          Biobase::exprs(rv$current.obj),
             quant() / 100, factor()
         )
         DT::datatable(as.data.frame(t(values$shiftedImpVal)),
@@ -221,7 +221,7 @@ moduleVolcanoplot <- function(input, output, session,
             rv$widgets$anaDiff$th_pval
         ))
 
-        rv$nbTotalAnaDiff <- nrow(exprs(rv$current.obj))
+        rv$nbTotalAnaDiff <- nrow(Biobase::exprs(rv$current.obj))
         rv$nbSelectedAnaDiff <- NULL
         t <- NULL
 
@@ -254,23 +254,23 @@ moduleVolcanoplot <- function(input, output, session,
 
         condition1 <- gsub("[()]", "", strsplit(comp(), "_vs_")[[1]][1])
         condition2 <- gsub("[()]", "", strsplit(comp(), "_vs_")[[1]][2])
-        .ind <- (which(pData(rv$current.obj)$Condition == condition1))
+        .ind <- (which(Biobase::pData(rv$current.obj)$Condition == condition1))
         if (length(grep("all", condition2)) == 0) {
             ind <- c(
-                which(pData(rv$current.obj)$Condition == condition1),
-                which(pData(rv$current.obj)$Condition == condition2)
+                which(Biobase::pData(rv$current.obj)$Condition == condition1),
+                which(Biobase::pData(rv$current.obj)$Condition == condition2)
             )
         } else {
             ind <- c(
-                which(pData(rv$current.obj)$Condition == condition1),
-                c(1:nrow(pData(rv$current.obj)))[-.ind]
+                which(Biobase::pData(rv$current.obj)$Condition == condition1),
+                c(1:nrow(Biobase::pData(rv$current.obj)))[-.ind]
             )
         }
         ind
     })
 
     GetBorderIndices <- reactive({
-        conds <- (pData(rv$current.obj)$Condition)[GetSortingIndices()]
+        conds <- (Biobase::pData(rv$current.obj)$Condition)[GetSortingIndices()]
         ## build index for border-formatting
         borders_index <- unlist(lapply(
             unique(conds),
@@ -528,12 +528,12 @@ moduleVolcanoplot <- function(input, output, session,
                 df <- data.frame(
                     x = data()$logFC,
                     y = -log10(data()$P_Value),
-                    index = 1:nrow(fData(rv$current.obj))
+                    index = 1:nrow(Biobase::fData(rv$current.obj))
                 )
                 if (length(tooltip()) > 0 && !is.na(tooltip())) {
                     df <- cbind(
                         df,
-                        fData(rv$current.obj)[tooltip()]
+                      Biobase::fData(rv$current.obj)[tooltip()]
                     )
                 }
 
@@ -618,7 +618,7 @@ moduleBoxplot <- function(input, output, session, data, pal) {
         isolate({
             pattern <- paste0(GetCurrentObjName(), ".boxplot")
             tmp <- boxPlotD_HC(data(),
-                conds = pData(data())$Condition,
+                conds = Biobase::pData(data())$Condition,
                 legend = rv$PlotParams$legendForSamples,
                 pal = pal()
             )
@@ -629,7 +629,10 @@ moduleBoxplot <- function(input, output, session, data, pal) {
 
     output$viewViolinPlot <- renderImage(
         {
-            # req(rv$current.obj)
+          if (!requireNamespace("grDevices", quietly = TRUE)) {
+            stop("Please install grDevices: BiocManager::install('grDevices')")
+          }
+          # req(rv$current.obj)
             data()
             rv$PlotParams$legendForSamples
             rv$PlotParams$paletteForConditions
@@ -644,10 +647,10 @@ moduleBoxplot <- function(input, output, session, data, pal) {
 
                 # Generate a png
                 # png(outfile, width = 640, height = 480, units = "px")
-                png(outfile)
+                grDevices::png(outfile)
                 pattern <- paste0(GetCurrentObjName(), ".violinplot")
                 tmp <- DAPAR::violinPlotD(data(),
-                    conds = pData(data())$Condition,
+                    conds = Biobase::pData(data())$Condition,
                     legend = rv$PlotParams$legendForSamples,
                     pal = pal()
                 )

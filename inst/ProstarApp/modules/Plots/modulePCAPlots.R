@@ -107,12 +107,12 @@ pcaPlots <- function(input, output, session, data) {
     Compute_PCA_dim <- reactive({
         nmax <- 12 # ncp should not be greater than...
 
-        y <- exprs(data())
+        y <- Biobase::exprs(data())
         nprot <- dim(y)[1]
         n <- dim(y)[2] # If too big, take the number of conditions.
 
         if (n > nmax) {
-            n <- length(unique(pData(data())$Condition))
+            n <- length(unique(Biobase::pData(data())$Condition))
         }
 
         ncp <- min(n, nmax)

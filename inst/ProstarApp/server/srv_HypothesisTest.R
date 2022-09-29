@@ -340,13 +340,13 @@ output$FoldChangePlot <- renderHighchart({
     req(rv$res_AllPairwiseComparisons)
     .params <- rv$current.obj@experimentData@other$Params$HypothesisTest.protein
     name <- .params$HypothesisTest$AllPairwiseCompNames$logFC
-    l1 <- length(as.data.frame(fData(rv$current.obj)[, name]))
+    l1 <- length(as.data.frame(Biobase::fData(rv$current.obj)[, name]))
     l2 <- length(rv$res_AllPairwiseComparisons$logFC)
     req(l2 + l1 > 0)
 
     withProgress(message = "Computing plot...", detail = "", value = 0.5, {
         if (l1 > 0) {
-            tmp.df <- as.data.frame(fData(rv$current.obj)[, name])
+            tmp.df <- as.data.frame(Biobase::fData(rv$current.obj)[, name])
 
             th <- .params$HypothesisTest$th_logFC
             rv$tempplot$logFCDistr <- hc_logFC_DensityPlot(tmp.df, th)
@@ -380,8 +380,8 @@ ComputeComparisons <- reactive({
     switch(rv$widgets$hypothesisTest$method,
         Limma = {
             df <- DAPAR::limmaCompleteTest(
-                exprs(rv$current.obj),
-                pData(rv$current.obj),
+              Biobase::exprs(rv$current.obj),
+              Biobase::pData(rv$current.obj),
                 rv$widgets$hypothesisTest$design
             )
         },
