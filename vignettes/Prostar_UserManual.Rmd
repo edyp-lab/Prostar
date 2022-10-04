@@ -1,9 +1,9 @@
 ---
-title: "Prostar_UserManual"
+title: "Prostar user manual"
 author: 
 - name: Samuel Wieczorek
 - name: Thomas Burger
-package: Prostar
+package: DAPAR
 abstract: >
     The package Prostar (Proteomics statistical analysis with R)
     is a Bioconductor distributed R package which provides all the  necessary 
@@ -11,8 +11,8 @@ abstract: >
     experiments. Contrarily to most other similar R packages, it is endowed 
     with rich and user-friendly graphical interfaces, so that no programming 
     skill is required. This document covers the functionalities available in 
-    `r BiocStyle::pkg_ver('Prostar')`,
-    `r BiocStyle::pkg_ver('DAPAR')`, `r BiocStyle::pkg_ver('DAPARdata')`.
+    `r BiocStyle::pkg_ver('Prostar')`, `r BiocStyle::pkg_ver('DAPAR')`, 
+    `r BiocStyle::pkg_ver('DAPARdata')`.
 date: "`r Sys.Date()`"
 output:
     BiocStyle::pdf_document:
@@ -20,7 +20,7 @@ output:
 vignette: >
     %\VignetteIndexEntry{Prostar User Manual}
     %\VignetteEngine{knitr::rmarkdown}
-    %%\VignetteKeywords{Mass Spectrometry, Quantitative }
+    %%\VignetteKeywords{Mass Spectrometry, Quantitative}
     %\VignetteEncoding{UTF-8}
 ---
 
