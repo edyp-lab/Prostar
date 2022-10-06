@@ -45,7 +45,7 @@ toto <- reactive({
 
         ### for each available dataset, create the selected plots
         for (i in 1:length(names(rv$dataset))) {
-            print(paste0("Dataset:", names(rv$dataset)[i]))
+            #print(paste0("Dataset:", names(rv$dataset)[i]))
             widgetName <- paste0("plotsFor.", names(rv$dataset)[i])
             widgetName <- gsub(".", "_", widgetName, fixed = TRUE)
             write(paste0("# ", gsub(".", "_", names(rv$dataset)[i], fixed = TRUE), "
@@ -61,7 +61,7 @@ toto <- reactive({
                 params <- NULL
                 # params <- GetParamsForPlot()
                 # pngfile <- createPNG_BoxplotHC(obj,params,basename = pattern)
-                print(paste0("createPNG_", plot.name))
+                #print(paste0("createPNG_", plot.name))
                 pngfile <- do.call(
                     paste0("createPNG_", plot.name),
                     list(obj = obj, params = params, basename = pattern)

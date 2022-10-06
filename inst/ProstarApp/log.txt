@@ -1,0 +1,32 @@
+message : tempdir() = C:\Users\sw175264\AppData\Local\Temp\RtmpUzZtqn
+Warning in server(...) : A warning from warning()
+Warning: Strategy 'multiprocess' is deprecated in future (>= 1.20.0) [2020-10-30]. Instead, explicitly specify either 'multisession' (recommended) or 'multicore'. In the current R session, 'multiprocess' equals 'multisession'.
+
+
+
+Listening on http://127.0.0.1:4074
+Warning in bslib::page_navbar(..., title = title, id = id, selected = selected,  :
+  Unable to infer a `window_title` default from `title`. Consider providing a character string to `window_title`.
+Warning in sink() : no sink to remove
+Warning in sink() : no sink to remove
+Warning: Strategy 'multiprocess' is deprecated in future (>= 1.20.0) [2020-10-30]. Instead, explicitly specify either 'multisession' (recommended) or 'multicore'. In the current R session, 'multiprocess' equals 'multisession'.
+
+
+
+Listening on http://127.0.0.1:4074
+Warning in bslib::page_navbar(..., title = title, id = id, selected = selected,  :
+  Unable to infer a `window_title` default from `title`. Consider providing a character string to `window_title`.
+Warning in sink() : no sink to remove
+Warning in sink() : no sink to remove
+Warning: Strategy 'multiprocess' is deprecated in future (>= 1.20.0) [2020-10-30]. Instead, explicitly specify either 'multisession' (recommended) or 'multicore'. In the current R session, 'multiprocess' equals 'multisession'.
+
+
+
+Listening on http://127.0.0.1:4074
+Warning in bslib::page_navbar(..., title = title, id = id, selected = selected,  :
+  Unable to infer a `window_title` default from `title`. Consider providing a character string to `window_title`.
+Warning in sink() : no sink to remove
+Warning in sink() : no sink to remove
+Warning: Strategy 'multiprocess' is deprecated in future (>= 1.20.0) [2020-10-30]. Instead, explicitly specify either 'multisession' (recommended) or 'multicore'. In the current R session, 'multiprocess' equals 'multisession'.
+
+

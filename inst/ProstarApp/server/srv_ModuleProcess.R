@@ -34,7 +34,7 @@ moduleProcess <- function(input,
     observeEvent(c(forceReset(), input$rstBtn), {
         current()
         if (forceReset() > 0 || input$rstBtn > 0) {
-            print("ON FAIT LE RESET EFFECTIF")
+            #print("ON FAIT LE RESET EFFECTIF")
             rstFunc()
             current(1)
         }

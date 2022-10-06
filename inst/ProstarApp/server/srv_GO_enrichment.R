@@ -101,7 +101,7 @@ output$resettableUniverseFile <- renderUI({
 
 
 output$screenGO1 <- renderUI({
-    print("output$screenGO1 <- renderUI")
+    #print("output$screenGO1 <- renderUI")
     tagList(
         tags$div(
             tags$div(
@@ -366,13 +366,13 @@ output$warnDifferentSizeID <- renderUI({
 
 
 observeEvent(input$mapProtein.GO.button, ignoreInit = TRUE, {
-    print("IN MAP button")
+    #print("IN MAP button")
     req(rv$widgets$go$UniprotIDCol)
     rv$widgets$go$Organism
     rv$widgets$go$idFrom
 
     if (rv$widgets$go$UniprotIDCol == "") {
-        print("toto")
+        #print("toto")
         rv$widgets$go$ProtIDList <- NULL
         return(NULL)
     }
@@ -425,7 +425,7 @@ observeEvent(input$perform.GO.button, ignoreInit = TRUE, {
     # req(rv$widgets$go$perform.GO.button)
     req(rv$widgets$go$ratio)
 
-    print(rv$widgets$go$ratio)
+    #print(rv$widgets$go$ratio)
     if (rv$widgets$go$ratio == 100) {
         return(NULL)
     }

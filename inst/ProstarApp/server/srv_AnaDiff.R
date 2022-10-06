@@ -15,15 +15,11 @@ convertAnaDiff2DF <- reactive({
 
 
 callModule(moduleVolcanoplot, "volcano_Step1",
-    data = reactive({
-        rv$resAnaDiff
-    }),
+    data = reactive({rv$resAnaDiff}),
     comp = reactive({
         as.character(rv$widgets$anaDiff$Comparison)
     }),
-    tooltip = reactive({
-        rv$widgets$anaDiff$tooltipInfo
-    })
+    tooltip = reactive({rv$widgets$anaDiff$tooltipInfo})
 )
 
 callModule(moduleVolcanoplot, "volcano_Step2",
@@ -218,29 +214,33 @@ output$screenAnaDiff1 <- renderUI({
 
 output$pushpval_ui <- renderUI({
     req(rv$widgets$anaDiff$Comparison != "None")
+  
     callModule(modulePopover, "modulePopover_pushPVal",
-        data = reactive(list(
+        data = reactive(
+          list(
             title = h3("Push p-value"),
-            content = "This functionality is useful in
-               case of multiple pairwise comparisons (more than 2 conditions):
-      At the filtering step, a given analyte X (either peptide or protein) may
-      have been kept because it contains very few missing values in a given
-      condition (say Cond. A), even though it contains (too) many of them in
-      all other conditions (say Cond B and C only contains “MEC” type missing
-      values). Thanks to the imputation step, these missing values are no
-      longer an issue for the differential analysis, at least from the
-      computational viewpoint. However, statistically speaking, when
-      performing B vs C, the test will rely on too many imputed missing
-      values to derive a meaningful p-value: It may be wiser to consider
-      analyte X as non-differentially abundant, regardless the test result
-      (and thus, to push its p-value to 1). This is just the role of the
-      “P-value push” parameter. It makes it possible to introduce a new
-      filtering step that only applies to each pairwise comparison, and
-      which assigns a p-value of 1 to analytes that, for the considered
-      comparison are assumed meaningless due to too many missing values
-      (before imputation)."
-        ))
+            content = "This functionality is useful in case of multiple pairwise comparisons 
+              (more than 2 conditions): At the filtering step, a given analyte X
+              (either peptide or protein) may have been kept because it contains
+              very few missing values in a given condition (say Cond. A), even
+              though it contains (too) many of them in all other conditions
+              (say Cond B and C only contains 'MEC' type missing values).
+              Thanks to the imputation step, these missing values are no
+              longer an issue for the differential analysis, at least from
+              the computational viewpoint. However, statistically speaking,
+              when performing B vs C, the test will rely on too many imputed
+              missing values to derive a meaningful p-value: It may be wiser
+              to consider analyte X as non-differentially abundant, regardless
+              the test result (and thus, to push its p-value to 1). This is just
+              the role of the P-value push parameter. It makes it possible to
+              introduce a new filtering step that only applies to each pairwise
+              comparison, and which assigns a p-value of 1 to analytes that, for
+              the considered comparison are assumed meaningless due to too many
+              missing values (before imputation)."
+          )
+        )
     )
+
 
     wellPanel(
         modulePopoverUI("modulePopover_pushPVal"),
@@ -383,6 +383,8 @@ observeEvent(input$AnaDiff_performFilteringMV,
         if (!is.null(AnaDiff_indices()$indices) &&
             length(.ind$indices) < nrow(Get_Dataset_to_Analyze())) {
             rv$resAnaDiff$P_Value[-(.ind$indices)] <- 1
+            n <- length(rv$resAnaDiff$P_Value)
+            rv$resAnaDiff$pushed <- seq_len(n)[-(.ind$indices)]
         }
     }
 )
@@ -880,7 +882,7 @@ output$calibrationPlotAll <- renderImage(
 ###
 
 output$screenAnaDiff3 <- renderUI({
-    print("in output$screenAnaDiff3")
+    #print("in output$screenAnaDiff3")
 
     if (as.character(rv$widgets$anaDiff$Comparison) == "None") {
         return(NULL)
@@ -934,7 +936,7 @@ output$screenAnaDiff3 <- renderUI({
                         )
                     )
                 ),
-                hidden(DTOutput("anaDiff_selectedItems"))
+                hidden(DT::DTOutput("anaDiff_selectedItems"))
             )
         )
     })
@@ -951,7 +953,7 @@ output$screenAnaDiff3 <- renderUI({
 output$screenAnaDiff4 <- renderUI({
     req(as.character(rv$widgets$anaDiff$Comparison) != "None")
     tagList(
-        mod_static_ui("params_AnaDiff")
+        mod_staticDT_ui("params_AnaDiff")
     )
 })
 
@@ -959,7 +961,7 @@ output$diffAna_Summary <- renderUI({
     req(as.character(rv$widgets$anaDiff$Comparison) != "None")
 
     tagList(
-        mod_static_ui("params_AnaDiff")
+        mod_staticDT_ui("params_AnaDiff")
     )
 })
 
@@ -984,7 +986,7 @@ observeEvent(input$valid_seuilPVal, {
 
 
 observeEvent(input$showpvalTable, {
-    print("show : anaDiff_selectedItems")
+    #print("show : anaDiff_selectedItems")
     shinyjs::toggle(
         id = "anaDiff_selectedItems",
         condition = isTRUE(input$showpvalTable)
@@ -1014,7 +1016,7 @@ callModule(modulePopover, "modulePopover_pValThreshold",
 )
 
 
-output$anaDiff_selectedItems <- renderDT({
+output$anaDiff_selectedItems <- DT::renderDT({
     DT::datatable(GetSelectedItems(),
         escape = FALSE,
         rownames = FALSE,
@@ -1135,7 +1137,7 @@ output$showFDR <- renderUI({
         )
     )
     th <- Get_FDR() * nb
-    print(th)
+    #print(th)
 
 
     tagList(

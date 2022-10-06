@@ -8,7 +8,8 @@ modulePopover <- function(input, output, session, data) {
 
     output$customPopover <- renderUI({
         req(data())
-
+        
+        tagList(
         div(
             div(
                 # edit1
@@ -39,6 +40,7 @@ modulePopover <- function(input, output, session, data) {
                     options = list(container = "body")
                 )
             )
+        )
         )
     })
 }

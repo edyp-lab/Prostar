@@ -12,7 +12,7 @@ output$chooseDataset <- renderUI({
     }
 
     if (!require("DAPARdata", lib.loc = DAPARdata.loc)) {
-        print("Installing DAPARdata")
+        #print("Installing DAPARdata")
         BiocManager::install("DAPARdata")
     }
     if (!require(DAPARdata)) {
@@ -20,9 +20,9 @@ output$chooseDataset <- renderUI({
     }
 
 
-    print("DAPARdata is loaded correctly")
+    #print("DAPARdata is loaded correctly")
     if (require(DAPARdata)) {
-        print("DAPARdata installed and loaded")
+        #print("DAPARdata installed and loaded")
         selectInput("demoDataset",
             "Demo dataset",
             choices = c(

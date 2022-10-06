@@ -322,7 +322,7 @@ ComputeConnectedComposants <- reactive({
         }
     )
 
-    print("end ComputeConnectedComponents")
+    #print("end ComputeConnectedComponents")
 
     list(
         allPep = ll1,
@@ -408,7 +408,7 @@ loadObjectInMemoryFromConverter <- function() {
             !is.null(rv$proteinId) && (rv$proteinId != "")) {
             # browser()
             if (is.null(DAPAR::GetMatAdj(rv$current.obj))) {
-                print("Start computing adjacency matrix")
+                #print("Start computing adjacency matrix")
                 incProgress(0.6, detail = "Compute Adjacency Matrices")
                 rv$current.obj <- SetMatAdj(
                     rv$current.obj,
@@ -418,7 +418,7 @@ loadObjectInMemoryFromConverter <- function() {
 
 
             if (is.null(GetCC(rv$current.obj))) {
-                print("Start computing Connected Components")
+                #print("Start computing Connected Components")
                 incProgress(0.7, detail = "Compute Connected Components")
                 rv$current.obj <- SetCC(
                     rv$current.obj,
@@ -1530,17 +1530,26 @@ GetBioconductorVersions <- reactive({
             ll.versions$DAPAR <- bioc["DAPAR", "Version"]
             rl <- "http://www.bioconductor.org/packages/release/data/experiment"
             biocExperiment <- available.packages(
-                contrib.url(.rl)
+                contrib.url(rl)
             )
             ll.versions$DAPARdata <- biocExperiment["DAPARdata", "Version"]
         },
         warning = function(w) {
-            warning(e)
+            #message(w)
+            print(w)
             return()
         },
         error = function(e) {
+            # shinyjs::info(conditionMessage(e))
+            # return(NULL)
+            # if(showErrLog)
+            #     #     shinyjs::info(conditionMessage(e))
+            #     # return(NULL)
+            #     mod_errorModal_server("test_error",
+            #         reactive({readLines(logfilename)})
+            #     )
             print(e)
-            return()
+            return(NULL)
         },
         finally = {
             # cleanup-code

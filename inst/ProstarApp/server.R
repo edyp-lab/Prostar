@@ -45,19 +45,19 @@ shinyServer(
     # Sys.setlocale("LC_ALL", 'en_GB.UTF-8')
     # Sys.setlocale("LC_ALL", 'fr_FR.UTF-8')
     # Sys.setenv(LANG = "fr")
-    # sink()
-    # sink()
+     sink()
+     sink()
     #  logfilename <- tempfile(fileext=".log")
     #  print(logfilename)
-    #  showErrLog <- TRUE
+      showErrLog <- TRUE
     #showErrLog <- FALSE
     
     # Redirect both message() and error outputs to a file
-     # if (showErrLog){
-     #     con <- file(logfilename, open="wt")
-     #     #sink(con, append=TRUE, type="message")
-     #     sink(con, append=TRUE, type="output")
-     # }
+      #if (showErrLog){
+      #    con <- file(logfilename, open="wt")
+      #    sink(con, append=TRUE, type="message")
+          #sink(con, append=TRUE, type="output")
+      #}
     
     #message(paste0('message : tempdir() = ', tempdir()))
     #warning("A warning from warning()")
@@ -93,12 +93,13 @@ shinyServer(
          },
      error = function(e) {
          #if(showErrLog)
-             shinyjs::info(conditionMessage(e))
-         return(NULL)
-         #     mod_errorModal_server("test_error",
-         #         reactive({readLines(logfilename)})
-         # )
+         #     shinyjs::info(conditionMessage(e))
          # return(NULL)
+         #    mod_errorModal_server("test_error",
+         #        reactive({readLines(logfilename)})
+         #)
+         print(e)
+         return(NULL)
      })
 
 #loadLibraries()
@@ -220,10 +221,13 @@ shinyServer(
         )
         },
             error = function(e) {
-                if(showErrLog)
-                    mod_errorModal_server("err2",
-                        reactive({readLines(logfilename)})
-                    )
+                # shinyjs::info(conditionMessage(e))
+                # return(NULL)
+                # if(showErrLog)
+                #     mod_errorModal_server("err2",
+                #         reactive({readLines(logfilename)})
+                #     )
+                print(e)
                 return(NULL)
             })
 

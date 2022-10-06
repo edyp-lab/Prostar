@@ -83,7 +83,7 @@ mod_open_demoDataset_server <- function(id) {
 
         ### function for demo mode
         output$chooseDemoDataset <- renderUI({
-            print("DAPARdata is loaded correctly")
+            #print("DAPARdata is loaded correctly")
             selectInput(ns("demoDataset"),
                 "Demo dataset",
                 choices = c(

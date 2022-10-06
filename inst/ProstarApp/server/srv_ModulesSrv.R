@@ -207,7 +207,7 @@ moduleVolcanoplot <- function(input, output, session,
             pattern = "missing",
             level = "peptide"
         )
-        req(length(which(m)) > 0)
+        #req(length(which(m)) > 0)
 
         p <- data()
         upItemsPVal <- NULL
@@ -237,15 +237,29 @@ moduleVolcanoplot <- function(input, output, session,
         }
         rv$nbSelectedAnaDiff <- length(t)
 
-        txt <- paste("Total number of ", rv$typeOfDataset, "(s) = ",
-            rv$nbTotalAnaDiff, "<br>",
-            "Number of selected ", rv$typeOfDataset, "(s) = ",
-            rv$nbSelectedAnaDiff, "<br>",
-            "Number of non selected ", rv$typeOfDataset, "(s) = ",
-            (rv$nbTotalAnaDiff - rv$nbSelectedAnaDiff),
-            sep = ""
+        
+        ##
+        ## Condition: A = C + D
+        ##
+        A <- rv$nbTotalAnaDiff
+        B <- A - length(rv$resAnaDiff$pushed)
+        C <- rv$nbSelectedAnaDiff
+        D <- ( A - C)
+        # 
+        # txt <- paste("Total number of ", rv$typeOfDataset, "(s) = ", A , "<br>",
+        #   "\t <em>Total remaining after push p-values = ", B , "</em><br>",
+        #     paste("Number of selected ", rv$typeOfDataset, "(s) = ", C, sep=''),
+        #     paste("Number of non selected ", rv$typeOfDataset, "(s) = ", D, sep = ''),
+        #     sep = ""
+        # )
+        
+        div(id="bloc_page",
+          p(paste("Total number of ", rv$typeOfDataset, "(s) = ", A, sep = '' )),
+          tags$em(p(style = "padding:0 0 0 20px;", paste("Total remaining after push p-values = ", B, sep=''))),
+          p(paste("Number of selected ", rv$typeOfDataset, "(s) = ", C, sep = '')),
+          p(paste("Number of non selected ", rv$typeOfDataset, "(s) = ", D, sep = ''))
         )
-        HTML(txt)
+        #HTML(txt)
     })
 
 
@@ -761,7 +775,7 @@ moduleFilterStringbasedOptions <- function(input, output, session) {
 moduleInsertMarkdown <- function(input, output, session, url) {
     ns <- session$ns
     output$insertMD <- renderUI({
-        print(url)
+        #print(url)
         tryCatch(
             {
                 includeMarkdown(url)
