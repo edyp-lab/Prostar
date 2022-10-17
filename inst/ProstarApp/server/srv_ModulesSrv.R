@@ -254,6 +254,7 @@ moduleVolcanoplot <- function(input, output, session,
         # )
         
         div(id="bloc_page",
+          style = "background-color: lightgrey; width: 300px",
           p(paste("Total number of ", rv$typeOfDataset, "(s) = ", A, sep = '' )),
           tags$em(p(style = "padding:0 0 0 20px;", paste("Total remaining after push p-values = ", B, sep=''))),
           p(paste("Number of selected ", rv$typeOfDataset, "(s) = ", C, sep = '')),
