@@ -963,7 +963,7 @@ output$screenAnaDiff3 <- renderUI({
 output$screenAnaDiff4 <- renderUI({
     req(as.character(rv$widgets$anaDiff$Comparison) != "None")
     tagList(
-        mod_static_ui("params_AnaDiff")
+        mod_staticDT_ui("params_AnaDiff")
     )
 })
 
@@ -971,7 +971,7 @@ output$diffAna_Summary <- renderUI({
     req(as.character(rv$widgets$anaDiff$Comparison) != "None")
 
     tagList(
-        mod_static_ui("params_AnaDiff")
+        mod_staticDT_ui("params_AnaDiff")
     )
 })
 
