@@ -109,20 +109,23 @@ output$screenFiltering1 <- renderUI({
 })
 
 
+
+
 indices <- mod_query_metacell_server(
     id = "query",
-    obj = reactive({
-        rv$current.obj
-    }),
+    obj = reactive({rv$current.obj}),
     list_tags = reactive({
         c(
             "None" = "None",
-            DAPAR::metacell.def(GetTypeofData(rv$current.obj))$node
+            #DAPAR::metacell.def(GetTypeofData(rv$current.obj))$node
+            unique(unlist(DAPAR::GetMetacellTags(level = GetTypeofData(rv$current.obj),
+                obj = rv$current.obj,
+                onlyPresent = TRUE)))
+            #tagExists(DAPAR::metacell.def(GetTypeofData(rv$current.obj))$node, rv$current.obj)
+        
         )
     }),
-    keep_vs_remove = reactive({
-        setNames(nm = c("delete", "keep"))
-    }),
+    keep_vs_remove = reactive({setNames(nm = c("delete", "keep"))}),
     filters = reactive({
         c(
             "None" = "None",

@@ -31,24 +31,12 @@ mod_query_metacell_ui <- function(id) {
 
 mod_query_metacell_server <- function(id,
                                       obj,
-                                      list_tags = reactive({
-                                          NULL
-                                      }),
-                                      keep_vs_remove = reactive({
-                                          NULL
-                                      }),
-                                      filters = reactive({
-                                          NULL
-                                      }),
-                                      val_vs_percent = reactive({
-                                          NULL
-                                      }),
-                                      operator = reactive({
-                                          NULL
-                                      }),
-                                      reset = reactive({
-                                          0
-                                      })) {
+                                      list_tags = reactive({NULL}),
+                                      keep_vs_remove = reactive({NULL}),
+                                      filters = reactive({NULL}),
+                                      val_vs_percent = reactive({NULL}),
+                                      operator = reactive({NULL}),
+                                      reset = reactive({0})) {
     rv <- reactiveValues(
         indices = NULL,
         trigger = NULL,
@@ -183,18 +171,10 @@ mod_query_metacell_server <- function(id,
 
                 mod_filtering_example_server(
                     id = "filteringExample",
-                    obj = reactive({
-                        obj()
-                    }),
-                    indices = reactive({
-                        CompileIndices()
-                    }),
-                    params = reactive({
-                        rv.widgets
-                    }),
-                    txt = reactive({
-                        WriteQuery()
-                    })
+                    obj = reactive({obj()}),
+                    indices = reactive({CompileIndices()}),
+                    params = reactive({rv.widgets}),
+                    txt = reactive({WriteQuery()})
                 )
 
                 mod_filtering_example_ui(ns("filteringExample"))

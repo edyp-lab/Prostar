@@ -319,7 +319,10 @@ AnaDiff_indices <- mod_query_metacell_server(
     list_tags = reactive({
         c(
             "None" = "None",
-            DAPAR::metacell.def(GetTypeofData(rv$current.obj))$node
+          unique(unlist(DAPAR::GetMetacellTags(level = GetTypeofData(rv$current.obj),
+            obj = rv$current.obj,
+            onlyPresent = TRUE)))
+          #DAPAR::metacell.def(GetTypeofData(rv$current.obj))$node
         )
     }),
     keep_vs_remove = reactive({
