@@ -204,7 +204,7 @@ moduleVolcanoplot <- function(input, output, session,
 
 
         m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
-            pattern = "missing",
+            pattern = "Missing",
             level = "peptide"
         )
         #req(length(which(m)) > 0)
@@ -534,7 +534,7 @@ moduleVolcanoplot <- function(input, output, session,
         isolate({
             withProgress(message = "Building plot...", detail = "", value = 0, {
                 m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
-                    pattern = "missing",
+                    pattern = "Missing",
                     level = DAPAR::GetTypeofData(rv$current.obj)
                 )
                 if (length(which(m)) > 0) {

@@ -191,7 +191,7 @@ output$screenHypoTest1 <- renderUI({
     req(rv$current.obj)
     isolate({
         m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
-            pattern = "missing",
+            pattern = "Missing",
             level = DAPAR::GetTypeofData(rv$current.obj)
         )
         NA.count <- length(which(m))
@@ -370,7 +370,7 @@ ComputeComparisons <- reactive({
 
 
     m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
-        pattern = "missing",
+        pattern = "Missing",
         level = DAPAR::GetTypeofData(rv$current.obj)
     )
     req(length(which(m)) == 0)

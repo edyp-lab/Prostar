@@ -309,7 +309,7 @@ mod_MSnSetExplorer_server <- function(id,
                 }),
                 df.tags = reactive({
                     cbind(
-                        keyId = rep("identified", nrow(data())),
+                        keyId = rep("Quant. by direct id", nrow(data())),
                         GetMetacell(data())
                     )
                 })

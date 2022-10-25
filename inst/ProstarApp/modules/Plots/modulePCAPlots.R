@@ -41,7 +41,7 @@ pcaPlots <- function(input, output, session, data) {
     output$pcaOptions <- renderUI({
         req(data())
         m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
-            pattern = "missing",
+            pattern = "Missing",
             level = DAPAR::GetTypeofData(rv$current.obj)
         )
         tagList(

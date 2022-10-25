@@ -4,7 +4,7 @@ callModule(moduleMVPlots, "mvImputationPlots_PeptideLevel",
     data = reactive(rv$current.obj),
     title = reactive("POV distribution"),
     pal = reactive(rv$PlotParams$paletteForConditions),
-    pattern = "missing"
+    pattern = "Missing"
 )
 
 
@@ -369,7 +369,7 @@ output$peptideLevel_TAB_detQuant_impValues <- DT::renderDataTable(server = TRUE,
 ##' @author Samuel Wieczorek
 observeEvent(input$peptideLevel_perform.imputation.button, {
     m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
-        pattern = "missing",
+        pattern = "Missing",
         level = DAPAR::GetTypeofData(rv$current.obj)
     )
     nbMVBefore <- length(which(m))
@@ -405,13 +405,13 @@ observeEvent(input$peptideLevel_perform.imputation.button, {
                         rv$current.obj <- wrapper.impute.KNN(
                             rv$dataset[[input$datasets]],
                             K = .widget$pepLevel_KNN_n,
-                            na.type = "missing POV"
+                            na.type = "Missing POV"
                         )
                     },
                     MLE = {
                         rv$current.obj <- wrapper.impute.mle(
                             obj = rv$dataset[[input$datasets]],
-                            na.type = "missing POV"
+                            na.type = "Missing POV"
                         )
                     },
                     detQuantile = {
@@ -419,7 +419,7 @@ observeEvent(input$peptideLevel_perform.imputation.button, {
                             rv$dataset[[input$datasets]],
                             qval = (.widget$pepLevel_detQuantile / 100),
                             factor = .widget$pepLevel_detQuant_factor,
-                            na.type = "missing POV"
+                            na.type = "Missing POV"
                         )
                     }
                 )
@@ -430,7 +430,7 @@ observeEvent(input$peptideLevel_perform.imputation.button, {
 
 
     m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
-        pattern = "missing",
+        pattern = "Missing",
         level = DAPAR::GetTypeofData(rv$current.obj)
     )
     nbMVAfter <- length(which(m))

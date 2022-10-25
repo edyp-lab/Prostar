@@ -62,7 +62,7 @@ output$infoAboutDemoDataset <- renderUI({
 
     isolate({
         m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
-            pattern = "missing",
+            pattern = "Missing",
             level = "peptide"
         )
         NA.count <- length(which(m))

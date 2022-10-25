@@ -67,9 +67,9 @@ mod_filtering_example_server <- function(id, obj, indices, params, txt) {
             legendTypeMV <- list(
                 MEC = "Missing in Entire Condition (MEC)",
                 POV = "Partially Observed Value (POV)",
-                identified = "Identified",
-                recovered = "Recovered",
-                combined = "Combined"
+                identified = "Quant. by direct id",
+                recovered = "Quant. by recovery",
+                combined = "Combined tags"
             )
 
 

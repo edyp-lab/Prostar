@@ -602,7 +602,7 @@ histPValue <- reactive({
         return()
     }
     m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
-        pattern = "missing",
+        pattern = "Missing",
         level = "peptide"
     )
     if (length(which(m)) > 0) {
@@ -676,7 +676,7 @@ calibrationPlot <- reactive({
     }
 
     m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
-        pattern = "missing",
+        pattern = "Missing",
         level = "peptide"
     )
     if (length(which(m)) > 0) {
@@ -812,7 +812,7 @@ calibrationPlotAll <- reactive({
         return()
     }
     m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
-        pattern = "missing",
+        pattern = "Missing",
         level = "peptide"
     )
     if (length(which(m)) > 0) {

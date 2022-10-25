@@ -265,7 +265,7 @@ output$pcaPlotEigen <- renderHighchart({
 output$pcaOptions <- renderUI({
     req(rv$current.obj)
     m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
-        pattern = "missing",
+        pattern = "Missing",
         level = DAPAR::GetTypeofData(rv$current.obj)
     )
 

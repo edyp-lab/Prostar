@@ -115,7 +115,7 @@ GetDatasetOverview <- reactive({
     )
 
     m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
-        pattern = "missing",
+        pattern = "Missing",
         level = DAPAR::GetTypeofData(rv$current.obj)
     )
     NA.count <- length(which(m))
@@ -428,7 +428,7 @@ loadObjectInMemoryFromConverter <- function() {
         }
 
         m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
-            pattern = "missing",
+            pattern = "Missing",
             level = DAPAR::GetTypeofData(rv$current.obj)
         )
 
@@ -1020,9 +1020,9 @@ ClearMemory <- function() {
     rv$legendTypeMV <- list(
         MEC = "Missing in Entire Condition (MEC)",
         POV = "Partially Observed Value (POV)",
-        identified = "Identified",
-        recovered = "Recovered",
-        combined = "Combined"
+        identified = "Quant. by direct id",
+        recovered = "Quant. by recovery",
+        combined = "Combined tags"
     )
 
 

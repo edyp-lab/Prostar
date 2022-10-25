@@ -198,7 +198,7 @@ output$warningAgregationMethod <- renderUI({
     req(rv$current.obj)
 
     m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
-        pattern = "missing",
+        pattern = "Missing",
         level = "peptide"
     )
     # browser()

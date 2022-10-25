@@ -7,7 +7,7 @@ callModule(moduleMVPlots, "mvImputationPlots_MV",
     }),
     title = reactive("POV distribution"),
     pal = reactive(rv$PlotParams$paletteForConditions),
-    pattern = "missing"
+    pattern = "Missing"
 )
 
 callModule(moduleMVPlots, "mvImputationPlots_MEC",
@@ -16,7 +16,7 @@ callModule(moduleMVPlots, "mvImputationPlots_MEC",
     }),
     title = reactive("Distribution after POV imputation"),
     pal = reactive(rv$PlotParams$paletteForConditions),
-    pattern = "missing"
+    pattern = "Missing"
 )
 
 callModule(moduleMVPlots, "mvImputationPlots_Valid",
@@ -25,7 +25,7 @@ callModule(moduleMVPlots, "mvImputationPlots_Valid",
     }),
     title = reactive("Distribution after POV and MEC imputation"),
     pal = reactive(rv$PlotParams$paletteForConditions),
-    pattern = "missing"
+    pattern = "Missing"
 )
 
 callModule(
@@ -251,7 +251,7 @@ output$POV_Params <- renderUI({
 observeEvent(input$perform.POVimputation.button, {
     rv$current.obj
     m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
-        pattern = "missing POV",
+        pattern = "Missing POV",
         level = DAPAR::GetTypeofData(rv$current.obj)
     )
     nbPOVBefore <- length(which(m))
@@ -266,7 +266,7 @@ observeEvent(input$perform.POVimputation.button, {
                 incProgress(0.5, detail = "slsa Imputation")
                 rv$current.obj <- wrapper.impute.slsa(
                     rv$dataset[[input$datasets]],
-                    na.type = "missing POV"
+                    na.type = "Missing POV"
                 )
             },
             detQuantile = {
@@ -275,7 +275,7 @@ observeEvent(input$perform.POVimputation.button, {
                     obj = rv$dataset[[input$datasets]],
                     qval = rv$widgets$proteinImput$POV_detQuant_quantile / 100,
                     factor = rv$widgets$proteinImput$POV_detQuant_factor,
-                    na.type = "missing POV"
+                    na.type = "Missing POV"
                 )
             },
             KNN = {
@@ -283,14 +283,14 @@ observeEvent(input$perform.POVimputation.button, {
                 rv$current.obj <- wrapper.impute.KNN(
                     rv$dataset[[input$datasets]],
                     rv$widgets$proteinImput$POV_KNN_n,
-                    na.type = "missing POV"
+                    na.type = "Missing POV"
                 )
             }
         )
         # incProgress(0.75, detail = 'Reintroduce MEC blocks')
         incProgress(1, detail = "Finalize POV imputation")
         m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
-            pattern = "missing POV",
+            pattern = "Missing POV",
             level = DAPAR::GetTypeofData(rv$current.obj)
         )
         nbPOVAfter <- length(which(m))
@@ -464,7 +464,7 @@ observeEvent(input$perform.imputationMEC.button, {
         incProgress(0.25, detail = "Reintroduce MEC")
 
         m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
-            pattern = "missing MEC",
+            pattern = "Missing MEC",
             level = DAPAR::GetTypeofData(rv$current.obj)
         )
         nbMECBefore <- length(which(m))
@@ -475,19 +475,19 @@ observeEvent(input$perform.imputationMEC.button, {
                 rv$current.obj <- wrapper.impute.detQuant(rv$current.obj,
                     qval = rv$widgets$proteinImput$MEC_detQuant_quantile / 100,
                     factor = rv$widgets$proteinImput$MEC_detQuant_factor,
-                    na.type = "missing MEC"
+                    na.type = "Missing MEC"
                 )
             },
             fixedValue = {
                 rv$current.obj <- wrapper.impute.fixedValue(rv$current.obj,
                     fixVal = rv$widgets$proteinImput$MEC_fixedValue,
-                    na.type = "missing MEC"
+                    na.type = "Missing MEC"
                 )
             }
         )
 
         m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
-            pattern = "missing MEC",
+            pattern = "Missing MEC",
             level = DAPAR::GetTypeofData(rv$current.obj)
         )
         nbMECAfter <- length(which(m))
