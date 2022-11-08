@@ -72,7 +72,7 @@ output$Convert_SelectFile <- renderUI({
     tagList(
         br(), br(),
         radioButtons("choose_software", "Software to import from",
-            choices = setNames(nm = c("maxquant", "proline")),
+            choices = setNames(nm = DAPAR::GetSoftAvailables()),
             selected = character(0)
         ),
         uiOutput("choose_file_to_import"),
