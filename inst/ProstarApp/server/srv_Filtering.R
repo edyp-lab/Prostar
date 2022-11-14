@@ -145,6 +145,7 @@ indices <- mod_query_metacell_server(
 
 
 
+
 observeEvent(req(indices()$params$MetacellTag), {
     shinyjs::toggleState("performMetacellFiltering",
         condition = indices()$params$MetacellTag != "None"

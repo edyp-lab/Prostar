@@ -1,3 +1,23 @@
+#'
+#'@examples
+#' ui <- fluidPage(
+#'    modulePopoverUI('test')
+#')
+#'server <- function(input, output) {
+#'    callModule(modulePopover, "test",
+#'        data = reactive(list(
+#'            title = "Title",
+#'            content = "Content"
+#'        ))
+#'    )
+#'}
+
+shinyApp(ui = ui, server = server)
+
+
+
+
+
 modulePopoverUI <- function(id) {
     ns <- NS(id)
     uiOutput(ns("customPopover"))
@@ -5,7 +25,9 @@ modulePopoverUI <- function(id) {
 
 modulePopover <- function(input, output, session, data) {
     ns <- session$ns
-
+    if (!requireNamespace("shinyBS", quietly = TRUE)) {
+        stop("Please install shinyBS: BiocManager::install('shinyBS')")
+    }
     output$customPopover <- renderUI({
         req(data())
         
@@ -27,7 +49,7 @@ modulePopover <- function(input, output, session, data) {
                         class = "Prostar_tooltip_white"
                     )
                 } else {
-                    tags$button(
+                     tags$button(
                         id = ns("q1"), tags$sup("[?]"),
                         class = "Prostar_tooltip"
                     )
