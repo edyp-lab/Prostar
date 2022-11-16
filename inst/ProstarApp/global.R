@@ -1,8 +1,9 @@
 launchGA <- function() {
     if (system("hostname") == "prabig-prostar") {
-        tags$head(includeScript("www/google-analytics.js"))
+        #tags$head(includeScript("www/google-analytics.js"))
+        tags$head(includeHTML(("www/google-analytics.html")))
     } else {
-        # tags$head(includeScript("www/google-analytics-ProstarZeroInstall.js"))
+         #tags$head(includeScript("www/google-analytics.html"))
     }
 }
 

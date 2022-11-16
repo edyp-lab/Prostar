@@ -17,7 +17,11 @@ jsResetCode <- "shinyjs.resetProstar = function() {history.go(0)}"
 
 shinyUI(
     fluidPage(
-    
+        
+        #includeCSS("cerulean.css"),
+        
+        
+        
     if (!requireNamespace("sass", quietly = TRUE)) {
         stop("Please install sass: BiocManager::install('sass')")
     },

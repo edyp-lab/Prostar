@@ -39,7 +39,7 @@ onStart <- function() {
 
 
 
-shinyServer(
+shinyServer( 
     function(input, output, session) {
     # Sys.setlocale("LC_ALL","English")
     # Sys.setlocale("LC_ALL", 'en_GB.UTF-8')
