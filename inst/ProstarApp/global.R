@@ -1,4 +1,5 @@
 launchGA <- function() {
+    print(system('hostname'))
     if (system("hostname") == "prabig-prostar") {
         tags$head(includeHTML("google-analytics.html"))
     } else {

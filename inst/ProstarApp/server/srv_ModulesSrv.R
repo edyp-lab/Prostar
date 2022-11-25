@@ -632,7 +632,7 @@ moduleBoxplot <- function(input, output, session, data, pal) {
         tmp <- NULL
         isolate({
             pattern <- paste0(GetCurrentObjName(), ".boxplot")
-            tmp <- boxPlotD_HC(data(),
+            tmp <- DAPAR::boxPlotD_HC(data(),
                 conds = Biobase::pData(data())$Condition,
                 legend = rv$PlotParams$legendForSamples,
                 pal = pal()

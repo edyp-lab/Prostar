@@ -553,6 +553,12 @@ output$viewComparisonNorm_HC <- renderHighchart({
         keyId = Biobase::fData(rv$current.obj)[, protId],
         conds = Biobase::pData(obj1)$Condition,
         pal = rv$PlotParams$paletteForConditions,
+        # Consider only 20% of the entire dataset
+        n = if (rv.norm$sync) {
+          NULL
+          } else {
+            floor(0.2 * nrow(Biobase::exprs(obj1)))
+          },
         subset.view = if (rv.norm$sync) {
             GetIndicesOfSelectedProteins_ForNorm()
         } else {

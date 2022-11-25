@@ -18,8 +18,7 @@ jsResetCode <- "shinyjs.resetProstar = function() {history.go(0)}"
 shinyUI(
     fluidPage(
         
-        #includeCSS("cerulean.css"),
-        
+        #tags$head(includeHTML(("www/google-analytics.html"))),
         
         
     if (!requireNamespace("sass", quietly = TRUE)) {

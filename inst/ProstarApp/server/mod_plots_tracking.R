@@ -25,6 +25,15 @@ mod_plots_tracking_ui <- function(id) {
         # shinyjs::hidden(actionButton(ns('rst_btn'), 'Reset')),
         uiOutput(ns("typeSelect_ui")),
         shinyjs::hidden(uiOutput(ns("listSelect_UI"))),
+        # shinyjs::hidden(
+        #     selectizeInput(
+        #         inputId = ns("listSelect"),
+        #         label = "Protein for normalization",
+        #         choices = '',
+        #         width = "400px"
+        #     )
+        # ),
+            
         shinyjs::hidden(uiOutput(ns("randomSelect_UI"))),
         shinyjs::hidden(uiOutput(ns("columnSelect_UI")))
     )
@@ -110,15 +119,31 @@ mod_plots_tracking_server <- function(input, output, session,
             width = "130px"
         )
     })
+    
+    myChoices = reactive({
+        Biobase::fData(obj())[, keyId()]
+    })
+    
     output$listSelect_UI <- renderUI({
-        selectInput(ns("listSelect"),
-            "Protein for normalization",
+        selectizeInput(
+            inputId = ns("listSelect"),
+            label = "Protein for normalization",
             choices = Biobase::fData(obj())[, keyId()],
             selected = rv.track$res$listSelect,
+            width = "400px",
             multiple = TRUE,
-            width = "400px"
+            options = list(maxOptions = 10000)
         )
     })
+
+
+    #     updateSelectizeInput(
+    #     session,
+    #     inputId = 'listSelect',
+    #     choices = myChoices(),
+    #     selected = rv.track$res$listSelect,
+    #     server = TRUE
+    # )
 
 
     output$randomSelect_UI <- renderUI({

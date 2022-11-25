@@ -1,9 +1,6 @@
 #####################################
 moduleTrackProtUI <- function(id) {
     ns <- NS(id)
-
-
-
     tagList(
         uiOutput(ns("typeSelect_ui")),
         uiOutput(ns("listSelect_UI")),
