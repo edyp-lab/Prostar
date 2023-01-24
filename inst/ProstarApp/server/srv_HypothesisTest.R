@@ -370,9 +370,10 @@ ComputeComparisons <- reactive({
 
 
     m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
-        pattern = "Missing",
-        level = DAPAR::GetTypeofData(rv$current.obj)
-    )
+                        pattern = "Missing",
+                        level = DAPAR::GetTypeofData(rv$current.obj)
+                        )
+    
     req(length(which(m)) == 0)
 
     df <- NULL

@@ -72,8 +72,7 @@ mod_staticDT_server <- function(id,
                     options = list(
                         # initComplete = initComplete(),
                         dom = dom,
-                        #    server = FALSE,
-                        #    autoWidth=TRUE,
+                        #autoWidth=TRUE,
                         columnDefs = list(
                             list(
                                 className = "dt-center",
