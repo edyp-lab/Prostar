@@ -787,6 +787,7 @@ observeEvent(input$ValidateFilters, ignoreInit = TRUE, {
         nSteps <- 3
     }
 
+
     isolate({
         if ((nrow(rv$widgets$filtering$metacell_Filter_SummaryDT) > 1) ||
             (nrow(rv$widgets$filtering$DT_filterSummary) > 1) ||
@@ -813,10 +814,8 @@ observeEvent(input$ValidateFilters, ignoreInit = TRUE, {
                         incProgress(3 / nSteps,
                             detail = "Computing new adjacency matrices"
                         )
-                        rv$current.obj <- SetMatAdj(
-                            rv$current.obj,
-                            ComputeAdjacencyMatrices()
-                        )
+
+                        rv$current.obj <- SetMatAdj(rv$current.obj, ComputeAdjacencyMatrices())
                     }
 
                     if (rv$typeOfDataset == "peptide" && !is.null(rv$proteinId)) {

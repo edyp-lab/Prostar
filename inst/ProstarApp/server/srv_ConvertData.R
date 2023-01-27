@@ -619,10 +619,7 @@ output$convertFinalStep <- renderUI({
 
 
 output$conversionDone <- renderUI({
-    rv$current.obj
-    if (is.null(rv$current.obj)) {
-        return(NULL)
-    }
+    req(rv$current.obj)
 
     h4("The conversion is done. Your dataset has been automatically loaded
        in memory. Now, you can switch to the Descriptive statistics panel to
@@ -653,6 +650,8 @@ output$warningCreateMSnset <- renderUI({
 #######################################
 observeEvent(input$createMSnsetButton, ignoreInit = TRUE, {
     colNamesForMetacell <- NULL
+    
+    
     if (isTRUE(as.logical(input$selectIdent))) {
         n <- length(input$choose_quantitative_columns)
 
