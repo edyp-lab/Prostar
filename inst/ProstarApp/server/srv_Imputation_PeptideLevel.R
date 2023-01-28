@@ -151,25 +151,21 @@ output$screenPepImputation1 <- renderUI({
                         width = "150px"
                     )
                 ),
-                tags$div(
-                    style = "display:inline-block; vertical-align: top;
+                tags$div(style = "display:inline-block; vertical-align: top;
           padding-right: 20px;",
                     uiOutput("basicAlgoUI")
                 ),
-                tags$div(
-                    style = "display:inline-block; vertical-align: top;
+                tags$div(style = "display:inline-block; vertical-align: top;
           padding-right: 20px;",
                     uiOutput("detQuantOptsUI"),
                     uiOutput("KNNOptsUI"),
                     uiOutput("imp4pOptsUI")
                 ),
-                tags$div(
-                    style = "display:inline-block; vertical-align: top;
+                tags$div(style = "display:inline-block; vertical-align: top;
                  padding-right: 20px;",
                     uiOutput("imp4pOpts2UI")
                 ),
-                tags$div(
-                    style = "display:inline-block; vertical-align: top;
+                tags$div(style = "display:inline-block; vertical-align: top;
                  padding-right: 20px;",
                     uiOutput("peptideLevel_detQuant_impValues")
                 )
@@ -308,8 +304,7 @@ output$imp4pOpts2UI <- renderUI({
 
 
     tagList(
-        tags$div(
-            style = "display:inline-block; vertical-align: top;
+        tags$div(style = "display:inline-block; vertical-align: top;
       padding-right: 20px;",
             numericInput("peptideLevel_imp4p_qmin", "Upper lapala bound",
                 value = rv$widgets$peptideImput$pepLevel_imp4p_qmin,
@@ -317,8 +312,7 @@ output$imp4pOpts2UI <- renderUI({
                 width = "100px"
             )
         ),
-        tags$div(
-            style = "display:inline-block; vertical-align: top;
+        tags$div(style = "display:inline-block; vertical-align: top;
       padding-right: 20px;",
             radioButtons("peptideLevel_imp4pLAPALA_distrib",
                 "Distribution type",
@@ -376,15 +370,20 @@ observeEvent(input$peptideLevel_perform.imputation.button, {
     .widget <- rv$widgets$peptideImput
 
     algo <- rv$widgets$peptideImput$pepLevel_algorithm
+    
+    
+    .tmp <- NULL
+    
+    .tmp <- try({
     if (algo == "None") {
-        rv$current.obj <- rv$dataset[[input$datasets]]
+        .tmp <- rv$dataset[[input$datasets]]
     } else {
         withProgress(message = "", detail = "", value = 0, {
             incProgress(0.5, detail = "Imputation in progress")
             if (algo == "imp4p") {
                 if (.widget$pepLevel_imp4p_withLapala) {
                     .distrib <- .widget$pepLevel_imp4pLAPALA_distrib
-                    rv$current.obj <- wrapper.dapar.impute.mi(
+                    .tmp <- wrapper.dapar.impute.mi(
                         rv$dataset[[input$datasets]],
                         nb.iter = .widget$pepLevel_imp4p_nbiter,
                         lapala = .widget$pepLevel_imp4p_withLapala,
@@ -392,7 +391,7 @@ observeEvent(input$peptideLevel_perform.imputation.button, {
                         distribution = as.character(.distrib)
                     )
                 } else {
-                    rv$current.obj <- wrapper.dapar.impute.mi(
+                    .tmp <- wrapper.dapar.impute.mi(
                         rv$dataset[[input$datasets]],
                         nb.iter = .widget$pepLevel_imp4p_nbiter,
                         lapala = .widget$pepLevel_imp4p_withLapala
@@ -402,20 +401,20 @@ observeEvent(input$peptideLevel_perform.imputation.button, {
                 algoBasic <- .widget$pepLevel_basicAlgorithm
                 switch(algoBasic,
                     KNN = {
-                        rv$current.obj <- wrapper.impute.KNN(
+                        .tmp <- wrapper.impute.KNN(
                             rv$dataset[[input$datasets]],
                             K = .widget$pepLevel_KNN_n,
                             na.type = "Missing POV"
                         )
                     },
                     MLE = {
-                        rv$current.obj <- wrapper.impute.mle(
+                        .tmp <- wrapper.impute.mle(
                             obj = rv$dataset[[input$datasets]],
-                            na.type = "Missing POV"
+                            na.type = "Missing"
                         )
                     },
                     detQuantile = {
-                        rv$current.obj <- wrapper.impute.detQuant(
+                        .tmp <- wrapper.impute.detQuant(
                             rv$dataset[[input$datasets]],
                             qval = (.widget$pepLevel_detQuantile / 100),
                             factor = .widget$pepLevel_detQuant_factor,
@@ -428,7 +427,25 @@ observeEvent(input$peptideLevel_perform.imputation.button, {
         })
     }
 
+    .tmp
+    })
 
+    if(inherits(.tmp, "try-error")) {
+      # browser()
+      sendSweetAlert(
+        session = session,
+        title = "Error",
+        text = .tmp[[1]],
+        type = "error"
+      )
+    } else {
+      # sendSweetAlert(
+      #   session = session,
+      #   title = "Success",
+      #   type = "success"
+      # )
+      
+      rv$current.obj <- .tmp
     m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
         pattern = "Missing",
         level = DAPAR::GetTypeofData(rv$current.obj)
@@ -436,6 +453,7 @@ observeEvent(input$peptideLevel_perform.imputation.button, {
     nbMVAfter <- length(which(m))
     rv$nbMVimputed <- nbMVAfter - nbMVBefore
     rvModProcess$modulePepImputationDone[1] <- TRUE
+    }
 })
 
 

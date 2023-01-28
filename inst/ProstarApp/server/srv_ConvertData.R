@@ -667,8 +667,7 @@ observeEvent(input$createMSnsetButton, ignoreInit = TRUE, {
     }
 
     isolate({
-        result <- tryCatch(
-            {
+        result <- try({
                 ext <- GetExtension(input$file1$name)
                 txtTab <- paste("tab1 <- read.csv(\"", input$file1$name,
                     "\",header=TRUE, sep=\"\t\", as.is=T)",
@@ -750,16 +749,26 @@ observeEvent(input$createMSnsetButton, ignoreInit = TRUE, {
                 loadObjectInMemoryFromConverter()
 
                 updateTabsetPanel(session, "tabImport", selected = "Convert")
-            },
-            error = function(e) {
-                shinyjs::info(paste("Error :", "CreateMSnSet", ":",
-                    conditionMessage(e),
-                    sep = " "
-                ))
-            },
-            finally = {
-                # cleanup-code
-            }
-        )
+                
+                rv$current.obj
+            })
+        
+        if(inherits(result, "try-error")) {
+          # browser()
+          sendSweetAlert(
+            session = session,
+            title = "Error",
+            text = result[[1]],
+            type = "error"
+          )
+        } else {
+          # sendSweetAlert(
+          #   session = session,
+          #   title = "Success",
+          #   type = "success"
+          # )
+        }
+        
+
     })
 })

@@ -169,9 +169,7 @@ mod_plotsMetacellHistos_server(
 
 
 ## Perform filtration
-observeEvent(input$performMetacellFiltering,
-    ignoreInit = TRUE,
-    {
+observeEvent(input$performMetacellFiltering, ignoreInit = TRUE, {
         nbDeleted <- 0
         rv$widgets$filtering$MetacellTag <- indices()$params$MetacellTag
         rv$widgets$filtering$KeepRemove <- indices()$params$KeepRemove
@@ -181,28 +179,43 @@ observeEvent(input$performMetacellFiltering,
         rv$widgets$filtering$val_vs_percent <- indices()$params$val_vs_percent
         rv$widgets$filtering$metacellFilter_operator <- indices()$params$metacellFilter_operator
 
-        obj.tmp <- MetaCellFiltering(
-            obj = rv$current.obj,
-            indices = indices()$indices,
-            cmd = rv$widgets$filtering$KeepRemove
-        )
+        obj.tmp <- try({
+            MetaCellFiltering(obj = rv$current.obj,
+                                     indices = indices()$indices,
+                                     cmd = rv$widgets$filtering$KeepRemove
+                                     )
+        })
 
+        if(inherits(obj.tmp, "try-error")) {
+            # browser()
+            sendSweetAlert(
+                session = session,
+                title = "Error",
+                text = .tmp[[1]],
+                type = "error"
+            )
+        } else {
+            sendSweetAlert(
+              session = session,
+              title = "Success",
+              type = "success"
+            )
         rv$deleted.metacell <- obj.tmp$deleted
         rv$current.obj <- obj.tmp$new
         nbDeleted <- nrow(rv$deleted.metacell)
 
 
-        df <- data.frame(
-            query = indices()$query,
-            nbDeleted = nbDeleted,
-            Total = nrow(rv$current.obj)
-        )
+        df <- data.frame(query = indices()$query,
+                         nbDeleted = nbDeleted,
+                         Total = nrow(rv$current.obj)
+                         )
 
         rv$widgets$filtering$metacell_Filter_SummaryDT <- rbind(
             rv$widgets$filtering$metacell_Filter_SummaryDT, df
         )
 
         rvModProcess$moduleFilteringDone[1] <- TRUE
+        }
     },
     priority = 900
 )
@@ -250,23 +263,20 @@ output$metacell_Filter_SummaryDT <- DT::renderDataTable(server = TRUE, {
 output$screenFiltering2 <- renderUI({
     tagList(
         tags$div(
-            tags$div(
-                style = "display:inline-block; vertical-align: middle;
+            tags$div(style = "display:inline-block; vertical-align: middle;
         padding-right: 20px;",
                 selectInput("symFilter_cname", "Column name",
                     choices = Get_symFilter_cname_choice()
                 )
             ),
-            div(
-                style = "display:inline-block; vertical-align: middle;
+            div(style = "display:inline-block; vertical-align: middle;
         padding-right: 20px;",
                 textInput("symFilter_tagName", "Prefix",
                     value = "",
                     width = "50px"
                 )
             ),
-            div(
-                style = "display:inline-block; vertical-align: middle;",
+            div(style = "display:inline-block; vertical-align: middle;",
                 p(""), actionButton("perform.text.filtering", "Perform",
                     class = actionBtnClass
                 )
@@ -275,8 +285,7 @@ output$screenFiltering2 <- renderUI({
         uiOutput("explainSymFilter_ui"),
         hr(),
         div(
-            div(
-                style = "display:inline-block; vertical-align: middle;
+            div(style = "display:inline-block; vertical-align: middle;
                 align: center;",
                 DT::dataTableOutput("FilterSummaryData")
             )
@@ -307,7 +316,25 @@ observeEvent(input$perform.text.filtering, {
 
     cname <- input$symFilter_cname
     tagName <- input$symFilter_tagName
-    res <- StringBasedFiltering2(temp, cname, input$symFilter_tagName)
+    res <- try({
+        StringBasedFiltering2(temp, cname, input$symFilter_tagName)
+    })
+    
+    
+    if(inherits(res, "try-error")) {
+        # browser()
+        sendSweetAlert(
+            session = session,
+            title = "Error",
+            text = .tmp[[1]],
+            type = "error"
+        )
+    } else {
+        sendSweetAlert(
+            session = session,
+            title = "Success",
+            type = "success"
+        )
     nbDeleted <- 0
 
     if (!is.null(res[["deleted"]])) {
@@ -331,6 +358,7 @@ observeEvent(input$perform.text.filtering, {
     rv$widgets$filtering$DT_filterSummary <- rbind(
         rv$widgets$filtering$DT_filterSummary, df
     )
+    }
 })
 
 
@@ -382,32 +410,28 @@ output$screenFiltering3 <- renderUI({
 
     tagList(
         tags$div(
-            tags$div(
-                style = "display:inline-block; vertical-align: middle;
+            tags$div(style = "display:inline-block; vertical-align: middle;
         padding-right: 20px;",
                 selectInput("numericFilter_cname",
                     "Column name",
                     choices = choice
                 )
             ),
-            tags$div(
-                style = "display:inline-block; vertical-align: middle;
+            tags$div(style = "display:inline-block; vertical-align: middle;
         padding-right: 20px;",
                 selectInput("numericFilter_operator", "Operator",
                     choices = setNames(nm = DAPAR::SymFilteringOperators()),
                     width = "100px"
                 )
             ),
-            tags$div(
-                style = "display:inline-block; vertical-align: middle;
+            tags$div(style = "display:inline-block; vertical-align: middle;
         padding-right: 20px;",
                 numericInput("numericFilter_value", "Value",
                     value = "",
                     width = "100px"
                 )
             ),
-            tags$div(
-                style = "display:inline-block; vertical-align: middle;",
+            tags$div(style = "display:inline-block; vertical-align: middle;",
                 p(""), actionButton("btn_numFilter", "Perform",
                     class = actionBtnClass
                 )
@@ -416,8 +440,7 @@ output$screenFiltering3 <- renderUI({
         uiOutput("explainNumFilter_ui"),
         tags$hr(),
         tags$div(
-            tags$div(
-                style = "display:inline-block; vertical-align: middle;
+            tags$div(style = "display:inline-block; vertical-align: middle;
         align: center;",
                 DT::dataTableOutput("numericalFilterSummaryData")
             )
@@ -449,10 +472,29 @@ observeEvent(input$btn_numFilter, ignoreInit = TRUE, {
     cname <- input$numericFilter_cname
     tagValue <- input$numericFilter_value
 
-    res <- NumericalFiltering(
-        temp, cname, input$numericFilter_value,
-        input$numericFilter_operator
-    )
+    res <- try({
+        NumericalFiltering(temp,
+                           cname, 
+                           input$numericFilter_value,
+                           input$numericFilter_operator
+                           )
+    })
+    
+    
+    if(inherits(res, "try-error")) {
+        # browser()
+        sendSweetAlert(
+            session = session,
+            title = "Error",
+            text = .tmp[[1]],
+            type = "error"
+        )
+    } else {
+        sendSweetAlert(
+            session = session,
+            title = "Success",
+            type = "success"
+        )
     nbDeleted <- 0
 
 
@@ -474,6 +516,7 @@ observeEvent(input$btn_numFilter, ignoreInit = TRUE, {
     rv$widgets$filtering$DT_numfilterSummary <- rbind(
         rv$widgets$filtering$DT_numfilterSummary, df
     )
+    }
 })
 
 
