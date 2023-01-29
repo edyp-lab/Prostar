@@ -22,13 +22,13 @@ biocViews: Proteomics, MassSpectrometry, Normalization, Preprocessing,
 License: Artistic-2.0
 Depends: R (>= 4.2.0)
 Suggests: BiocStyle, BiocManager, testthat, shinyTree, knitr, colourpicker, 
-    gtools, XML, R.utils, RColorBrewer, DT, shinyWidgets, sass
+    gtools, XML, R.utils, RColorBrewer, DT, shinyWidgets, sass, rclipboard
 Imports: DAPAR (>= 1.30.3), DAPARdata (>= 1.28.0), rhandsontable, 
     data.table, shiny, shinyBS, shinyAce, highcharter, htmlwidgets, webshot, 
     shinythemes, later, shinycssloaders, future, promises,  shinyjqui, tibble, 
     ggplot2, gplots, shinyjs, vioplot
 NeedsCompilation: no
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 Packaged: 2017-10-13 06:25:55 UTC; sw175264
 Encoding: UTF-8
 URL: http://www.prostar-proteomics.org/

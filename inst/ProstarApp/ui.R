@@ -17,6 +17,7 @@ jsResetCode <- "shinyjs.resetProstar = function() {history.go(0)}"
 
 shinyUI(
     fluidPage(
+        rclipboardSetup(),
         
         #tags$head(includeHTML(("www/google-analytics.html"))),
         

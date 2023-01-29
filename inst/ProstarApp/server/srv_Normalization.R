@@ -32,17 +32,11 @@ callModule(modulePopover, "modulePopover_normQuanti",
 
 
 callModule(moduleProcess, "moduleProcess_Normalization",
-    isDone = reactive({
-        rvModProcess$moduleNormalizationDone
-    }),
-    pages = reactive({
-        rvModProcess$moduleNormalization
-    }),
+    isDone = reactive({rvModProcess$moduleNormalizationDone}),
+    pages = reactive({rvModProcess$moduleNormalization}),
     rstFunc = resetModuleNormalization,
-    forceReset = reactive({
-        rvModProcess$moduleNormalizationForceReset
-    })
-)
+    forceReset = reactive({rvModProcess$moduleNormalizationForceReset})
+    )
 
 resetModuleNormalization <- reactive({
     ## update widgets values (reactive values)
@@ -74,41 +68,21 @@ rv.norm <- reactiveValues(
 
 rv.norm$selectProt <- callModule(mod_plots_tracking_server,
     "master_tracking",
-    obj = reactive({
-        rv$current.obj
-    }),
-    params = reactive({
-        NULL
-    }),
-    keyId = reactive({
-        rv$current.obj@experimentData@other$proteinId
-    }),
-    reset = reactive({
-        rv.norm$resetTracking
-    }),
-    slave = reactive({
-        FALSE
-    })
+    obj = reactive({rv$current.obj}),
+    params = reactive({NULL}),
+    keyId = reactive({rv$current.obj@experimentData@other$proteinId}),
+    reset = reactive({rv.norm$resetTracking}),
+    slave = reactive({FALSE})
 )
 
 
 rv.norm$trackFromBoxplot <- callModule(mod_plots_intensity_server,
     "boxPlot_Norm",
-    dataIn = reactive({
-        rv$current.obj
-    }),
-    meta = reactive({
-      Biobase::fData(rv$current.obj)
-    }),
-    keyId = reactive({
-        rv$current.obj@experimentData@other$proteinId
-    }),
-    conds = reactive({
-      Biobase::pData(rv$current.obj)$Condition
-    }),
-    pal = reactive({
-        rv$PlotParams$paletteForConditions
-    }),
+    dataIn = reactive({rv$current.obj}),
+    meta = reactive({Biobase::fData(rv$current.obj)}),
+    keyId = reactive({rv$current.obj@experimentData@other$proteinId}),
+    conds = reactive({Biobase::pData(rv$current.obj)$Condition}),
+    pal = reactive({rv$PlotParams$paletteForConditions}),
     params = reactive({
         if (rv.norm$sync) {
             rv.norm$selectProt()
@@ -116,12 +90,8 @@ rv.norm$trackFromBoxplot <- callModule(mod_plots_intensity_server,
             NULL
         }
     }),
-    reset = reactive({
-        rv.norm$resetTracking
-    }),
-    slave = reactive({
-        rv.norm$sync
-    })
+    reset = reactive({rv.norm$resetTracking}),
+    slave = reactive({rv.norm$sync})
 )
 
 
@@ -348,10 +318,13 @@ observeEvent(rv$widgets$normalization$method, {
         condition = rv$widgets$normalization$method == "LOESS"
     )
 
-    .choice <- c(
-        "QuantileCentering", "MeanCentering",
-        "SumByColumns", "LOESS", "vsn"
-    )
+    .choice <- c("QuantileCentering", 
+                 "MeanCentering",
+                 "SumByColumns", 
+                 "LOESS",
+                 "vsn"
+                 )
+    
     shinyjs::toggle("normalization.type",
         condition = (rv$widgets$normalization$method %in% .choice)
     )
@@ -384,9 +357,6 @@ GetIndicesOfSelectedProteins_ForNorm <- reactive({
 GetIndicesOfSelectedProteins <- reactive({
     req(rv.norm$trackFromBoxplot())
 
-
-    # print('in GetIndicesOfSelectedProteins')
-    # print(rv.norm$trackFromBoxplot())
     ind <- NULL
     ll <- Biobase::fData(rv$current.obj)[, rv$current.obj@experimentData@other$proteinId]
     tt <- rv.norm$trackFromBoxplot()$type
@@ -399,8 +369,6 @@ GetIndicesOfSelectedProteins <- reactive({
         ind <- NULL
     }
 
-    # print('ind = ')
-    # print(ind)
     ind
 })
 
@@ -412,11 +380,13 @@ observeEvent(input$perform.normalization, {
     rv$dataset[[input$datasets]]
     # isolate({
 
+    .tmp <- NULL
+    .tmp <- try({
     switch(rv$widgets$normalization$method,
-        G_noneStr = rv$current.obj <- rv$dataset[[input$datasets]],
+        G_noneStr = rv$dataset[[input$datasets]],
         GlobalQuantileAlignment = {
-            rv$current.obj <- wrapper.normalizeD(
-                rv$dataset[[input$datasets]],
+            wrapper.normalizeD(
+              rv$dataset[[input$datasets]],
                 rv$widgets$normalization$method
             )
         },
@@ -425,7 +395,7 @@ observeEvent(input$perform.normalization, {
             if (!is.null(rv$widgets$normalization$quantile)) {
                 quant <- as.numeric(rv$widgets$normalization$quantile)
             }
-            rv$current.obj <- wrapper.normalizeD(
+            wrapper.normalizeD(
                 obj = rv$dataset[[input$datasets]],
                 method = rv$widgets$normalization$method,
                 type = rv$widgets$normalization$type,
@@ -435,7 +405,7 @@ observeEvent(input$perform.normalization, {
             )
         },
         MeanCentering = {
-            rv$current.obj <- wrapper.normalizeD(
+            wrapper.normalizeD(
                 obj = rv$dataset[[input$datasets]],
                 method = rv$widgets$normalization$method,
                 conds = Biobase::pData(rv$dataset[[input$datasets]])$Condition,
@@ -445,7 +415,7 @@ observeEvent(input$perform.normalization, {
             )
         },
         SumByColumns = {
-            rv$current.obj <- wrapper.normalizeD(
+            wrapper.normalizeD(
                 obj = rv$dataset[[input$datasets]],
                 method = rv$widgets$normalization$method,
                 conds = Biobase::pData(rv$dataset[[input$datasets]])$Condition,
@@ -454,7 +424,7 @@ observeEvent(input$perform.normalization, {
             )
         },
         LOESS = {
-            rv$current.obj <- wrapper.normalizeD(
+            wrapper.normalizeD(
                 obj = rv$dataset[[input$datasets]],
                 method = rv$widgets$normalization$method,
                 conds = Biobase::pData(rv$dataset[[input$datasets]])$Condition,
@@ -463,7 +433,7 @@ observeEvent(input$perform.normalization, {
             )
         },
         vsn = {
-            rv$current.obj <- wrapper.normalizeD(
+            wrapper.normalizeD(
                 obj = rv$dataset[[input$datasets]],
                 method = rv$widgets$normalization$method,
                 conds = Biobase::pData(rv$dataset[[input$datasets]])$Condition,
@@ -471,11 +441,36 @@ observeEvent(input$perform.normalization, {
             )
         }
     )
-    # })
+     })
+    
+    
+    if(inherits(.tmp, "try-error")) {
+      # browser()
+      sendSweetAlert(
+        session = session,
+        title = "Error",
+        text = tags$div(style = "display:inline-block; vertical-align: top;",
+                        p(.tmp[[1]]),
+                        rclipButton(inputId = "clipbtn",
+                                    label = "",
+                                    clipText = .tmp[[1]], 
+                                    icon = icon("copy"),
+                                    class = actionBtnClass
+                        )
+        ),
+        type = "error"
+      )
+    } else {
+      sendSweetAlert(
+        session = session,
+        title = "Success",
+        type = "success"
+      )
     rvModProcess$moduleNormalizationDone[1] <- TRUE
     shinyjs::toggle("valid.normalization",
         condition = input$perform.normalization >= 1
     )
+    }
 })
 
 

@@ -269,7 +269,15 @@ observeEvent(input$perform.POVimputation.button, {
           sendSweetAlert(
             session = session,
             title = "Error",
-            text = .tmp[[1]],
+            text = tags$div(style = "display:inline-block; vertical-align: top;",
+                            p(.tmp[[1]]),
+                            rclipButton(inputId = "clipbtn",
+                                        label = "",
+                                        clipText = .tmp[[1]], 
+                                        icon = icon("copy"),
+                                        class = actionBtnClass
+                            )
+            ),
             type = "error"
           )
         } else {
@@ -483,7 +491,15 @@ observeEvent(input$perform.imputationMEC.button, {
           sendSweetAlert(
             session = session,
             title = "Error",
-            text = .tmp[[1]],
+            text = tags$div(style = "display:inline-block; vertical-align: top;",
+              p(.tmp[[1]]),
+              rclipButton(inputId = "clipbtn",
+                          label = "",
+                          clipText = .tmp[[1]], 
+                          icon = icon("copy"),
+                          class = actionBtnClass
+              )
+            ),
             type = "error"
           )
         } else {

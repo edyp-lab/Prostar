@@ -81,7 +81,15 @@ observeEvent(input$PerformLogFCPlot, {
           sendSweetAlert(
             session = session,
             title = "Error",
-            text = rv$res_AllPairwiseComparisons[[1]],
+            text = tags$div(style = "display:inline-block; vertical-align: top;",
+                            p(rv$res_AllPairwiseComparisons[[1]]),
+                            rclipButton(inputId = "clipbtn",
+                                        label = "",
+                                        clipText = rv$res_AllPairwiseComparisons[[1]], 
+                                        icon = icon("copy"),
+                                        class = actionBtnClass
+                            )
+            ),
             type = "error"
           )
         } else {

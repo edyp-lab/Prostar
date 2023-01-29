@@ -758,7 +758,15 @@ observeEvent(input$createMSnsetButton, ignoreInit = TRUE, {
           sendSweetAlert(
             session = session,
             title = "Error",
-            text = result[[1]],
+            text = tags$div(style = "display:inline-block; vertical-align: top;",
+                            p(result[[1]]),
+                            rclipButton(inputId = "clipbtn",
+                                        label = "",
+                                        clipText = result[[1]], 
+                                        icon = icon("copy"),
+                                        class = actionBtnClass
+                            )
+            ),
             type = "error"
           )
         } else {

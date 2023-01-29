@@ -191,7 +191,15 @@ observeEvent(input$performMetacellFiltering, ignoreInit = TRUE, {
             sendSweetAlert(
                 session = session,
                 title = "Error",
-                text = .tmp[[1]],
+                text = tags$div(style = "display:inline-block; vertical-align: top;",
+                                p(obj.tmp[[1]]),
+                                rclipButton(inputId = "clipbtn",
+                                            label = "",
+                                            clipText = obj.tmp[[1]], 
+                                            icon = icon("copy"),
+                                            class = actionBtnClass
+                                )
+                ),
                 type = "error"
             )
         } else {
@@ -326,7 +334,15 @@ observeEvent(input$perform.text.filtering, {
         sendSweetAlert(
             session = session,
             title = "Error",
-            text = .tmp[[1]],
+            text = tags$div(style = "display:inline-block; vertical-align: top;",
+                            p(res[[1]]),
+                            rclipButton(inputId = "clipbtn",
+                                        label = "",
+                                        clipText = res[[1]], 
+                                        icon = icon("copy"),
+                                        class = actionBtnClass
+                            )
+            ),
             type = "error"
         )
     } else {
@@ -486,7 +502,15 @@ observeEvent(input$btn_numFilter, ignoreInit = TRUE, {
         sendSweetAlert(
             session = session,
             title = "Error",
-            text = .tmp[[1]],
+            text = tags$div(style = "display:inline-block; vertical-align: top;",
+                            p(res[[1]]),
+                            rclipButton(inputId = "clipbtn",
+                                        label = "",
+                                        clipText = res[[1]], 
+                                        icon = icon("copy"),
+                                        class = actionBtnClass
+                            )
+            ),
             type = "error"
         )
     } else {
