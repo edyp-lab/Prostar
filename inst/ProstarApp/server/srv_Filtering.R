@@ -203,11 +203,11 @@ observeEvent(input$performMetacellFiltering, ignoreInit = TRUE, {
                 type = "error"
             )
         } else {
-            sendSweetAlert(
-              session = session,
-              title = "Success",
-              type = "success"
-            )
+            # sendSweetAlert(
+            #   session = session,
+            #   title = "Success",
+            #   type = "success"
+            # )
         rv$deleted.metacell <- obj.tmp$deleted
         rv$current.obj <- obj.tmp$new
         nbDeleted <- nrow(rv$deleted.metacell)
@@ -346,11 +346,11 @@ observeEvent(input$perform.text.filtering, {
             type = "error"
         )
     } else {
-        sendSweetAlert(
-            session = session,
-            title = "Success",
-            type = "success"
-        )
+        # sendSweetAlert(
+        #     session = session,
+        #     title = "Success",
+        #     type = "success"
+        # )
     nbDeleted <- 0
 
     if (!is.null(res[["deleted"]])) {
@@ -514,12 +514,12 @@ observeEvent(input$btn_numFilter, ignoreInit = TRUE, {
             type = "error"
         )
     } else {
-        sendSweetAlert(
-            session = session,
-            title = "Success",
-            type = "success"
-        )
-    nbDeleted <- 0
+    #     sendSweetAlert(
+    #         session = session,
+    #         title = "Success",
+    #         type = "success"
+    #     )
+    # nbDeleted <- 0
 
 
     if (!is.null(res[["deleted"]])) {
