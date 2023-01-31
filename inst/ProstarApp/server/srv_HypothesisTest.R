@@ -73,10 +73,42 @@ observeEvent(input$PerformLogFCPlot, {
         rv$widgets$hypothesisTest$ttest_options <- input$ttest_options
 
         rv$res_AllPairwiseComparisons <- ComputeComparisons()
-        rv.ht$n <- ncol(rv$res_AllPairwiseComparisons$logFC)
-        rv.ht$swap.history <- rep(0, rv.ht$n)
+        
+        if(inherits(rv$res_AllPairwiseComparisons, "try-error")) {
+         # browser()
+         
+          
+          sendSweetAlert(
+            session = session,
+            title = "Error",
+            text = tags$div(style = "display:inline-block; vertical-align: top;",
+                            p(rv$res_AllPairwiseComparisons[[1]]),
+                            rclipButton(inputId = "clipbtn",
+                                        label = "",
+                                        clipText = rv$res_AllPairwiseComparisons[[1]], 
+                                        icon = icon("copy"),
+                                        class = actionBtnClass
+                            )
+            ),
+            type = "error"
+          )
+        } else {
+          # sendSweetAlert(
+          #   session = session,
+          #   title = "Success",
+          #   type = "success"
+          # )
+          rv.ht$n <- ncol(rv$res_AllPairwiseComparisons$logFC)
+          rv.ht$swap.history <- rep(0, rv.ht$n)
+          
+          rvModProcess$moduleHypothesisTestDone[1] <- TRUE
+        }
+        
+        
+        # if (!is.null(rv$res_AllPairwiseComparisons)){
+        #   
+        # }
     })
-    rvModProcess$moduleHypothesisTestDone[1] <- TRUE
 })
 
 
@@ -104,20 +136,12 @@ output$showConds <- renderUI({
         )
 
         div(
-            div(
-                style = .style,
-                p(gsub("[()]", "", ll.conds[1]))
-            ),
-            div(
-                style = .style,
-                p(gsub("[()]", "", ll.conds[3]))
-            ),
-            div(
-                style = .style,
+            div(style = .style, p(gsub("[()]", "", ll.conds[1]))),
+            div(style = .style, p(gsub("[()]", "", ll.conds[3]))),
+            div(style = .style,
                 actionButton(paste0("compswap", i), "",
                     icon("sync", lib = "font-awesome"),
-                    style = "border-width: 0px;
-                        padding: 0px",
+                    style = "border-width: 0px; padding: 0px",
                     width = "30px",
                     height = "30px",
                     class = actionBtnClass
@@ -144,20 +168,8 @@ observeEvent(req(sum(GetSwapShinyValue()) > 0), {
                 ll <- unlist(strsplit(current.comp, split = "_"))
                 tmp.cond1 <- gsub("[( )]", "", ll[1])
                 tmp.cond2 <- gsub("[( )]", "", ll[3])
-                tmp.logFC <- paste0(
-                    "(",
-                    tmp.cond2,
-                    ")_vs_(",
-                    tmp.cond1,
-                    ")_logFC"
-                )
-                tmp.pval <- paste0(
-                    "(",
-                    tmp.cond2,
-                    ")_vs_(",
-                    tmp.cond1,
-                    ")_pval"
-                )
+                tmp.logFC <- paste0("(", tmp.cond2, ")_vs_(", tmp.cond1, ")_logFC" )
+                tmp.pval <- paste0( "(",  tmp.cond2, ")_vs_(", tmp.cond1, ")_pval" )
                 colnames(rv$res_AllPairwiseComparisons$logFC)[i] <- tmp.logFC
                 colnames(rv$res_AllPairwiseComparisons$P_Value)[i] <- tmp.pval
 
@@ -378,26 +390,28 @@ ComputeComparisons <- reactive({
 
     df <- NULL
 
-    switch(rv$widgets$hypothesisTest$method,
+    df <- try({
+      switch(rv$widgets$hypothesisTest$method,
         Limma = {
-            df <- DAPAR::limmaCompleteTest(
-              Biobase::exprs(rv$current.obj),
-              Biobase::pData(rv$current.obj),
-                rv$widgets$hypothesisTest$design
-            )
-        },
+            DAPAR::limmaCompleteTest(Biobase::exprs(rv$current.obj),
+                                           Biobase::pData(rv$current.obj),
+                                           rv$widgets$hypothesisTest$design
+                                           )
+            },
         ttests = {
-            df <- DAPAR::compute_t_tests(rv$current.obj,
-                contrast = rv$widgets$hypothesisTest$design,
-                type = rv$widgets$hypothesisTest$ttest_options
-            )
+            DAPAR::compute_t_tests(rv$current.obj,
+                                         contrast = rv$widgets$hypothesisTest$design,
+                                         type = rv$widgets$hypothesisTest$ttest_options
+                                         )
         }
-    )
+      )
+
     rv$widgets$hypothesisTest$listNomsComparaison <- colnames(df$logFC)
-    #  browser()
-
     rvModProcess$moduleHypothesisTestDone[1] <- TRUE
-
+    df
+    })
+    
+    
     df
 }) %>% bindCache(
     rv$current.obj,
