@@ -74,7 +74,8 @@ observeEvent(input$PerformLogFCPlot, {
 
         rv$res_AllPairwiseComparisons <- ComputeComparisons()
         
-        if(inherits(rv$res_AllPairwiseComparisons, "try-error")) {
+        if(is.null(rv$res_AllPairwiseComparisons)){} 
+           else if(inherits(rv$res_AllPairwiseComparisons, "try-error")) {
          # browser()
          
           
@@ -98,6 +99,7 @@ observeEvent(input$PerformLogFCPlot, {
           #   title = "Success",
           #   type = "success"
           # )
+          
           rv.ht$n <- ncol(rv$res_AllPairwiseComparisons$logFC)
           rv.ht$swap.history <- rep(0, rv.ht$n)
           
@@ -390,8 +392,7 @@ ComputeComparisons <- reactive({
 
     df <- NULL
 
-    df <- try({
-      switch(rv$widgets$hypothesisTest$method,
+    df <- switch(rv$widgets$hypothesisTest$method,
         Limma = {
             DAPAR::limmaCompleteTest(Biobase::exprs(rv$current.obj),
                                            Biobase::pData(rv$current.obj),
@@ -408,9 +409,7 @@ ComputeComparisons <- reactive({
 
     rv$widgets$hypothesisTest$listNomsComparaison <- colnames(df$logFC)
     rvModProcess$moduleHypothesisTestDone[1] <- TRUE
-    df
-    })
-    
+
     
     df
 }) %>% bindCache(
