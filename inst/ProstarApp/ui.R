@@ -1,7 +1,7 @@
 
 library(shiny)
 library(shinyjs)
-
+library(rclipboard)
 library(sass)
 source(file.path("ui", "ui_Configure.R"), local = TRUE)$value
 source(file.path(".", "modules/Plots/modulePlots.R"), local = TRUE)$value
@@ -17,7 +17,7 @@ jsResetCode <- "shinyjs.resetProstar = function() {history.go(0)}"
 
 shinyUI(
     fluidPage(
-        rclipboardSetup(),
+        rclipboard::rclipboardSetup(),
         
         #tags$head(includeHTML(("www/google-analytics.html"))),
         

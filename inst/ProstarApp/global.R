@@ -21,6 +21,7 @@ loadLibraries <- function() {
 
     #library(DT)
     library(highcharter)
+    library(rclipboard)
 
     #library(shinyBS)
     #library(R.utils)
