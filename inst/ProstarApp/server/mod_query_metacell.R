@@ -52,7 +52,7 @@ mod_query_metacell_server <- function(id,
             callModule(modulePopover, "metacellTag_help",
                 data = reactive(list(
                     title = "Nature of data to filter",
-                    content = "Define xxx"
+                    content = "See the FAQ at prostar-proteomics.org"
                 ))
             )
 

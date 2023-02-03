@@ -1,5 +1,5 @@
 library(shiny)
-
+library(shinyWidgets)
 rm(list = ls())
 
 options(
@@ -39,8 +39,9 @@ onStart <- function() {
 
 
 
-shinyServer(
+shinyServer( 
     function(input, output, session) {
+
     # Sys.setlocale("LC_ALL","English")
     # Sys.setlocale("LC_ALL", 'en_GB.UTF-8')
     # Sys.setlocale("LC_ALL", 'fr_FR.UTF-8')

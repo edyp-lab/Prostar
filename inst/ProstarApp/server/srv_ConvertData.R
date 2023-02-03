@@ -72,7 +72,7 @@ output$Convert_SelectFile <- renderUI({
     tagList(
         br(), br(),
         radioButtons("choose_software", "Software to import from",
-            choices = setNames(nm = c("maxquant", "proline")),
+            choices = setNames(nm = DAPAR::GetSoftAvailables()),
             selected = character(0)
         ),
         uiOutput("choose_file_to_import"),
@@ -619,10 +619,7 @@ output$convertFinalStep <- renderUI({
 
 
 output$conversionDone <- renderUI({
-    rv$current.obj
-    if (is.null(rv$current.obj)) {
-        return(NULL)
-    }
+    req(rv$current.obj)
 
     h4("The conversion is done. Your dataset has been automatically loaded
        in memory. Now, you can switch to the Descriptive statistics panel to
@@ -653,6 +650,8 @@ output$warningCreateMSnset <- renderUI({
 #######################################
 observeEvent(input$createMSnsetButton, ignoreInit = TRUE, {
     colNamesForMetacell <- NULL
+    
+    
     if (isTRUE(as.logical(input$selectIdent))) {
         n <- length(input$choose_quantitative_columns)
 
@@ -668,8 +667,7 @@ observeEvent(input$createMSnsetButton, ignoreInit = TRUE, {
     }
 
     isolate({
-        result <- tryCatch(
-            {
+        result <- try({
                 ext <- GetExtension(input$file1$name)
                 txtTab <- paste("tab1 <- read.csv(\"", input$file1$name,
                     "\",header=TRUE, sep=\"\t\", as.is=T)",
@@ -751,16 +749,34 @@ observeEvent(input$createMSnsetButton, ignoreInit = TRUE, {
                 loadObjectInMemoryFromConverter()
 
                 updateTabsetPanel(session, "tabImport", selected = "Convert")
-            },
-            error = function(e) {
-                shinyjs::info(paste("Error :", "CreateMSnSet", ":",
-                    conditionMessage(e),
-                    sep = " "
-                ))
-            },
-            finally = {
-                # cleanup-code
-            }
-        )
+                
+                rv$current.obj
+            })
+        
+        if(inherits(result, "try-error")) {
+          # browser()
+          sendSweetAlert(
+            session = session,
+            title = "Error",
+            text = tags$div(style = "display:inline-block; vertical-align: top;",
+                            p(result[[1]]),
+                            rclipButton(inputId = "clipbtn",
+                                        label = "",
+                                        clipText = result[[1]], 
+                                        icon = icon("copy"),
+                                        class = actionBtnClass
+                            )
+            ),
+            type = "error"
+          )
+        } else {
+          # sendSweetAlert(
+          #   session = session,
+          #   title = "Success",
+          #   type = "success"
+          # )
+        }
+        
+
     })
 })
