@@ -74,7 +74,22 @@ observeEvent(input$PerformLogFCPlot, {
 
         rv$res_AllPairwiseComparisons <- ComputeComparisons()
         
-        if(is.null(rv$res_AllPairwiseComparisons)){} 
+        if(is.null(rv$res_AllPairwiseComparisons)){
+          sendSweetAlert(
+            session = session,
+            title = "Error",
+            text = tags$div(style = "display:inline-block; vertical-align: top;",
+                            p('rv$res_AllPairwiseComparisons is NULL'),
+                            rclipButton(inputId = "clipbtn",
+                                        label = "",
+                                        clipText = 'rv$res_AllPairwiseComparisons is NULL', 
+                                        icon = icon("copy"),
+                                        class = actionBtnClass
+                            )
+            ),
+            type = "error"
+          )
+        } 
            else if(inherits(rv$res_AllPairwiseComparisons, "try-error")) {
          # browser()
          
@@ -392,7 +407,8 @@ ComputeComparisons <- reactive({
 
     df <- NULL
 
-    df <- switch(rv$widgets$hypothesisTest$method,
+    df <- try({
+      switch(rv$widgets$hypothesisTest$method,
         Limma = {
             DAPAR::limmaCompleteTest(Biobase::exprs(rv$current.obj),
                                            Biobase::pData(rv$current.obj),
@@ -406,11 +422,28 @@ ComputeComparisons <- reactive({
                                          )
         }
       )
+    })
+    
+    if(inherits(df, "try-error")) {
+      sendSweetAlert(
+        session = session,
+        title = "Error",
+        text = tags$div(style = "display:inline-block; vertical-align: top;",
+                        p(df[[1]]),
+                        rclipButton(inputId = "clipbtn",
+                                    label = "",
+                                    clipText = df[[1]], 
+                                    icon = icon("copy"),
+                                    class = actionBtnClass
+                        )
+        ),
+        type = "error"
+      )
+    } else {
 
     rv$widgets$hypothesisTest$listNomsComparaison <- colnames(df$logFC)
     rvModProcess$moduleHypothesisTestDone[1] <- TRUE
-
-    
+    }
     df
 }) %>% bindCache(
     rv$current.obj,
