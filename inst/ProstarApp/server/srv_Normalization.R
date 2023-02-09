@@ -380,12 +380,12 @@ observeEvent(input$perform.normalization, {
     rv$dataset[[input$datasets]]
     # isolate({
 
-    .tmp <- NULL
+    
     .tmp <- try({
-    switch(rv$widgets$normalization$method,
+      switch(rv$widgets$normalization$method,
         G_noneStr = rv$dataset[[input$datasets]],
         GlobalQuantileAlignment = {
-            wrapper.normalizeD(
+          wrapper.normalizeD(
               rv$dataset[[input$datasets]],
                 rv$widgets$normalization$method
             )
@@ -405,7 +405,7 @@ observeEvent(input$perform.normalization, {
             )
         },
         MeanCentering = {
-            wrapper.normalizeD(
+           wrapper.normalizeD(
                 obj = rv$dataset[[input$datasets]],
                 method = rv$widgets$normalization$method,
                 conds = Biobase::pData(rv$dataset[[input$datasets]])$Condition,
@@ -415,7 +415,7 @@ observeEvent(input$perform.normalization, {
             )
         },
         SumByColumns = {
-            wrapper.normalizeD(
+          wrapper.normalizeD(
                 obj = rv$dataset[[input$datasets]],
                 method = rv$widgets$normalization$method,
                 conds = Biobase::pData(rv$dataset[[input$datasets]])$Condition,
@@ -424,7 +424,7 @@ observeEvent(input$perform.normalization, {
             )
         },
         LOESS = {
-            wrapper.normalizeD(
+          wrapper.normalizeD(
                 obj = rv$dataset[[input$datasets]],
                 method = rv$widgets$normalization$method,
                 conds = Biobase::pData(rv$dataset[[input$datasets]])$Condition,
@@ -433,7 +433,7 @@ observeEvent(input$perform.normalization, {
             )
         },
         vsn = {
-            wrapper.normalizeD(
+          wrapper.normalizeD(
                 obj = rv$dataset[[input$datasets]],
                 method = rv$widgets$normalization$method,
                 conds = Biobase::pData(rv$dataset[[input$datasets]])$Condition,
@@ -441,6 +441,7 @@ observeEvent(input$perform.normalization, {
             )
         }
     )
+
      })
     
     
@@ -461,11 +462,12 @@ observeEvent(input$perform.normalization, {
         type = "error"
       )
     } else {
-      sendSweetAlert(
-        session = session,
-        title = "Success",
-        type = "success"
-      )
+      # sendSweetAlert(
+      #   session = session,
+      #   title = "Success",
+      #   type = "success"
+      # )
+      rv$current.obj <- .tmp
     rvModProcess$moduleNormalizationDone[1] <- TRUE
     shinyjs::toggle("valid.normalization",
         condition = input$perform.normalization >= 1
