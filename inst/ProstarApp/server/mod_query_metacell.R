@@ -30,8 +30,8 @@ mod_query_metacell_ui <- function(id) {
 
 
 mod_query_metacell_server <- function(id,
-                                      obj,
-                                      list_tags = reactive({NULL}),
+                                      obj = reactive({NULL}),
+                                      #list_tags = reactive({NULL}),
                                       keep_vs_remove = reactive({NULL}),
                                       filters = reactive({NULL}),
                                       val_vs_percent = reactive({NULL}),
@@ -136,9 +136,21 @@ mod_query_metacell_server <- function(id,
             })
 
             output$chooseMetacellTag_ui <- renderUI({
+                obj()
+                # Define list_tags
+                #browser()
+                list_tags <- c(
+                        "None" = "None",
+                        unique(unlist(DAPAR::GetMetacellTags(level = GetTypeofData(obj()),
+                                                             obj = obj(),
+                                                             onlyPresent = TRUE)))
+                    )
+                
+                
+                
                 selectInput(ns("chooseMetacellTag"),
                     modulePopoverUI(ns("metacellTag_help")),
-                    choices = list_tags(),
+                    choices = list_tags,
                     selected = rv.widgets$MetacellTag,
                     width = "200px"
                 )
@@ -237,8 +249,8 @@ mod_query_metacell_server <- function(id,
                     selectInput(ns("choose_metacell_value_th"),
                         modulePopoverUI(ns("metacell_value_th_help")),
                         choices = getListNbValuesInLines(obj(),
-                            type = rv.widgets$MetacellFilters
-                        ),
+                                                         type = rv.widgets$MetacellFilters
+                                                         ),
                         selected = rv.widgets$metacell_value_th,
                         width = "150px"
                     )

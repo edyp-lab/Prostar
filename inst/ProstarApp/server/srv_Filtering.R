@@ -114,17 +114,17 @@ output$screenFiltering1 <- renderUI({
 indices <- mod_query_metacell_server(
     id = "query",
     obj = reactive({rv$current.obj}),
-    list_tags = reactive({
-        c(
-            "None" = "None",
-            #DAPAR::metacell.def(GetTypeofData(rv$current.obj))$node
-            unique(unlist(DAPAR::GetMetacellTags(level = GetTypeofData(rv$current.obj),
-                obj = rv$current.obj,
-                onlyPresent = TRUE)))
-            #tagExists(DAPAR::metacell.def(GetTypeofData(rv$current.obj))$node, rv$current.obj)
-        
-        )
-    }),
+    # list_tags = reactive({
+    #     c(
+    #         "None" = "None",
+    #         #DAPAR::metacell.def(GetTypeofData(rv$current.obj))$node
+    #         unique(unlist(DAPAR::GetMetacellTags(level = GetTypeofData(rv$current.obj),
+    #             obj = rv$current.obj,
+    #             onlyPresent = TRUE)))
+    #         #tagExists(DAPAR::metacell.def(GetTypeofData(rv$current.obj))$node, rv$current.obj)
+    #     
+    #     )
+    # }),
     keep_vs_remove = reactive({setNames(nm = c("delete", "keep"))}),
     filters = reactive({
         c(
@@ -155,15 +155,9 @@ observeEvent(req(indices()$params$MetacellTag), {
 
 mod_plotsMetacellHistos_server(
     id = "MVPlots_filtering",
-    obj = reactive({
-        rv$current.obj
-    }),
-    pal = reactive({
-        rv$PlotParams$paletteForConditions
-    }),
-    pattern = reactive({
-        rv$widgets$filtering$MetacellTag
-    })
+    obj = reactive({ rv$current.obj}),
+    pal = reactive({rv$PlotParams$paletteForConditions}),
+    pattern = reactive({ rv$widgets$filtering$MetacellTag})
 )
 
 
@@ -181,9 +175,9 @@ observeEvent(input$performMetacellFiltering, ignoreInit = TRUE, {
 
         obj.tmp <- try({
             MetaCellFiltering(obj = rv$current.obj,
-                                     indices = indices()$indices,
-                                     cmd = rv$widgets$filtering$KeepRemove
-                                     )
+                              indices = indices()$indices,
+                              cmd = rv$widgets$filtering$KeepRemove
+                              )
         })
 
         if(inherits(obj.tmp, "try-error")) {

@@ -177,6 +177,18 @@ observe({
 })
 
 
+GetPairwiseCompChoice <- reactive({
+    req(rv$res_AllPairwiseComparisons$logFC)
+    ll <- unlist(
+        strsplit(
+            colnames(rv$res_AllPairwiseComparisons$logFC), "_logFC"
+        )
+    )
+    ll
+})
+
+
+
 output$screenAnaDiff1 <- renderUI({
     isolate({
         tagList(
@@ -313,21 +325,17 @@ Get_Dataset_to_Analyze <- reactive({
 
 AnaDiff_indices <- mod_query_metacell_server(
     id = "AnaDiff_query",
-    obj = reactive({
-        Get_Dataset_to_Analyze()
-    }),
-    list_tags = reactive({
-        c(
-            "None" = "None",
-          unique(unlist(DAPAR::GetMetacellTags(level = GetTypeofData(rv$current.obj),
-            obj = rv$current.obj,
-            onlyPresent = TRUE)))
-          #DAPAR::metacell.def(GetTypeofData(rv$current.obj))$node
-        )
-    }),
-    keep_vs_remove = reactive({
-        setNames(nm = c("delete", "keep"))
-    }),
+    obj = reactive({Get_Dataset_to_Analyze()}),
+    # list_tags = reactive({
+    #     c(
+    #         "None" = "None",
+    #       unique(unlist(DAPAR::GetMetacellTags(level = GetTypeofData(rv$current.obj),
+    #         obj = rv$current.obj,
+    #         onlyPresent = TRUE)))
+    #       #DAPAR::metacell.def(GetTypeofData(rv$current.obj))$node
+    #     )
+    # }),
+     keep_vs_remove = reactive({setNames(nm = c("delete", "keep"))}),
     filters = reactive({
         c(
             "None" = "None",
@@ -337,15 +345,9 @@ AnaDiff_indices <- mod_query_metacell_server(
             "At least one condition" = "AtLeastOneCond"
         )
     }),
-    val_vs_percent = reactive({
-        setNames(nm = c("Count", "Percentage"))
-    }),
-    operator = reactive({
-        setNames(nm = DAPAR::SymFilteringOperators())
-    }),
-    reset = reactive({
-        rv_anaDiff$local.reset
-    })
+    val_vs_percent = reactive({setNames(nm = c("Count", "Percentage"))}),
+    operator = reactive({setNames(nm = DAPAR::SymFilteringOperators())}),
+    reset = reactive({rv_anaDiff$local.reset})
 )
 #----------------------------------------------------
 
@@ -437,15 +439,7 @@ output$volcanoTooltip_UI <- renderUI({
 
 
 
-GetPairwiseCompChoice <- reactive({
-    req(rv$res_AllPairwiseComparisons$logFC)
-    ll <- unlist(
-        strsplit(
-            colnames(rv$res_AllPairwiseComparisons$logFC), "_logFC"
-        )
-    )
-    ll
-})
+
 
 
 
