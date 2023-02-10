@@ -308,6 +308,15 @@ Get_Dataset_to_Analyze <- reactive({
 
 
 
+GetPairwiseCompChoice <- reactive({
+    req(rv$res_AllPairwiseComparisons$logFC)
+    ll <- unlist(
+        strsplit(
+            colnames(rv$res_AllPairwiseComparisons$logFC), "_logFC"
+        )
+    )
+    ll
+})
 
 
 
@@ -316,15 +325,15 @@ AnaDiff_indices <- mod_query_metacell_server(
     obj = reactive({
         Get_Dataset_to_Analyze()
     }),
-    list_tags = reactive({
-        c(
-            "None" = "None",
-          unique(unlist(DAPAR::GetMetacellTags(level = GetTypeofData(rv$current.obj),
-            obj = rv$current.obj,
-            onlyPresent = TRUE)))
-          #DAPAR::metacell.def(GetTypeofData(rv$current.obj))$node
-        )
-    }),
+    # list_tags = reactive({
+    #     c(
+    #         "None" = "None",
+    #       unique(unlist(DAPAR::GetMetacellTags(level = GetTypeofData(rv$current.obj),
+    #         obj = rv$current.obj,
+    #         onlyPresent = TRUE)))
+    #       #DAPAR::metacell.def(GetTypeofData(rv$current.obj))$node
+    #     )
+    # }),
     keep_vs_remove = reactive({
         setNames(nm = c("delete", "keep"))
     }),
@@ -437,15 +446,6 @@ output$volcanoTooltip_UI <- renderUI({
 
 
 
-GetPairwiseCompChoice <- reactive({
-    req(rv$res_AllPairwiseComparisons$logFC)
-    ll <- unlist(
-        strsplit(
-            colnames(rv$res_AllPairwiseComparisons$logFC), "_logFC"
-        )
-    )
-    ll
-})
 
 
 
