@@ -353,7 +353,34 @@ Compute_PCA_nbDimensions <- reactive({
 })
 
 
-
+checksRetroCompatibility <- function(){
+    # Check versions
+    Prostar_msnset_version <- rv$current.obj@experimentData@other$Prostar_Version
+    DAPAR_msnset_version <- rv$current.obj@experimentData@other$DAPAR_Version
+    df <- GetLocalVersions()
+    
+    txt <- ""
+    if (compareVersion(Prostar_msnset_version, df$Prostar) == -1)
+        txt <- paste0(txt, ' ', 'Prostar (', Prostar_msnset_version, ') ')
+    
+    if (compareVersion(Prostar_msnset_version, df$Prostar) == -1)
+        txt <- paste0(txt, ' ', 'DAPAR (', DAPAR_msnset_version, ') ')
+    
+    
+    if (txt != ''){
+        txt <- paste0("The Msnset file has been created with an older version of ", txt, ".\n", 
+                      "This can lead to unexpected behaviour.")
+        
+        sendSweetAlert(
+            session = session,
+            title = "Info",
+            text = tags$div(style = "display:inline-block; vertical-align: top;",
+                        p(txt)
+            ),
+            type = "alert"
+        )
+    }
+}
 
 ######################################
 loadObjectInMemoryFromConverter <- function() {
@@ -364,6 +391,8 @@ loadObjectInMemoryFromConverter <- function() {
         rv$typeOfDataset <- GetTypeofData(rv$current.obj)
     }
 
+    
+    checksRetroCompatibility()
 
     withProgress(message = "Loading memory", detail = "", value = 0, {
         incProgress(0.5, detail = "Miscellaneous updates")
@@ -1564,13 +1593,9 @@ GetLocalVersions <- reactive({
     local.version <- list()
     # loc.pkgs <-c("Prostar.loc", "DAPAR.loc", "DAPARdata.loc")
     local.version <- list(
-        Prostar = installed.packages(
-            lib.loc = Prostar.loc
-        )["Prostar", "Version"],
+        Prostar = installed.packages(lib.loc = Prostar.loc)["Prostar", "Version"],
         DAPAR = installed.packages(lib.loc = DAPAR.loc)["DAPAR", "Version"],
-        DAPARdata = installed.packages(
-            lib.loc = DAPARdata.loc
-        )["DAPARdata", "Version"]
+        DAPARdata = installed.packages(lib.loc = DAPARdata.loc)["DAPARdata", "Version"]
     )
 
     local.version

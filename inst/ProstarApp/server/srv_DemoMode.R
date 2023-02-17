@@ -118,6 +118,9 @@ observeEvent(input$loadDemoDataset, {
             l.params <- list(filename = input$demoDataset)
             incProgress(1 / ntotal, detail = "Configure dataset")
 
+            
+            
+            
             loadObjectInMemoryFromConverter()
             incProgress(1 / ntotal, detail = "Load memory ")
         })

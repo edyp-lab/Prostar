@@ -33,9 +33,7 @@ output$infoForNewVersions <- renderUI({
                 GetOnlineZipVersion(), 9,
                 regexpr(".zip", GetOnlineZipVersion())[1] - 1
             ),
-            prostarVersion <- installed.packages(
-                lib.loc = Prostar.loc
-            )["Prostar", "Version"],
+            prostarVersion <- installed.packages(lib.loc = Prostar.loc)["Prostar", "Version"],
             if (compareVersion(zipVersion, prostarVersion) == 1) {
                 p(
                     style = "font-size: 16px", "If you use the Zero-install

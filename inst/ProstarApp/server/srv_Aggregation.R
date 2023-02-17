@@ -329,26 +329,25 @@ RunAggregation <- reactive({
                     )
                 } else {
                     ll.agg <- aggregateTopn(rv$current.obj,
-                        X,
-                        rv$widgets$aggregation$operator,
-                        n = as.numeric(rv$widgets$aggregation$topN)
-                    )
+                                            X,
+                                            rv$widgets$aggregation$operator,
+                                            n = as.numeric(rv$widgets$aggregation$topN)
+                                            )
                 }
             } else {
                 if (rv$widgets$aggregation$considerPeptides == "allPeptides") {
-                    ll.agg <- aggregateIterParallel(
-                        obj.pep = rv$current.obj,
-                        X = X,
-                        init.method = "Sum",
-                        method = "Mean"
-                    )
+                    ll.agg <- aggregateIterParallel(obj.pep = rv$current.obj,
+                                                    X = X,
+                                                    init.method = "Sum",
+                                                    method = "Mean"
+                                                    )
                 } else {
                     ll.agg <- aggregateIterParallel(rv$current.obj,
-                        X,
-                        init.method = "Sum",
-                        method = "onlyN",
-                        n = rv$widgets$aggregation$topN
-                    )
+                                                    X,
+                                                    init.method = "Sum",
+                                                    method = "onlyN",
+                                                    n = rv$widgets$aggregation$topN
+                                                    )
                 }
             }
         } else {
@@ -490,7 +489,7 @@ observeEvent(input$validAggregation, {
                     proteinNames = rownames(Biobase::fData(rv$temp.aggregate$obj.prot))
                 )
                 cnames <- colnames(Biobase::fData(rv$temp.aggregate$obj.prot))
-                fData(rv$temp.aggregate$obj.prot) <-
+                Biobase::fData(rv$temp.aggregate$obj.prot) <-
                     data.frame(Biobase::fData(rv$temp.aggregate$obj.prot), newCol)
 
                 colnames(Biobase::fData(rv$temp.aggregate$obj.prot)) <- c(
@@ -501,7 +500,7 @@ observeEvent(input$validAggregation, {
                 cpt <- cpt + delta
                 incProgress(cpt / 100, detail = paste0("Processing column ", c))
             }
-            br
+            
             rv$current.obj <- rv$temp.aggregate$obj.prot
             rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
 

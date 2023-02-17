@@ -1,4 +1,6 @@
 rvModProcess <- reactiveValues(
+    
+    
     moduleFiltering = list(
         name = "Filtering",
         stepsNames = c(
@@ -19,6 +21,9 @@ rvModProcess <- reactiveValues(
     ),
     moduleFilteringDone = rep(FALSE, 5),
     moduleFilteringForceReset = 0,
+    
+    
+    
     moduleNormalization = list(
         name = "Normalization",
         stepsNames = c("Normalization", "Save"),
@@ -34,6 +39,9 @@ rvModProcess <- reactiveValues(
     ),
     moduleNormalizationDone = rep(FALSE, 2),
     moduleNormalizationForceReset = 0,
+    
+    
+    
     moduleAggregation = list(
         name = "Aggregation",
         stepsNames = c("Aggregation", "Add metadata", "Save"),
@@ -50,6 +58,10 @@ rvModProcess <- reactiveValues(
     ),
     moduleAggregationForceReset = 0,
     moduleAggregationDone = rep(FALSE, 3),
+    
+    
+    
+    
     moduleProtImputation = list(
         name = "ProtImputation",
         stepsNames = c(
