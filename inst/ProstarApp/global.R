@@ -39,7 +39,12 @@ loadLibraries <- function() {
     library(rhandsontable)
     library(future)
     library(promises)
-    plan(multiprocess)
+    #plan(multiprocess)
+    if (future::supportsMulticore()) {
+        future::plan(future::multicore)
+    } else {
+        future::plan(future::multisession)
+    }
 }
 
 

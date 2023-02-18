@@ -490,7 +490,7 @@ observeEvent(input$validAggregation, {
                     proteinNames = rownames(Biobase::fData(rv$temp.aggregate$obj.prot))
                 )
                 cnames <- colnames(Biobase::fData(rv$temp.aggregate$obj.prot))
-                fData(rv$temp.aggregate$obj.prot) <-
+                Biobase::fData(rv$temp.aggregate$obj.prot) <-
                     data.frame(Biobase::fData(rv$temp.aggregate$obj.prot), newCol)
 
                 colnames(Biobase::fData(rv$temp.aggregate$obj.prot)) <- c(
@@ -501,7 +501,7 @@ observeEvent(input$validAggregation, {
                 cpt <- cpt + delta
                 incProgress(cpt / 100, detail = paste0("Processing column ", c))
             }
-            br
+            
             rv$current.obj <- rv$temp.aggregate$obj.prot
             rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
 

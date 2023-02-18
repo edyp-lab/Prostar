@@ -56,7 +56,7 @@ ClearCurrentNavPage <- function(page) {
         },
         AggregationTab = {
             resetModuleProcess("Aggregation")
-            .force < rvModProcess$moduleAggregationForceReset
+            .force <- rvModProcess$moduleAggregationForceReset
             rvModProcess$moduleAggregationForceReset <- .force
         },
         diffAnalysisTab = {
