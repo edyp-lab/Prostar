@@ -154,12 +154,13 @@ output$screenAggregation1 <- renderUI({
             div(
                 style = "display:inline-block; vertical-align: top;
               padding-right: 10px;",
-                uiOutput("nTopn_widget")
-            ),
-            div(
-                style = "display:inline-block; vertical-align: top;",
+                uiOutput("nTopn_widget"),
                 uiOutput("operatorChoice")
             )
+            # div(
+            #     style = "display:inline-block; vertical-align: top;",
+            #     uiOutput("operatorChoice")
+            # )
         ),
         actionButton("perform.aggregation",
             "Perform aggregation",
