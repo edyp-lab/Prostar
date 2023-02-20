@@ -132,39 +132,27 @@ output$screenAggregation1 <- renderUI({
                 style = "display:inline-block; vertical-align: top;",
                 modulePopoverUI("modulePopover_includeShared"),
                 radioButtons("radioBtn_includeShared", NULL,
-                    choices = c(
-                        "No" = "No",
-                        "Yes (as protein specific)" = "Yes1",
-                        "Yes (redistribution)" = "Yes2"
-                    ),
+                    choices = c("No" = "No",
+                                "Yes (as protein specific)" = "Yes1",
+                                "Yes (redistribution)" = "Yes2"
+                                ),
                     selected = rv$widgets$aggregation$includeSharedPeptides
                 )
             ),
-            div(
-                style = "display:inline-block; vertical-align: top;
-        padding-right: 10px;",
+            div(style = "display:inline-block; vertical-align: top; padding-right: 10px;",
                 radioButtons("AggregationConsider", "Consider",
-                    choices = c(
-                        "all peptides" = "allPeptides",
-                        "N most abundant" = "onlyN"
-                    ),
-                    selected = rv$widgets$aggregation$considerPeptides
-                )
-            ),
-            div(
-                style = "display:inline-block; vertical-align: top;
-              padding-right: 10px;",
-                uiOutput("nTopn_widget")
-            ),
-            div(
-                style = "display:inline-block; vertical-align: top;",
+                    choices = c("all peptides" = "allPeptides", "N most abundant" = "onlyN"),
+                    selected = rv$widgets$aggregation$considerPeptides)
+                ),
+            div(style = "display:inline-block; vertical-align: top; padding-right: 10px;",
+                uiOutput("nTopn_widget"),
                 uiOutput("operatorChoice")
             )
+            # div(style = "display:inline-block; vertical-align: top;",
+            #     uiOutput("operatorChoice")
+            # )
         ),
-        actionButton("perform.aggregation",
-            "Perform aggregation",
-            class = actionBtnClass
-        ),
+        actionButton("perform.aggregation", "Perform aggregation", class = actionBtnClass),
         uiOutput("ObserverAggregationDone"),
         shinyjs::hidden(
             downloadButton("downloadAggregationIssues",
@@ -212,10 +200,8 @@ output$warningAgregationMethod <- renderUI({
 })
 
 output$nTopn_widget <- renderUI({
-    req(rv$widgets$aggregation$considerPeptides)
-    if (rv$widgets$aggregation$considerPeptides != "onlyN") {
-        return(NULL)
-    }
+    req(rv$widgets$aggregation$considerPeptides == "onlyN")
+    
     numericInput("nTopn",
         "N",
         value = rv$widgets$aggregation$topN,
