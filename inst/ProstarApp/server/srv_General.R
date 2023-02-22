@@ -357,6 +357,8 @@ checksRetroCompatibility <- function(){
     # Check versions
     Prostar_msnset_version <- rv$current.obj@experimentData@other$Prostar_Version
     DAPAR_msnset_version <- rv$current.obj@experimentData@other$DAPAR_Version
+    
+    
     df <- GetLocalVersions()
     
     txt <- ""
@@ -399,15 +401,17 @@ loadObjectInMemoryFromConverter <- function() {
         colnames(Biobase::fData(rv$current.obj)) <- gsub(".", "_",
             colnames(Biobase::fData(rv$current.obj)),
             fixed = TRUE
-        )
+            )
+        
         names(rv$current.obj@experimentData@other) <- gsub(".", "_",
             names(rv$current.obj@experimentData@other),
             fixed = TRUE
-        )
+            )
+        
         Biobase::pData(rv$current.obj)$Sample.name <- gsub(".", "_",
             Biobase::pData(rv$current.obj)$Sample.name,
             fixed = TRUE
-        )
+            )
 
         # If there are already pVal values (differential analysis already done),
         # then do no compute them

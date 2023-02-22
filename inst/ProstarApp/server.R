@@ -26,9 +26,7 @@ onStart <- function() {
         cat("Doing application cleanup\n")
         graphics.off()
         unlink(sessionID, recursive = TRUE)
-        unlink(paste(tempdir(), sessionID, commandLogFile, sep = "/"),
-            recursive = TRUE
-        )
+        unlink(paste(tempdir(), sessionID, commandLogFile, sep = "/"), recursive = TRUE)
         unlink(paste(tempdir(), sep = "/"), recursive = TRUE)
         unlink(paste(tempdir(), "*", sep = "/"), recursive = TRUE)
         unlink(paste(tempdir(), "*html", sep = "/"))

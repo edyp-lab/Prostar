@@ -132,65 +132,62 @@ output$screenAggregation1 <- renderUI({
                 style = "display:inline-block; vertical-align: top;",
                 modulePopoverUI("modulePopover_includeShared"),
                 radioButtons("radioBtn_includeShared", NULL,
-                    choices = c(
-                        "No" = "No",
-                        "Yes (as protein specific)" = "Yes1",
-                        "Yes (redistribution)" = "Yes2"
-                    ),
+                    choices = c("No" = "No",
+                                "Yes (as protein specific)" = "Yes1",
+                                "Yes (redistribution)" = "Yes2"
+                                ),
                     selected = rv$widgets$aggregation$includeSharedPeptides
                 )
             ),
             div(
-                style = "display:inline-block; vertical-align: top;
-        padding-right: 10px;",
+                style = "display:inline-block; vertical-align: top; padding-right: 10px;",
                 radioButtons("AggregationConsider", "Consider",
-                    choices = c(
-                        "all peptides" = "allPeptides",
-                        "N most abundant" = "onlyN"
-                    ),
-                    selected = rv$widgets$aggregation$considerPeptides
+                             choices = c("all peptides" = "allPeptides",
+                                         "N most abundant" = "onlyN"),
+                             selected = rv$widgets$aggregation$considerPeptides
                 )
+                #uiOutput('considerUI')
             ),
             div(
-                style = "display:inline-block; vertical-align: top;
-              padding-right: 10px;",
-                uiOutput("nTopn_widget"),
+                style = "display:inline-block; vertical-align: top; padding-right: 10px;",
                 uiOutput("operatorChoice")
+                #uiOutput("nTopn_widget")
+                
             )
             # div(
             #     style = "display:inline-block; vertical-align: top;",
             #     uiOutput("operatorChoice")
             # )
         ),
-        actionButton("perform.aggregation",
-            "Perform aggregation",
-            class = actionBtnClass
-        ),
+        actionButton("perform.aggregation", "Perform aggregation", class = actionBtnClass),
         uiOutput("ObserverAggregationDone"),
         shinyjs::hidden(
-            downloadButton("downloadAggregationIssues",
-                "Download issues",
-                class = actionBtnClass
-            )
+            downloadButton("downloadAggregationIssues", "Download issues", class = actionBtnClass)
         ),
         hr(),
-        div(
-            div(
-                style = "display:inline-block; vertical-align: top;",
-                uiOutput("specificPeptideBarplot")
-            ),
-            div(
-                style = "display:inline-block; vertical-align: top;
-              padding-right: 20px;",
-                uiOutput("allPeptideBarplot")
-            ),
-            div(
-                style = "display:inline-block; vertical-align: top;",
-                tagList(
-                    DT::dataTableOutput("aggregationStats")
-                )
-            )
+        fluidRow(
+            column(width = 4,uiOutput("specificPeptideBarplot")),
+            column(width = 4,uiOutput("allPeptideBarplot")),
+            column(width = 4,uiOutput("aggregationStats"))
         )
+        # 
+        # div(
+        #     div(
+        #         style = "display:inline-block; vertical-align: top;",
+        #         uiOutput("specificPeptideBarplot"),
+        #         uiOutput("allPeptideBarplot")
+        #     ),
+        #     # div(
+        #     #     style = "display:inline-block; vertical-align: top; padding-right: 20px;",
+        #     #     uiOutput("allPeptideBarplot")
+        #     # ),
+        #     div(
+        #         style = "display:inline-block; vertical-align: top;",
+        #         tagList(
+        #             DT::dataTableOutput("aggregationStats")
+        #         )
+        #     )
+        # )
     )
 })
 
@@ -199,59 +196,88 @@ output$warningAgregationMethod <- renderUI({
     req(rv$current.obj)
 
     m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
-        pattern = "Missing",
-        level = "peptide"
-    )
-    # browser()
+                        pattern = "Missing",
+                        level = "peptide"
+                        )
+
     if (length(which(m)) > 0) {
-        tags$p(
-            style = "color: red;",
+        tags$p(style = "color: red;",
             tags$b("Warning:"), " Your dataset contains missing values.
     For better results, you should impute them first"
         )
     }
 })
 
-output$nTopn_widget <- renderUI({
-    req(rv$widgets$aggregation$considerPeptides)
-    if (rv$widgets$aggregation$considerPeptides != "onlyN") {
-        return(NULL)
-    }
-    numericInput("nTopn",
-        "N",
-        value = rv$widgets$aggregation$topN,
-        min = 0,
-        step = 1,
-        width = "100px"
-    )
-})
+
+# output$considerUI <- renderUI({
+#     rv$widgets$aggregation$considerPeptides
+#     
+#     radioButtons("AggregationConsider", "Consider",
+#                  choices = c("all peptides" = "allPeptides",
+#                              "N most abundant" = "onlyN"),
+#                  selected = rv$widgets$aggregation$considerPeptides
+#                  )
+# })
+
+# output$nTopn_widget <- renderUI({
+#     req(rv$widgets$aggregation$considerPeptides == "onlyN")
+# 
+#     numericInput("nTopn",
+#                  "N",
+#                  value = rv$widgets$aggregation$topN,
+#                  min = 0,
+#                  step = 1,
+#                  width = "100px"
+#                  )
+# })
+
+
+# observe({
+# 
+#     print(paste0('radioBtn_includeShared ', input$radioBtn_includeShared))
+#     print(paste0('AggregationConsider ', input$AggregationConsider))
+#     print(paste0('AggregationOperator ', input$AggregationOperator))
+#     print(paste0('nTopn ', input$nTopn))
+# cat('\n\n')
+# })
 
 
 output$operatorChoice <- renderUI({
-    rv$widgets$aggregation$includeSharedPeptides
+    #rv$widgets$aggregation$includeSharedPeptides
 
-    choice <- NULL
-    if (rv$widgets$aggregation$includeSharedPeptides %in% c("No", "Yes1")) {
-        choice <- c("Mean" = "Mean", "Sum" = "Sum")
-    } else {
-        choice <- c("Mean" = "Mean")
+    choice <- if (rv$widgets$aggregation$includeSharedPeptides %in% c("No", "Yes1")) {
+        c("Mean" = "Mean", "Sum" = "Sum")
+    } else if (rv$widgets$aggregation$includeSharedPeptides == "Yes2"){
+        c("Mean" = "Mean")
     }
-    choice
 
-    radioButtons("AggregationOperator", "Operator",
+    tagList(
+        radioButtons("AggregationOperator", "Operator",
         choices = choice,
         selected = rv$widgets$aggregation$operator
+    ),
+    
+    if(rv$widgets$aggregation$considerPeptides == "onlyN")
+    
+    numericInput("nTopn",
+                 "N",
+                 value = rv$widgets$aggregation$topN,
+                 min = 0,
+                 step = 1,
+                 width = "100px"
     )
+    )
+    
 })
 
 
-observeEvent(rv$widgets$aggregation$includeSharedPeptides, {
-    if (rv$widgets$aggregation$includeSharedPeptides == "Yes2") {
-        ch <- c("Mean" = "Mean")
-    } else {
-        ch <- c("Sum" = "Sum", "Mean" = "Mean")
-    }
-})
+# observeEvent(rv$widgets$aggregation$includeSharedPeptides, {
+#     if (rv$widgets$aggregation$includeSharedPeptides == "Yes2") {
+#         ch <- c("Mean" = "Mean")
+#     } else {
+#         ch <- c("Sum" = "Sum", "Mean" = "Mean")
+#     }
+# })
 
 
 
@@ -356,18 +382,17 @@ RunAggregation <- reactive({
             if (rv$widgets$aggregation$considerPeptides == "allPeptides") {
                 ll.agg <- do.call(
                     paste0("aggregate", rv$widgets$aggregation$operator),
-                    list(
-                        obj.pep = rv$current.obj,
-                        X = X
-                    )
+                    list(obj.pep = rv$current.obj,
+                         X = X
+                         )
                 )
             } else {
                 ll.agg <- aggregateTopn(rv$current.obj,
-                    X,
-                    rv$widgets$aggregation$operator,
-                    n = as.numeric(rv$widgets$aggregation$topN)
+                                        X,
+                                        rv$widgets$aggregation$operator,
+                                        n = as.numeric(rv$widgets$aggregation$topN)
                 )
-            }
+                }
         }
     })
 
