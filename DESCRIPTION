@@ -22,7 +22,7 @@ License: Artistic-2.0
 Depends: R (>= 4.2.0)
 Suggests: BiocStyle, BiocManager, testthat, shinyTree, knitr, colourpicker, 
     gtools, XML, R.utils, RColorBrewer, DT, shinyWidgets, sass, rclipboard
-Imports: DAPAR (>= 1.30.5), DAPARdata (>= 1.28.0), rhandsontable, 
+Imports: DAPAR (>= 1.30.6), DAPARdata (>= 1.28.0), rhandsontable, 
     data.table, shiny, shinyBS, shinyAce, highcharter, htmlwidgets, webshot, 
     shinythemes, later, shinycssloaders, future, promises,  shinyjqui, tibble, 
     ggplot2, gplots, shinyjs, vioplot
