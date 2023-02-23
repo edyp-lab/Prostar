@@ -16,9 +16,9 @@ callModule(moduleBoxplot, "boxPlot_DS",
 )
 
 mod_staticDT_server("overview_DS",
-    data = reactive({GetDatasetOverview()}),
-    filename = "DescriptiveStats_Overview"
-)
+                    data = reactive({GetDatasetOverview()}),
+                    filename = "DescriptiveStats_Overview"
+                    )
 
 mod_staticDT_server("PCAvarCoord",
     data = reactive({
@@ -29,6 +29,20 @@ mod_staticDT_server("PCAvarCoord",
     filename = "PCA_Var_Coords"
 )
 
+
+output$versionsUI <- renderUI({
+    rv$current.obj
+    
+    Prostar_msnset_version <- rv$current.obj@experimentData@other$Prostar_Version
+    DAPAR_msnset_version <- rv$current.obj@experimentData@other$DAPAR_Version
+    
+    tagList(
+        br(),
+        h3('This dataset was created with:'),
+        p(paste0('Prostar version:', Prostar_msnset_version)),
+        p(paste0('DAPAR version:', DAPAR_msnset_version))
+    )
+})
 
 observeEvent(c(input$pca.axe1, input$pca.axe2), {
     rv$PCA_axes <- c(input$pca.axe1, input$pca.axe2)

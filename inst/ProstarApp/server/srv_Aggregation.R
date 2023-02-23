@@ -165,29 +165,29 @@ output$screenAggregation1 <- renderUI({
             downloadButton("downloadAggregationIssues", "Download issues", class = actionBtnClass)
         ),
         hr(),
-        fluidRow(
-            column(width = 4,uiOutput("specificPeptideBarplot")),
-            column(width = 4,uiOutput("allPeptideBarplot")),
-            column(width = 4,uiOutput("aggregationStats"))
-        )
-        # 
-        # div(
-        #     div(
-        #         style = "display:inline-block; vertical-align: top;",
-        #         uiOutput("specificPeptideBarplot"),
-        #         uiOutput("allPeptideBarplot")
-        #     ),
-        #     # div(
-        #     #     style = "display:inline-block; vertical-align: top; padding-right: 20px;",
-        #     #     uiOutput("allPeptideBarplot")
-        #     # ),
-        #     div(
-        #         style = "display:inline-block; vertical-align: top;",
-        #         tagList(
-        #             DT::dataTableOutput("aggregationStats")
-        #         )
-        #     )
+        # fluidRow(
+        #     column(width = 4,uiOutput("specificPeptideBarplot")),
+        #     column(width = 4,uiOutput("allPeptideBarplot")),
+        #     column(width = 4,uiOutput("aggregationStats"))
         # )
+        # 
+        div(
+            # div(
+            #     style = "display:inline-block; vertical-align: top;",
+            #     uiOutput("specificPeptideBarplot"),
+            #     uiOutput("allPeptideBarplot")
+            # ),
+            # div(
+            #     style = "display:inline-block; vertical-align: top; padding-right: 20px;",
+            #     uiOutput("allPeptideBarplot")
+            # ),
+            div(
+                style = "display:inline-block; vertical-align: top;",
+                tagList(
+                    DT::dataTableOutput("aggregationStats")
+                )
+            )
+        )
     )
 })
 
