@@ -353,17 +353,25 @@ Compute_PCA_nbDimensions <- reactive({
 })
 
 
-checksRetroCompatibility <- function(){
+checksRetroCompatibility <- function(num=3){
     # Check versions
     Prostar_msnset_version <- rv$current.obj@experimentData@other$Prostar_Version
     DAPAR_msnset_version <- rv$current.obj@experimentData@other$DAPAR_Version
+    
+    Prostar_msnset_version <-  paste0(unlist(strsplit(Prostar_msnset_version, split='.', fixed=TRUE))[1:num], collapse='.')
+    DAPAR_msnset_version <-  paste0(unlist(strsplit(DAPAR_msnset_version, split='.', fixed=TRUE))[1:num], collapse='.')
+    
+    
     df <- GetLocalVersions()
+    df$Prostar <-  paste0(unlist(strsplit(df$Prostar, split='.', fixed=TRUE))[1:num], collapse='.')
+    df$Prostar <-  paste0(unlist(strsplit(df$Prostar, split='.', fixed=TRUE))[1:num], collapse='.')
+    
     
     txt <- ""
     if (compareVersion(Prostar_msnset_version, df$Prostar) == -1)
         txt <- paste0(txt, ' ', 'Prostar (', Prostar_msnset_version, ') ')
     
-    if (compareVersion(Prostar_msnset_version, df$Prostar) == -1)
+    if (compareVersion(DAPAR_msnset_version, df$Prostar) == -1)
         txt <- paste0(txt, ' ', 'DAPAR (', DAPAR_msnset_version, ') ')
     
     
@@ -392,7 +400,7 @@ loadObjectInMemoryFromConverter <- function() {
     }
     
     
-    checksRetroCompatibility()
+    checksRetroCompatibility(num = 2)
     
     withProgress(message = "Loading memory", detail = "", value = 0, {
         incProgress(0.5, detail = "Miscellaneous updates")
@@ -400,10 +408,12 @@ loadObjectInMemoryFromConverter <- function() {
                                                          colnames(Biobase::fData(rv$current.obj)),
                                                          fixed = TRUE
         )
+        
         names(rv$current.obj@experimentData@other) <- gsub(".", "_",
                                                            names(rv$current.obj@experimentData@other),
                                                            fixed = TRUE
         )
+        
         Biobase::pData(rv$current.obj)$Sample.name <- gsub(".", "_",
                                                            Biobase::pData(rv$current.obj)$Sample.name,
                                                            fixed = TRUE

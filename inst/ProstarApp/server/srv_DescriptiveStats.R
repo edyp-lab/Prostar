@@ -7,28 +7,42 @@ mod_plotsMetacellHistos_server(
 )
 
 callModule(moduleDensityplot, "densityPlot_DS",
-    data = reactive({rv$current.obj})
+           data = reactive({rv$current.obj})
 )
 
 callModule(moduleBoxplot, "boxPlot_DS",
-    data = reactive({rv$current.obj}),
-    pal = reactive({ unique(rv$PlotParams$paletteForConditions)})
+           data = reactive({rv$current.obj}),
+           pal = reactive({ unique(rv$PlotParams$paletteForConditions)})
 )
 
 mod_staticDT_server("overview_DS",
-    data = reactive({GetDatasetOverview()}),
-    filename = "DescriptiveStats_Overview"
+                    data = reactive({GetDatasetOverview()}),
+                    filename = "DescriptiveStats_Overview"
 )
 
 mod_staticDT_server("PCAvarCoord",
-    data = reactive({
-        if (!is.null(rv$res.pca)) {
-            round(rv$res.pca$var$coord, digits = 7)
-        }
-    }),
-    filename = "PCA_Var_Coords"
+                    data = reactive({
+                        if (!is.null(rv$res.pca)) {
+                            round(rv$res.pca$var$coord, digits = 7)
+                        }
+                    }),
+                    filename = "PCA_Var_Coords"
 )
 
+
+output$versionsUI <- renderUI({
+    rv$current.obj
+    
+    Prostar_msnset_version <- rv$current.obj@experimentData@other$Prostar_Version
+    DAPAR_msnset_version <- rv$current.obj@experimentData@other$DAPAR_Version
+    
+    tagList(
+        br(),
+        h3('This dataset was created with:'),
+        p(paste0('Prostar version:', Prostar_msnset_version)),
+        p(paste0('DAPAR version:', DAPAR_msnset_version))
+    )
+})
 
 observeEvent(c(input$pca.axe1, input$pca.axe2), {
     rv$PCA_axes <- c(input$pca.axe1, input$pca.axe2)
@@ -37,14 +51,14 @@ observeEvent(c(input$pca.axe1, input$pca.axe2), {
 observeEvent(input$varScale_PCA, {
     rv$PCA_varScale <- input$varScale_PCA
     rv$res.pca <- wrapper.pca(rv$current.obj, rv$PCA_varScale,
-        ncp = Compute_PCA_nbDimensions()
+                              ncp = Compute_PCA_nbDimensions()
     )
 })
 
 observeEvent(rv$current.obj, {
     rv$res.pca <- wrapper.pca(rv$current.obj,
-        rv$PCA_varScale,
-        ncp = Compute_PCA_nbDimensions()
+                              rv$PCA_varScale,
+                              ncp = Compute_PCA_nbDimensions()
     )
 })
 
@@ -68,8 +82,8 @@ output$plotsCorM <- renderUI({
                                 tags$div(
                                     style = "display:inline-block; vertical-align: bottom;",
                                     sliderInput("expGradientRate",
-                                        "Tune to modify the color gradient",
-                                        min = 0, max = 1, value = defaultGradientRate, step = 0.01
+                                                "Tune to modify the color gradient",
+                                                min = 0, max = 1, value = defaultGradientRate, step = 0.01
                                     ),
                                     tooltip = "Plots parameters",
                                     icon = icon("gear"), status = optionsBtnClass
@@ -139,12 +153,12 @@ output$IntensityStatsPlots <- renderUI({
 output$plotsMVHistograms <- renderUI({
     tagList(
         selectInput("choose_metacell_DS",
-            "Quant. metadata",
-            choices = c(
-                "None" = "None",
-                DAPAR::metacell.def(rv$current.obj@experimentData@other$typeOfData)$node
-            ),
-            width = "200px"
+                    "Quant. metadata",
+                    choices = c(
+                        "None" = "None",
+                        DAPAR::metacell.def(rv$current.obj@experimentData@other$typeOfData)$node
+                    ),
+                    width = "200px"
         ),
         helpText("These barplots display the distribution of missing
       values in the dataset."),
@@ -174,17 +188,17 @@ output$plotsHeatmap <- renderUI({
                 style = "display:inline-block; vertical-align: middle;
         padding-right: 20px;",
                 selectInput("distance", "Distance",
-                    choices = G_heatmapDistance_Choices,
-                    selected = rv$PlotParams$heatmap.distance,
-                    width = "150px"
+                            choices = G_heatmapDistance_Choices,
+                            selected = rv$PlotParams$heatmap.distance,
+                            width = "150px"
                 )
             ),
             div(
                 style = "display:inline-block; vertical-align: middle;",
                 selectInput("linkage", "Linkage",
-                    choices = G_heatmapLinkage_Choices,
-                    selected = rv$PlotParams$heatmap.linkage,
-                    width = "150px"
+                            choices = G_heatmapLinkage_Choices,
+                            selected = rv$PlotParams$heatmap.linkage,
+                            width = "150px"
                 )
             ),
             tags$hr(),
@@ -216,14 +230,14 @@ output$pcaPlotInd <- renderImage(
     {
         # req(rv$PCA_axes)
         # req(rv$res.pca)
-
+        
         outfile <- tempfile(fileext = ".png")
         # Generate a png
         png(outfile)
         image <- DAPAR::plotPCA_Ind(rv$res.pca, rv$PCA_axes)
         print(image)
         dev.off()
-
+        
         # Return a list
         list(
             src = outfile,
@@ -238,14 +252,14 @@ output$pcaPlotVar <- renderImage(
     {
         req(rv$PCA_axes)
         req(rv$res.pca)
-
+        
         outfile <- tempfile(fileext = ".png")
         # Generate a png
         png(outfile)
         image <- DAPAR::plotPCA_Var(rv$res.pca, rv$PCA_axes)
         print(image)
         dev.off()
-
+        
         # Return a list
         list(
             src = outfile,
@@ -265,10 +279,10 @@ output$pcaPlotEigen <- renderHighchart({
 output$pcaOptions <- renderUI({
     req(rv$current.obj)
     m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
-        pattern = "Missing",
-        level = DAPAR::GetTypeofData(rv$current.obj)
+                        pattern = "Missing",
+                        level = DAPAR::GetTypeofData(rv$current.obj)
     )
-
+    
     tagList(
         if (length(which(m)) > 0) {
             tags$p("Warning: As your dataset contains missing values,
@@ -280,22 +294,22 @@ output$pcaOptions <- renderUI({
                     style = "display:inline-block; vertical-align: middle;
           padding-right: 20px;",
                     numericInput("pca.axe1", "Dimension 1",
-                        min = 1,
-                        max = Compute_PCA_nbDimensions(), value = 1, width = "100px"
+                                 min = 1,
+                                 max = Compute_PCA_nbDimensions(), value = 1, width = "100px"
                     )
                 ),
                 tags$div(
                     style = "display:inline-block; vertical-align: middle;",
                     numericInput("pca.axe2", "Dimension 2",
-                        min = 1,
-                        max = Compute_PCA_nbDimensions(), value = 2, width = "100px"
+                                 min = 1,
+                                 max = Compute_PCA_nbDimensions(), value = 2, width = "100px"
                     )
                 ),
                 tags$div(
                     style = "display:inline-block; vertical-align: middle;
           padding-right: 20px;",
                     checkboxInput("varScale_PCA", "Variance scaling",
-                        value = rv$PCA_varScale
+                                  value = rv$PCA_varScale
                     )
                 )
             )
@@ -310,41 +324,41 @@ output$pcaOptions <- renderUI({
 
 output$DS_sidebarPanel_tab <- renderUI({
     req(rv$typeOfDataset)
-
+    
     .choices <- NULL
     switch(rv$typeOfDataset,
-        protein = {
-            .choices <- list(
-                "Quantitative data" = "tabExprs",
-                "Proteins metadata" = "tabfData",
-                "Experimental design" = "tabpData"
-            )
-        },
-        peptide = {
-            .choices <- list(
-                "Quantitative data" = "tabExprs",
-                "Peptides metadata" = "tabfData",
-                "Experimental design" = "tabpData"
-            )
-        },
-        {
-            .choices <- list(
-                "Quantitative data" = "tabExprs",
-                "Analyte metadata" = "tabfData",
-                "Experimental design" = "tabpData"
-            )
-        }
+           protein = {
+               .choices <- list(
+                   "Quantitative data" = "tabExprs",
+                   "Proteins metadata" = "tabfData",
+                   "Experimental design" = "tabpData"
+               )
+           },
+           peptide = {
+               .choices <- list(
+                   "Quantitative data" = "tabExprs",
+                   "Peptides metadata" = "tabfData",
+                   "Experimental design" = "tabpData"
+               )
+           },
+           {
+               .choices <- list(
+                   "Quantitative data" = "tabExprs",
+                   "Analyte metadata" = "tabfData",
+                   "Experimental design" = "tabpData"
+               )
+           }
     )
-
+    
     tagList(
         tags$div(
             tags$div(
                 style = "display:inline-block; vertical-align: middle;
         padding-right: 40px;",
                 radioButtons("DS_TabsChoice", "Table to display",
-                    choices = .choices,
-                    inline = TRUE,
-                    selected = character(0)
+                             choices = .choices,
+                             inline = TRUE,
+                             selected = character(0)
                 )
             ),
             tags$div(
@@ -364,15 +378,15 @@ output$DS_sidebarPanel_heatmap <- renderUI({
     tagList(
         h3("Clustering Options"),
         selectInput("distance", "Distance",
-            choices = G_heatmapDistance_Choices,
-            selected = rv$PlotParams$heatmap.distance,
-            width = "150px"
+                    choices = G_heatmapDistance_Choices,
+                    selected = rv$PlotParams$heatmap.distance,
+                    width = "150px"
         ),
         br(),
         selectInput("linkage", "Linkage",
-            choices = G_heatmapLinkage_Choices,
-            selected = rv$PlotParams$heatmap.linkage,
-            width = "150px"
+                    choices = G_heatmapLinkage_Choices,
+                    selected = rv$PlotParams$heatmap.linkage,
+                    width = "150px"
         )
     )
 })
@@ -394,10 +408,10 @@ mod_MSnSetExplorer_server(
 viewDistCV <- reactive({
     req(rv$current.obj)
     rv$PlotParams$paletteForConditions
-
+    
     isolate({
         rv$tempplot$varDist <- wrapper.CVDistD_HC(rv$current.obj,
-            pal = rv$PlotParams$paletteForConditions
+                                                  pal = rv$PlotParams$paletteForConditions
         )
     })
     rv$tempplot$varDist
@@ -409,18 +423,18 @@ corrMatrix <- reactive({
     req(rv$current.obj)
     input$expGradientRate
     input$showDataLabels
-
+    
     gradient <- NULL
     if (is.null(input$expGradientRate)) {
         gradient <- defaultGradientRate
     } else {
         gradient <- input$expGradientRate
     }
-
+    
     isolate({
         rv$tempplot$corrMatrix <- wrapper.corrMatrixD_HC(rv$current.obj,
-            gradient,
-            showValues = input$showDataLabels
+                                                         gradient,
+                                                         showValues = input$showDataLabels
         )
         rv$tempplot$corrMatrix
     })
@@ -438,7 +452,7 @@ heatmap <- reactive({
     req(rv$current.obj)
     input$linkage
     input$distance
-
+    
     isolate({
         wrapper.heatmapD(
             rv$current.obj,
@@ -478,14 +492,14 @@ output$DS_PlotHeatmap <- renderUI({
 # #------------------------------------------------------
 output$ChooseLegendForSamples <- renderUI({
     req(rv$current.obj)
-
+    
     .names <- colnames(Biobase::pData(rv$current.obj))
-
-
+    
+    
     checkboxGroupInput("legendForSamples",
-        label = "Choose data to show in legend",
-        choices = .names,
-        selected = .names[2]
+                       label = "Choose data to show in legend",
+                       choices = .names,
+                       selected = .names[2]
     )
 })
 
@@ -500,10 +514,10 @@ observeEvent(input$legendForSamples, {
 
 
 shinyBS::addPopover(session, "histo_missvalues_per_lines_per_conditions", "Info",
-    content = paste0(
-        "<p>Test",
-        "test</p><p>Explanation .</p>"
-    ), trigger = "click"
+                    content = paste0(
+                        "<p>Test",
+                        "test</p><p>Explanation .</p>"
+                    ), trigger = "click"
 )
 
 
@@ -517,23 +531,23 @@ output$heatmap <- renderImage(
         # A temp file to save the output. It will be deleted after renderImage
         # sends it, because deleteFile=TRUE.
         outfile <- tempfile(fileext = ".png")
-
+        
         # Generate a png
         tryCatch({
-          png(outfile, width = 900, height = 600)
-        heatmap()
-        dev.off()
-    },
-  error = function(e) {
-    #if(showErrLog)
-    shinyjs::info(conditionMessage(e))
-    return(NULL)
-    #     mod_errorModal_server("test_error",
-    #         reactive({readLines(logfilename)})
-    # )
-    # return(NULL)
-  })
-
+            png(outfile, width = 900, height = 600)
+            heatmap()
+            dev.off()
+        },
+        error = function(e) {
+            #if(showErrLog)
+            shinyjs::info(conditionMessage(e))
+            return(NULL)
+            #     mod_errorModal_server("test_error",
+            #         reactive({readLines(logfilename)})
+            # )
+            # return(NULL)
+        })
+        
         # Return a list
         list(
             src = outfile,
