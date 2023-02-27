@@ -67,14 +67,23 @@ mod_metacell_tree_ui <- function(id) {
  
 }
 
-mod_metacell_tree_server <- function(id, multiple = FALSE) {
+mod_metacell_tree_server <- function(id, 
+                                     level = NULL, 
+                                     multiple = FALSE) {
+    
+    if(is.null(level)){
+        stop('level is NULL')
+        
+    }
+    
     moduleServer(id,
         function(input, output, session) {
             ns <- session$ns
             
+            
             rv <- reactiveValues(
-                tags = setNames(rep(FALSE, length(metacell.def('peptide')$node)), 
-                nm = metacell.def('peptide')$node)
+                tags = setNames(rep(FALSE, length(metacell.def(level)$node)), 
+                nm = metacell.def(level)$node)
             )
             
             output$metacell_tree <- renderUI({
@@ -299,7 +308,7 @@ mod_metacell_tree_server <- function(id, multiple = FALSE) {
 ui <- mod_metacell_tree_ui('tree')
 
 server <- function(input, output) {
-    res <- mod_metacell_tree_server('tree', multiple = TRUE)
+    res <- mod_metacell_tree_server('tree', level = 'protein', multiple = FALSE)
     
     observe({
         print(res())

@@ -154,7 +154,7 @@ mod_query_metacell_server <- function(id,
                 
                 mod_metacell_tree_ui('tree')
                 
-                rv.widgets$MetacellTag <- mod_metacell_tree_server('tree')
+                rv.widgets$MetacellTag <- mod_metacell_tree_server('tree', multiple=FALSE)
             })
 
             output$Choose_keepOrRemove_ui <- renderUI({
