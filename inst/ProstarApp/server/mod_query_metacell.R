@@ -138,19 +138,23 @@ mod_query_metacell_server <- function(id,
                 obj()
                 # Define list_tags
                 #browser()
-                list_tags <- c(
-                    "None" = "None",
-                    unique(unlist(DAPAR::GetMetacellTags(level = GetTypeofData(obj()),
-                                                         obj = obj(),
-                                                         onlyPresent = TRUE)))
-                )
+                # list_tags <- c(
+                #     "None" = "None",
+                #     unique(unlist(DAPAR::GetMetacellTags(level = GetTypeofData(obj()),
+                #                                          obj = obj(),
+                #                                          onlyPresent = TRUE)))
+                # )
+                # 
+                # selectInput(ns("chooseMetacellTag"),
+                #     modulePopoverUI(ns("metacellTag_help")),
+                #     choices = list_tags,
+                #     selected = rv.widgets$MetacellTag,
+                #     width = "200px"
+                # )
                 
-                selectInput(ns("chooseMetacellTag"),
-                    modulePopoverUI(ns("metacellTag_help")),
-                    choices = list_tags,
-                    selected = rv.widgets$MetacellTag,
-                    width = "200px"
-                )
+                mod_metacell_tree_ui('tree')
+                
+                rv.widgets$MetacellTag <- mod_metacell_tree_server('tree')
             })
 
             output$Choose_keepOrRemove_ui <- renderUI({
