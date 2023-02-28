@@ -62,240 +62,334 @@ mod_metacell_tree_ui <- function(id) {
     
     tagList(
         shinyjs::inlineCSS(css),
-        uiOutput(ns('metacell_tree'))
+        checkboxInput(ns('multiple'), 'Multiple selection', value = FALSE),
+        uiOutput(ns('tree'))
     )
- 
+    
 }
 
-mod_metacell_tree_server <- function(id, 
-                                     level = NULL, 
-                                     multiple = FALSE) {
+mod_metacell_tree_server <- function(id, level = NULL) {
     
-    if(is.null(level)){
-        stop('level is NULL')
-        
-    }
+    if(is.null(level))
+        stop('level is empty')
+    
     
     moduleServer(id,
-        function(input, output, session) {
-            ns <- session$ns
-            
-            
-            rv <- reactiveValues(
-                tags = setNames(rep(FALSE, length(metacell.def(level)$node)), 
-                nm = metacell.def(level)$node)
-            )
-            
-            output$metacell_tree <- renderUI({
-                div(class='wtree',
-                    h1(class="title", 'Cell metadata tags'),
-                    tags$ul(
-                        tags$li(
-                            checkboxInput(ns('quantified_cb'), 
-                                          tags$span(
-                                              style = 'width: 100px; padding: 0px; vertical-align: top; background: #0A31D0; color: white; padding: 5px;',
-                                              'Quantified')
-                            ),
-                            tags$ul(
-                                tags$li(
-                                    checkboxInput(ns('quantbydirectid_cb'), 
-                                                  tags$span(
-                                                      style = 'vertical-align: top; background: #6178D9; color: white; padding: 5px;',
-                                                      'Quant. by direct id')
-                                    )
-                                ),
-                                tags$li(
-                                    checkboxInput(ns('quantbyrecovery_cb'), 
-                                                  tags$span(
-                                                      style = 'vertical-align: top; background: #B9C4F2; color: white; padding: 5px;',
-                                                      'Quant. by recovery')
-                                    )
-                                )
-                            )
-                        ),
-                        
-                        
-                        tags$li(
-                            checkboxInput(ns('missing_cb'), 
-                                          tags$span(
-                                              style = 'vertical-align: top; background: #CF8205; color: white; padding: 5px;',
-                                              'Missing')
-                            ),
-                            tags$ul(
-                                tags$li(
-                                    checkboxInput(ns('missingpov_cb'), 
-                                                  tags$span(
-                                                      style = 'vertical-align: top; background: #E5A947; color: white; padding: 5px;',
-                                                      'Missing POV')
-                                    )
-                                ),
-                                tags$li(
-                                    checkboxInput(ns('missingmec_cb'), 
-                                                  tags$span(
-                                                      style = 'vertical-align: top; background: #F1CA8A; color: white; padding: 5px;',
-                                                      'Missing MEC')
-                                    )
-                                )
-                            )
-                        ),
-                        
-                        
-                        tags$li(
-                            checkboxInput(ns('imputed_cb'), 
-                                          tags$span(
-                                              style = 'vertical-align: top; background: #A40C0C; color: white; padding: 5px;',
-                                              'Imputed')
-                            ),
-                            tags$ul(
-                                tags$li(
-                                    checkboxInput(ns('imputedpov_cb'), 
-                                                  tags$span(
-                                                      style = 'vertical-align: top; background: #E34343; color: white; padding: 5px;',
-                                                      'Imputed POV')
-                                    )
-                                ),
-                                tags$li(
-                                    checkboxInput(ns('imputedmec_cb'), 
-                                                  tags$span(
-                                                      style = 'vertical-align: top; background: #F59898; color: white; padding: 5px;',
-                                                      'Imputed MEC')
-                                    )
-                                )
-                            )
-                        ),
-                        
-                        
-                        tags$li(
-                            checkboxInput(ns('combinedtags_cb'), 
-                                          tags$span(
-                                              style = 'vertical-align: top; background: #1E8E05; color: white; padding: 5px;',
-                                              'Combined tags')
-                            ),
-                            tags$ul(
-                                tags$li(
-                                    checkboxInput(ns('partiallyquantified_cb'), 
-                                                  tags$span(
-                                                      style = 'vertical-align: top; background: #38CB17; color: white; padding: 5px;',
-                                                      'Partially quantified')
-                                    )
-                                )
-                            )
-                        )
-                    )
-                )
-            })
-            
-            
-            
-            update_CB <- function(name){
-                lapply(names(input)[-match(name , names(input))],
-                       function(x)
-                           updateCheckboxInput(session, x, value = FALSE)
-                )
-            }
-            
-            observeEvent(req(input$quantbydirectid_cb), {
-                if(!multiple)
-                    update_CB('quantbydirectid_cb')
-            })
-            
-            observeEvent(req(input$quantbyrecovery_cb), {
-                if(!multiple)
-                    update_CB('quantbyrecovery_cb')
-            })
-            
-            
-            observeEvent(req(input$missingpov_cb), {
-                if(!multiple)
-                    update_CB('missingpov_cb')
-            })
-            
-            observeEvent(req(input$missingmec_cb), {
-                if(!multiple)
-                    update_CB('missingmec_cb')
-            })
-            
-            observeEvent(req(input$imputedpov_cb), {
-                if(!multiple)
-                    update_CB('imputedpov_cb')
-            })
-            
-            observeEvent(req(input$missingmec_cb), {
-                if(!multiple)
-                    update_CB('missingmec_cb')
-            })
-            observeEvent(req(input$partiallyquantified_cb), {
-                if(!multiple)
-                    update_CB('partiallyquantified_cb')
-            })
-  
-  
-            observeEvent(req(input$quantified_cb), {
-                if(multiple){
-                    updateCheckboxInput(session, 'quantbydirectid_cb', value = TRUE)
-                    updateCheckboxInput(session, 'quantbyrecovery_cb', value = TRUE)
-                    
-                } else
-                    update_CB('quantified_cb')
-            })
-            
-            observeEvent(req(input$missing_cb), {
-                if(multiple){
-                    updateCheckboxInput(session, 'missingpov_cb', value = TRUE)
-                    updateCheckboxInput(session, 'missingmec_cb', value = TRUE)
-                } else
-                    update_CB('missing_cb')
-            })
-            
-            observeEvent(req(input$imputed_cb), {
-                if(multiple){
-                    updateCheckboxInput(session, 'imputedpov_cb', value = TRUE)
-                    updateCheckboxInput(session, 'imputedmec_cb', value = TRUE)
-                } else
-                    update_CB('imputed_cb')
-            })
-            
-            observeEvent(req(input$combinedtags_cb), {
-                if (multiple)
-                    updateCheckboxInput(session, 'partiallyquantified_cb', value = TRUE)
-                else
-                    update_CB('combinedtags_cb')
-            })
-            
-        observe({
-            req(c(input$quantified_cb, 
-                  input$quantbydirectid_cb,
-                  input$quantbyrecovery_cb,
-                  input$missing_cb,
-                  input$missingpov_cb,
-                  input$missingmec_cb,
-                  input$imputed_cb,
-                  input$imputedpov_cb,
-                  input$imputedmec_cb,
-                  input$combinedtags_cb,
-                  input$partiallyquantified_cb))
-            
-            rv$tags['Quantified'] <- input$quantified_cb
-            rv$tags['Quant. by direct id'] <- input$quantbydirectid_cb
-            rv$tags['Quant. by recovery'] <- input$quantbyrecovery_cb
-            
-            rv$tags['Missing'] <- input$missing_cb
-            rv$tags['Missing POV'] <- input$missingpov_cb
-            rv$tags['Missing MEC'] <- input$missingmec_cb
-            
-            rv$tags['Imputed'] <- input$imputed_cb
-            rv$tags['Imputed POV'] <- input$imputedpov_cb
-            rv$tags['Imputed MEC'] <- input$imputedmec_cb
-            
-            rv$tags['Combined tags'] <- input$combinedtags_cb
-            rv$tags['Partially quantified'] <- input$partiallyquantified_cb
+                 function(input, output, session) {
+                     ns <- session$ns
+                     
+                     convertWidgetName <- function(name){
+                         # This function implements the transformations used to
+                         # create the names of the checkboxes
+                         ll <- lapply(name, function(x){
+                             tmp <- gsub('.', '', x, fixed = TRUE)
+                             tmp <- gsub(' ', '', tmp, fixed = TRUE)
+                             tmp <- tolower(tmp)
+                             tmp <- paste0(tmp, '_cb')
+                         })
+                         
+                         return(unlist(ll))
+                     }
+                     
+                     BuildMapping <- function(){
+                         mapping <- c()
+                         meta <- DAPAR::metacell.def(level)
+                         ll <- meta$node
+                         .ind <- which(ll == 'Any')
+                         ll <- ll[-.ind]
+                         colors <- setNames(meta$color[-.ind], nm = convertWidgetName(ll)) 
+                         widgets.names <- setNames(ll, nm = convertWidgetName(ll))
+                         return(list(names = widgets.names,
+                                     colors = colors)
+                         )
+                     }
+                     
+                     reverse.mapping <- function(x){
+                         req(rv$mapping)
+                         
+                         return(names(rv$mapping)[which(rv$mapping == x)])
+                     }
+                     
+                     rv <- reactiveValues(
+                         tags = NULL,
+                         mapping = BuildMapping()$names,
+                         bg_colors = BuildMapping()$colors
+                     )
+                     
+                     
+                     
+                     output$tree <- renderUI({
+                         uiOutput(ns(paste0('metacell_tree_', level)))
+                     })
+                     
+                     .style <- 'vertical-align: top; 
+                     background: #bg-color#; 
+                     color: white; 
+                     padding: 5px;'
+                     
+                     # Define tree for protein dataset
+                     output$metacell_tree_protein <- renderUI({
+                         
+                         
+                         div(class='wtree',
+                             h1(class="title", 'Cell metadata tags'),
+                             tags$ul(
+                                 tags$li(
+                                     checkboxInput(ns('quantified_cb'), 
+                                                   tags$span(style = Get_bg_color('quantified_cb'), 'Quantified')
+                                     ),
+                                     tags$ul(
+                                         tags$li(
+                                             checkboxInput(ns('quantbydirectid_cb'), 
+                                                           tags$span(style = Get_bg_color('quantbydirectid_cb'), 'Quant. by direct id')
+                                             )
+                                         ),
+                                         tags$li(
+                                             checkboxInput(ns('quantbyrecovery_cb'), 
+                                                           tags$span(style = Get_bg_color('quantbyrecovery_cb'), 'Quant. by recovery')
+                                             )
+                                         )
+                                     )
+                                 ),
+                                 
+                                 
+                                 tags$li(
+                                     checkboxInput(ns('missing_cb'), 
+                                                   tags$span(style = Get_bg_color('missing_cb'), 'Missing')
+                                     ),
+                                     tags$ul(
+                                         tags$li(
+                                             checkboxInput(ns('missingpov_cb'), 
+                                                           tags$span(style = Get_bg_color('missingpov_cb'), 'Missing POV')
+                                             )
+                                         ),
+                                         tags$li(
+                                             checkboxInput(ns('missingmec_cb'), 
+                                                           tags$span(style = Get_bg_color('missingmec_cb'), 'Missing MEC')
+                                             )
+                                         )
+                                     )
+                                 ),
+                                 
+                                 
+                                 tags$li(
+                                     checkboxInput(ns('imputed_cb'), 
+                                                   tags$span(style = Get_bg_color('imputed_cb'), 'Imputed')
+                                     ),
+                                     tags$ul(
+                                         tags$li(
+                                             checkboxInput(ns('imputedpov_cb'), 
+                                                           tags$span(style = Get_bg_color('imputedpov_cb'), 'Imputed POV')
+                                             )
+                                         ),
+                                         tags$li(
+                                             checkboxInput(ns('imputedmec_cb'), 
+                                                           tags$span(style = Get_bg_color('imputedmec_cb'), 'Imputed MEC')
+                                             )
+                                         )
+                                     )
+                                 ),
+                                 
+                                 tags$li(
+                                     checkboxInput(ns('combinedtags_cb'), 
+                                                   tags$span(style = Get_bg_color('combinedtags_cb'), 'Combined tags')
+                                     )
+                                     # tags$ul(
+                                     #     tags$li(
+                                     #         checkboxInput(ns('partiallyquantified_cb'), 
+                                     #                       tags$span(style = .style, 'Partially quantified')
+                                     #         )
+                                     #     )
+                                     # )
+                                 )
+                                 
+                             )
+                         )
+                     })
+                     
+                  
+                     output$metacell_tree_peptide <- renderUI({
+                         div(class='wtree',
+                             h1(class="title", 'Cell metadata tags'),
+                             tags$ul(
+                                 tags$li(
+                                     checkboxInput(ns('quantified_cb'), 
+                                                   tags$span(style = Get_bg_color('quantified_cb'), 'Quantified')
+                                     ),
+                                     tags$ul(
+                                         tags$li(
+                                             checkboxInput(ns('quantbydirectid_cb'), 
+                                                           tags$span(style = Get_bg_color('quantbydirectid_cb'), 'Quant. by direct id')
+                                             )
+                                         ),
+                                         tags$li(
+                                             checkboxInput(ns('quantbyrecovery_cb'), 
+                                                           tags$span(style = Get_bg_color('quantbyrecovery_cb'), 'Quant. by recovery')
+                                             )
+                                         )
+                                     )
+                                 ),
+                                 
+                                 
+                                 tags$li(
+                                     checkboxInput(ns('missing_cb'), 
+                                                   tags$span(style = Get_bg_color('missing_cb'), 'Missing')
+                                     ),
+                                     tags$ul(
+                                         tags$li(
+                                             checkboxInput(ns('missingpov_cb'), 
+                                                           tags$span(style = Get_bg_color('missingpov_cb'), 'Missing POV')
+                                             )
+                                         ),
+                                         tags$li(
+                                             checkboxInput(ns('missingmec_cb'), 
+                                                           tags$span(style = Get_bg_color('missingmec_cb'), 'Missing MEC')
+                                             )
+                                         )
+                                     )
+                                 ),
+                                 
+                                 
+                                 tags$li(
+                                     checkboxInput(ns('imputed_cb'), 
+                                                   tags$span(style = Get_bg_color('imputed_cb'), 'Imputed')
+                                     ),
+                                     tags$ul(
+                                         tags$li(
+                                             checkboxInput(ns('imputedpov_cb'), 
+                                                           tags$span(style = Get_bg_color('imputedpov_cb'), 'Imputed POV')
+                                             )
+                                         ),
+                                         tags$li(
+                                             checkboxInput(ns('imputedmec_cb'), 
+                                                           tags$span(style = Get_bg_color('imputedmec_cb'), 'Imputed MEC')
+                                             )
+                                         )
+                                     )
+                                 )
+                                 
+                             )
+                         )
+                     })
+                     
+                     
+                     Get_bg_color <- function(name){
+                         gsub("#bg-color#", rv$bg_colors[name], .style)
+                     }
+                     
+                     update_CB <- function(nametokeep=NULL){
+                         if(!is.null(nametokeep))
+                            widgets_to_disable <- names(input)[-match(reverse.mapping(nametokeep) , names(input))]
+                         
+                         lapply(widgets_to_disable,
+                                function(x){
+                                    updateCheckboxInput(session, x, value = FALSE)
+                                    rv$tags[rv$mapping[x]] <- FALSE
+                                }
+                         )
+                         
+                     } 
+                     
+                     
+                     observeEvent(input$multiple, {
+                         update_CB <- function(nametokeep=NULL){
+                             if(!is.null(nametokeep))
+                                 widgets_to_disable <- GetTreeCBInputs()[-match(reverse.mapping(nametokeep) , GetTreeCBInputs())]
+                             else
+                                 widgets_to_disable <- GetTreeCBInputs()
+                             
+                             lapply(widgets_to_disable,
+                                    function(x){
+                                        updateCheckboxInput(session, x, value = FALSE)
+                                        rv$tags[rv$mapping[x]] <- FALSE
+                                    }
+                             )
+                             
+                         }
+                         if (!input$multiple)
+                             update_CB()
+                     })
+                     
+                     GetTreeCBInputs <- reactive({
+                         names(input)[grepl('_cb', names(input))]
+                     })
+                     
+                     observeEvent(lapply(GetTreeCBInputs(), function(x) input[[x]]), ignoreInit = TRUE, {
+                         req(!is.null(input$multiple))
+                         req(length(GetTreeCBInputs()) > 0)
+                         update_CB <- function(nametokeep=NULL){
+                             if(!is.null(nametokeep))
+                                 widgets_to_disable <- GetTreeCBInputs()[-match(reverse.mapping(nametokeep) , GetTreeCBInputs())]
+                             else
+                                 widgets_to_disable <- GetTreeCBInputs()
+                             
+                             lapply(widgets_to_disable,
+                                    function(x){
+                                        updateCheckboxInput(session, x, value = FALSE)
+                                        rv$tags[rv$mapping[x]] <- FALSE
+                                    }
+                             )
+                             
+                         }
+                         
+                         events <- unlist(lapply(GetTreeCBInputs(), function(x) input[[x]]))
+                        #browser()
+                         if (is.null(rv$tags)){
+                             tree_cb_inputs <- GetTreeCBInputs()
+                             rv$tags <- setNames(events, nm = gsub('_cb', '', unname(rv$mapping[GetTreeCBInputs()])))
+                             newSelection <- names(rv$tags)[which(rv$tags)]
+                             return(NULL)
+                         }
 
+                         #else {
+                         #browser()
+                             compare <- rv$tags == events
+                             
+                             # If nothing has change, quit
+                             if (length(which(compare==FALSE))==0){
+                                 return(NULL)
+                             }
+                             newSelection <- names(rv$tags)[which(compare==FALSE)]
+                             rv$tags[newSelection] <- input[[reverse.mapping(newSelection)]]
 
-        })
-        
-        return(reactive({names(which(rv$tags))}))
-        
-        }
+                         #}
+
+                             # Check if the new selection is a node or a leaf
+                             # If it is not a node, then it is a leaf as the hierarchy only
+                             # contains two levels
+
+                         #browser()
+                        
+                             is.leaf <- length(DAPAR::Children(level, newSelection)) == 0
+                         if (is.leaf){
+                             # If the new selection is a leaf if(!multiple)
+                             if(!input$multiple)
+                                 update_CB(newSelection)
+                         } else {
+                             # If the new selection is a node:
+                             # by default, all its children must be also selected
+                             children.names <- DAPAR::Children(level, newSelection)
+                             
+                             if(input$multiple){
+                                 lapply(children.names, function(x){
+                                     updateCheckboxInput(session, reverse.mapping(x), value = TRUE)
+                                     rv$tags[x] <- TRUE
+                                 }
+                                     )
+                                 } else{
+                                     update_CB(newSelection)
+                                 }
+                         }
+
+                 
+                     })
+                     
+                     
+                     
+                     
+                     return(reactive({names(rv$tags)[which(rv$tags == TRUE)]}))
+                     
+                 }
     )
     
     
@@ -305,17 +399,17 @@ mod_metacell_tree_server <- function(id,
 
 # Example
 
-ui <- mod_metacell_tree_ui('tree')
-
-server <- function(input, output) {
-    res <- mod_metacell_tree_server('tree', level = 'protein', multiple = FALSE)
-    
-    observe({
-        print(res())
-    })
-}
-
-shinyApp(ui = ui, server = server)
-
+# ui <- mod_metacell_tree_ui('tree')
+# 
+# server <- function(input, output) {
+#     res <- mod_metacell_tree_server('tree', level = 'protein')
+#     
+#     observe({
+#         print(res())
+#     })
+# }
+# 
+# shinyApp(ui = ui, server = server)
+# 
 
 

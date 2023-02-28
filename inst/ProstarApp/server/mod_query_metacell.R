@@ -152,12 +152,13 @@ mod_query_metacell_server <- function(id,
                 #     width = "200px"
                 # )
                 
-                mod_metacell_tree_ui('tree')
+                mod_metacell_tree_ui(ns('tree'))
                 
-                rv.widgets$MetacellTag <- mod_metacell_tree_server('tree', 
-                                                                   level = xxx)
-            })
-
+                })
+            
+            rv.widgets$MetacellTag <- mod_metacell_tree_server('tree', 
+                                                               level = DAPAR::GetTypeofData(obj()))()
+            
             output$Choose_keepOrRemove_ui <- renderUI({
                 req(rv.widgets$MetacellTag != "None")
                 radioButtons(ns("ChooseKeepRemove"),
