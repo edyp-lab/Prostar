@@ -153,18 +153,10 @@ observeEvent(req(indices()$params$MetacellTag), {
 })
 
 
-mod_plotsMetacellHistos_server(
-    id = "MVPlots_filtering",
-    obj = reactive({
-        rv$current.obj
-    }),
-    pal = reactive({
-        rv$PlotParams$paletteForConditions
-    }),
-    pattern = reactive({
-        rv$widgets$filtering$MetacellTag
-    })
-)
+mod_plotsMetacellHistos_server(id = "MVPlots_filtering",
+                               obj = reactive({rv$current.obj}),
+                               pal = reactive({rv$PlotParams$paletteForConditions})
+                               )
 
 
 
@@ -306,7 +298,7 @@ output$explainSymFilter_ui <- renderUI({
     req(input$symFilter_cname != "None")
     req(input$symFilter_tagName != "")
     txt <- paste0(
-        "You are going to delete lines in the column '",
+        "You are about to delete lines in the column '",
         input$symFilter_cname, "' which begin with '",
         input$symFilter_tagName,
         "'."
@@ -470,7 +462,7 @@ output$explainNumFilter_ui <- renderUI({
     req(input$numericFilter_value != "")
 
     txt <- paste0(
-        "You are going to delete lines where ",
+        "You are about to delete lines where ",
         input$numericFilter_cname, " ",
         input$numericFilter_operator,
         " ", input$numericFilter_value, "."

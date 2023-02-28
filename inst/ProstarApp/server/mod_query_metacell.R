@@ -151,16 +151,20 @@ mod_query_metacell_server <- function(id,
                 #     selected = rv.widgets$MetacellTag,
                 #     width = "200px"
                 # )
-                
                 mod_metacell_tree_ui(ns('tree'))
-                
                 })
+            tmp_tree <- mod_metacell_tree_server('tree', 
+                                                 level = DAPAR::GetTypeofData(obj()))
             
-            rv.widgets$MetacellTag <- mod_metacell_tree_server('tree', 
-                                                               level = DAPAR::GetTypeofData(obj()))()
+            observeEvent(tmp_tree(), {
+                rv.widgets$MetacellTag <- tmp_tree()
+            })
+            
+
             
             output$Choose_keepOrRemove_ui <- renderUI({
                 req(rv.widgets$MetacellTag != "None")
+                
                 radioButtons(ns("ChooseKeepRemove"),
                     "Type of filter operation",
                     choices = keep_vs_remove(),
@@ -292,8 +296,8 @@ mod_query_metacell_server <- function(id,
                 } else if (rv.widgets$MetacellFilters == "WholeLine") {
                     txt_summary <- paste(
                         rv.widgets$KeepRemove,
-                        "lines that contain only",
-                        rv.widgets$MetacellTag
+                        "lines that contain only ",
+                        paste0(rv.widgets$MetacellTag, collapse=', ')
                     )
                 } else {
                     text_method <- switch(rv.widgets$MetacellFilters,
@@ -312,26 +316,24 @@ mod_query_metacell_server <- function(id,
                         )
                     }
 
-                    txt_summary <- paste(
-                        rv.widgets$KeepRemove,
-                        " lines where number of ",
-                        rv.widgets$MetacellTag,
-                        " data ",
-                        rv.widgets$metacellFilter_operator,
-                        " ",
-                        text_threshold,
-                        " in ",
-                        text_method
-                    )
+                    txt_summary <- paste(rv.widgets$KeepRemove,
+                                         " lines where number of (",
+                                         paste0(rv.widgets$MetacellTag, collapse=', '),
+                                         ") data ",
+                                         rv.widgets$metacellFilter_operator,
+                                         " ",
+                                         text_threshold,
+                                         " in ",
+                                         text_method
+                                         )
                 }
                 txt_summary
             })
 
             output$metacellFilter_request_ui <- renderUI({
-                txt_summary <- paste("You are going to ", WriteQuery())
+                txt_summary <- paste("You are about to ", WriteQuery())
                 tags$p(txt_summary,
-                    style = "font-size: small; text-align : center;
-                    color: purple;"
+                    style = "font-size: small; text-align : center; color: purple;"
                 )
             })
 

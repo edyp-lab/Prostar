@@ -1,38 +1,53 @@
 mod_plotsMetacellHistos_ui <- function(id) {
     ns <- NS(id)
     tagList(
+        
+        uiOutput(ns('chooseTagUI')),
         fluidRow(
-            column(
-                width = 4,
-                highchartOutput(ns("histo_Metacell")), height = "600px"
-            ),
-            column(
-                width = 4,
-                highchartOutput(ns("histo_Metacell_per_lines"))
-            ),
-            column(
-                width = 4,
-                highchartOutput(ns("histo_Metacell_per_lines_per_conditions"))
+            column(width = 4,
+                   highchartOutput(ns("histo_Metacell")), height = "600px"
+                   ),
+            column(width = 4,
+                   highchartOutput(ns("histo_Metacell_per_lines"))
+                   ),
+            column(width = 4,
+                   highchartOutput(ns("histo_Metacell_per_lines_per_conditions"))
+                   )
             )
         )
-    )
 }
 
 
-mod_plotsMetacellHistos_server <- function(id, obj, pal, pattern) {
+mod_plotsMetacellHistos_server <- function(id, obj, pal) {
     moduleServer(
         id,
         function(input, output, session) {
+            ns <- session$ns
+            
+            
+            output$chooseTagUI <- renderUI({
+                obj()
+                meta <- DAPAR::metacell.def(GetTypeofData(obj()))$node
+                .ch <- meta[-which(meta == 'Any')]
+
+                selectInput(ns('chooseTag'), 'Choose tag', 
+                            choices = .ch,
+                            width = '200px',
+                            multiple = TRUE)
+
+            })
+            
+            
             output$histo_Metacell <- renderHighchart({
+                req(input$chooseTag)
                 obj()
 
                 tmp <- NULL
                 # isolate({
-                tmp <- metacellHisto_HC(
-                    obj = obj(),
-                    pattern = pattern(),
-                    pal = pal()
-                )
+                tmp <- metacellHisto_HC(obj = obj(),
+                                        pattern = input$chooseTag,
+                                        pal = pal()
+                                        )
                 # future(createPNGFromWidget(tmp,pattern))
                 #  })
                 tmp
@@ -41,16 +56,16 @@ mod_plotsMetacellHistos_server <- function(id, obj, pal, pattern) {
 
 
             output$histo_Metacell_per_lines <- renderHighchart({
+                req(input$chooseTag)
                 obj()
                 tmp <- NULL
                 # isolate({
                 # pattern <- paste0(GetCurrentObjName(),".MVplot2")
                 tmp <-
-                    metacellPerLinesHisto_HC(
-                        obj = obj(),
-                        pattern = pattern(),
-                        indLegend = c(2:length(colnames(Biobase::pData(obj()))))
-                    )
+                    metacellPerLinesHisto_HC(obj = obj(),
+                                             pattern = input$chooseTag,
+                                             indLegend = c(2:length(colnames(Biobase::pData(obj()))))
+                                             )
                 # future(createPNGFromWidget(tmp,pattern))
                 # })
                 tmp
@@ -59,15 +74,15 @@ mod_plotsMetacellHistos_server <- function(id, obj, pal, pattern) {
 
 
             output$histo_Metacell_per_lines_per_conditions <- renderHighchart({
+                req(input$chooseTag)
                 obj()
                 tmp <- NULL
                 # isolate({
                 # pattern <- paste0(GetCurrentObjName(),".MVplot2")
-                tmp <- metacellPerLinesHistoPerCondition_HC(
-                    obj = obj(),
-                    pattern = pattern(),
-                    pal = pal()
-                )
+                tmp <- metacellPerLinesHistoPerCondition_HC(obj = obj(),
+                                                            pattern = input$chooseTag,
+                                                            pal = pal()
+                                                            )
                 # future(createPNGFromWidget(tmp,pattern))
                 # })
                 tmp

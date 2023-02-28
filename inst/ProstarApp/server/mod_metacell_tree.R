@@ -62,8 +62,9 @@ mod_metacell_tree_ui <- function(id) {
     
     tagList(
         shinyjs::inlineCSS(css),
-        checkboxInput(ns('multiple'), 'Multiple selection', value = FALSE),
-        uiOutput(ns('tree'))
+        actionButton(ns("show_metacell_tree"), "Select tags", class = actionBtnClass)
+        
+        
     )
     
 }
@@ -77,6 +78,35 @@ mod_metacell_tree_server <- function(id, level = NULL) {
     moduleServer(id,
                  function(input, output, session) {
                      ns <- session$ns
+                     
+                     
+                     
+                     # Show modal when button is clicked.
+                     observeEvent(input$show_metacell_tree, {
+                         showModal(
+                             #shinyjqui::jqui_draggable(
+                                 modalDialog(
+                                 checkboxInput(ns('multiple'), 'Multiple selection', value = FALSE),
+                                 uiOutput(ns('tree')),
+                                 size = 'l',
+                                 footer = tagList(
+                                     modalButton("Cancel"),
+                                     actionButton(ns("ok"), "OK", class = actionBtnClass)
+                                 )
+                             )
+                           #  )
+                         )
+                     })
+                     
+                     
+                     # When OK button is pressed, attempt to load the data set. If successful,
+                     # remove the modal. If not show another modal, but this time with a failure
+                     # message.
+                     observeEvent(input$ok, {
+                         rv$dataOut <- names(rv$tags)[which(rv$tags == TRUE)]
+                         removeModal()
+                     })
+                     
                      
                      convertWidgetName <- function(name){
                          # This function implements the transformations used to
@@ -113,13 +143,16 @@ mod_metacell_tree_server <- function(id, level = NULL) {
                      rv <- reactiveValues(
                          tags = NULL,
                          mapping = BuildMapping()$names,
-                         bg_colors = BuildMapping()$colors
+                         bg_colors = BuildMapping()$colors,
+                         dataOut = NULL
                      )
                      
                      
                      
                      output$tree <- renderUI({
+                         div(style = "overflow-y: auto;",
                          uiOutput(ns(paste0('metacell_tree_', level)))
+                         )
                      })
                      
                      .style <- 'vertical-align: top; 
@@ -127,12 +160,22 @@ mod_metacell_tree_server <- function(id, level = NULL) {
                      color: white; 
                      padding: 5px;'
                      
+                     
+                     
+                     
+                     
                      # Define tree for protein dataset
                      output$metacell_tree_protein <- renderUI({
-                         
+                         callModule(modulePopover, "metacellTag_help",
+                                    data = reactive(list(
+                                        title = "Nature of data to filter",
+                                        content = "See the FAQ at prostar-proteomics.org"
+                                    ))
+                         )
                          
                          div(class='wtree',
-                             h1(class="title", 'Cell metadata tags'),
+                             h1(modulePopoverUI(ns("metacellTag_help"))),
+                                
                              tags$ul(
                                  tags$li(
                                      checkboxInput(ns('quantified_cb'), 
@@ -208,6 +251,8 @@ mod_metacell_tree_server <- function(id, level = NULL) {
                      })
                      
                   
+                     
+                     
                      output$metacell_tree_peptide <- renderUI({
                          div(class='wtree',
                              h1(class="title", 'Cell metadata tags'),
@@ -387,7 +432,7 @@ mod_metacell_tree_server <- function(id, level = NULL) {
                      
                      
                      
-                     return(reactive({names(rv$tags)[which(rv$tags == TRUE)]}))
+                     reactive({rv$dataOut})
                      
                  }
     )
@@ -398,18 +443,20 @@ mod_metacell_tree_server <- function(id, level = NULL) {
 
 
 # Example
+# 
+ui <- fluidPage(
+    mod_metacell_tree_ui('tree')
+)
 
-# ui <- mod_metacell_tree_ui('tree')
-# 
-# server <- function(input, output) {
-#     res <- mod_metacell_tree_server('tree', level = 'protein')
-#     
-#     observe({
-#         print(res())
-#     })
-# }
-# 
-# shinyApp(ui = ui, server = server)
-# 
+server <- function(input, output) {
+    res <- mod_metacell_tree_server('tree', level = 'protein')
+
+    observe({
+        print(res())
+    })
+}
+
+shinyApp(ui = ui, server = server)
+
 
 

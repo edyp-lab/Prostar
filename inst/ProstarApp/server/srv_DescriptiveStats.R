@@ -1,10 +1,8 @@
 
-mod_plotsMetacellHistos_server(
-    id = "MVPlots_DS",
-    obj = reactive({rv$current.obj}),
-    pattern = reactive({input$choose_metacell_DS}),
-    pal = reactive({rv$PlotParams$paletteForConditions})
-)
+mod_plotsMetacellHistos_server(id = "MVPlots_DS",
+                               obj = reactive({rv$current.obj}),
+                               pal = reactive({rv$PlotParams$paletteForConditions})
+                               )
 
 callModule(moduleDensityplot, "densityPlot_DS",
            data = reactive({rv$current.obj})
@@ -151,19 +149,7 @@ output$IntensityStatsPlots <- renderUI({
 })
 
 output$plotsMVHistograms <- renderUI({
-    tagList(
-        selectInput("choose_metacell_DS",
-                    "Quant. metadata",
-                    choices = c(
-                        "None" = "None",
-                        DAPAR::metacell.def(rv$current.obj@experimentData@other$typeOfData)$node
-                    ),
-                    width = "200px"
-        ),
-        helpText("These barplots display the distribution of missing
-      values in the dataset."),
-        mod_plotsMetacellHistos_ui("MVPlots_DS")
-    )
+    mod_plotsMetacellHistos_ui("MVPlots_DS")
 })
 
 
