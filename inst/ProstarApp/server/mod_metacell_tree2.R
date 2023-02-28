@@ -291,10 +291,12 @@ mod_metacell_tree_server <- function(id, level = NULL) {
                      } 
                      
                      
-                     observeEvent(req(input$multiple), {
+                     observeEvent(input$multiple, {
                          update_CB <- function(nametokeep=NULL){
                              if(!is.null(nametokeep))
-                                 widgets_to_disable <- names(input)[-match(reverse.mapping(nametokeep) , names(input))]
+                                 widgets_to_disable <- GetTreeCBInputs()[-match(reverse.mapping(nametokeep) , GetTreeCBInputs())]
+                             else
+                                 widgets_to_disable <- GetTreeCBInputs()
                              
                              lapply(widgets_to_disable,
                                     function(x){
@@ -304,8 +306,8 @@ mod_metacell_tree_server <- function(id, level = NULL) {
                              )
                              
                          }
-                         
-                         update_CB()
+                         if (!input$multiple)
+                             update_CB()
                      })
                      
                      GetTreeCBInputs <- reactive({
@@ -317,6 +319,8 @@ mod_metacell_tree_server <- function(id, level = NULL) {
                          update_CB <- function(nametokeep=NULL){
                              if(!is.null(nametokeep))
                                  widgets_to_disable <- GetTreeCBInputs()[-match(reverse.mapping(nametokeep) , GetTreeCBInputs())]
+                             else
+                                 widgets_to_disable <- GetTreeCBInputs()
                              
                              lapply(widgets_to_disable,
                                     function(x){
