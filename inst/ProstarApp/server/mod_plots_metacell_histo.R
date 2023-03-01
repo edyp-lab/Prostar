@@ -18,7 +18,11 @@ mod_plotsMetacellHistos_ui <- function(id) {
 }
 
 
-mod_plotsMetacellHistos_server <- function(id, obj, pal) {
+mod_plotsMetacellHistos_server <- function(id, 
+                                           obj, 
+                                           pal, 
+                                           pattern = reactive({NULL})
+                                           ) {
     moduleServer(
         id,
         function(input, output, session) {
@@ -33,7 +37,8 @@ mod_plotsMetacellHistos_server <- function(id, obj, pal) {
                 selectInput(ns('chooseTag'), 'Choose tag', 
                             choices = .ch,
                             width = '200px',
-                            multiple = TRUE)
+                            multiple = TRUE,
+                            selected = pattern())
 
             })
             

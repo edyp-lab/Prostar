@@ -3,16 +3,10 @@ source(file.path("server", "mod_query_metacell.R"), local = TRUE)$value
 
 
 callModule(moduleProcess, "moduleProcess_Filtering",
-    isDone = reactive({
-        rvModProcess$moduleFilteringDone
-    }),
-    pages = reactive({
-        rvModProcess$moduleFiltering
-    }),
+    isDone = reactive({rvModProcess$moduleFilteringDone}),
+    pages = reactive({rvModProcess$moduleFiltering}),
     rstFunc = resetModuleFiltering,
-    forceReset = reactive({
-        rvModProcess$moduleFilteringForceReset
-    })
+    forceReset = reactive({rvModProcess$moduleFilteringForceReset})
 )
 
 
@@ -155,7 +149,8 @@ observeEvent(req(indices()$params$MetacellTag), {
 
 mod_plotsMetacellHistos_server(id = "MVPlots_filtering",
                                obj = reactive({rv$current.obj}),
-                               pal = reactive({rv$PlotParams$paletteForConditions})
+                               pal = reactive({rv$PlotParams$paletteForConditions}),
+                               pattern = reactive({rv$widgets$filtering$MetacellTag})
                                )
 
 
