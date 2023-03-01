@@ -1,3 +1,4 @@
+# This css is adapted from: https://codepen.io/willpower/pen/pJKdej
 css <- "
 * {
   margin: 0;
@@ -8,16 +9,16 @@ css <- "
 body {
   padding: 50px;
   font-family: helvetica, arial, sans-serif;
+  font-size: 10px;
 }
 
 ul {
-  margin-left: 20px;
-  margin-bottom: 30px;
+  margin: -10px 0px 30px 20px;
 }
 
 .wtree li {
   list-style-type: none;
-  margin: 10px 0 5px 10px;
+  margin: 0px 0 -10px 10px;
   position: relative;
 }
 .wtree li:before {
@@ -42,6 +43,7 @@ ul {
 }
 .wtree li:last-child:after {
   display: none;
+  padding: 0px 0px 10px 0px;
 }
 .wtree li span {
   display: inline-block;
@@ -49,12 +51,11 @@ ul {
   border-radius: 10px;
   text-align: center;
   vertical-align: middle;
-  padding: 5px;
+  padding: 0px 5px 0px 0px;
   color: #888;
   text-decoration: none;
-  width: 150px;
-}
-"
+  width: 100px;
+}"
 
 
 mod_metacell_tree_ui <- function(id) {
@@ -84,17 +85,20 @@ mod_metacell_tree_server <- function(id, level = NULL) {
                      # Show modal when button is clicked.
                      observeEvent(input$show_metacell_tree, {
                          showModal(
-                             #shinyjqui::jqui_draggable(
-                                 modalDialog(
-                                 checkboxInput(ns('multiple'), 'Multiple selection', value = FALSE),
+                             div(
+                                 #shinyjqui::jqui_draggable(
+                             id = 'treeModal',
+                             tags$style("#treeModal .modal-dialog{width: 300px;}"),
+                             modalDialog(
+                                 h3(modulePopoverUI(ns("metacellTag_help"))),
+                                 checkboxInput(ns('multiple'), p(style='font-size: 16px;','Multiple selection'), value = FALSE),
                                  uiOutput(ns('tree')),
-                                 size = 'l',
                                  footer = tagList(
                                      modalButton("Cancel"),
                                      actionButton(ns("ok"), "OK", class = actionBtnClass)
                                  )
                              )
-                           #  )
+                             )
                          )
                      })
                      
@@ -168,13 +172,12 @@ mod_metacell_tree_server <- function(id, level = NULL) {
                      output$metacell_tree_protein <- renderUI({
                          callModule(modulePopover, "metacellTag_help",
                                     data = reactive(list(
-                                        title = "Nature of data to filter",
+                                        title = "Cell metadata tags",
                                         content = "See the FAQ at prostar-proteomics.org"
                                     ))
                          )
                          
                          div(class='wtree',
-                             h1(modulePopoverUI(ns("metacellTag_help"))),
                                 
                              tags$ul(
                                  tags$li(

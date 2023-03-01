@@ -48,12 +48,12 @@ mod_query_metacell_server <- function(id,
         function(input, output, session) {
             ns <- session$ns
 
-            callModule(modulePopover, "metacellTag_help",
-                data = reactive(list(
-                    title = "Nature of data to filter",
-                    content = "See the FAQ at prostar-proteomics.org"
-                ))
-            )
+            # callModule(modulePopover, "metacellTag_help",
+            #     data = reactive(list(
+            #         title = "Nature of data to filter",
+            #         content = "See the FAQ at prostar-proteomics.org"
+            #     ))
+            # )
 
 
             callModule(modulePopover, "filterScope_help",
