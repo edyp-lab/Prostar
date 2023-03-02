@@ -392,20 +392,20 @@ mod_metacell_tree_server <- function(id, level = NULL) {
                          req(length(GetTreeCBInputs()) > 0)
                          
                          
-                         update_CB <- function(nametokeep=NULL){
-                             if(!is.null(nametokeep))
-                                 widgets_to_disable <- GetTreeCBInputs()[-match(reverse.mapping(nametokeep) , GetTreeCBInputs())]
-                             else
-                                 widgets_to_disable <- GetTreeCBInputs()
-                             
-                             lapply(widgets_to_disable,
-                                    function(x){
-                                        updateCheckboxInput(session, x, value = FALSE)
-                                        rv$tags[rv$mapping[x]] <- FALSE
-                                    }
-                             )
-                             
-                         }
+                         # update_CB <- function(nametokeep=NULL){
+                         #     if(!is.null(nametokeep))
+                         #         widgets_to_disable <- GetTreeCBInputs()[-match(reverse.mapping(nametokeep) , GetTreeCBInputs())]
+                         #     else
+                         #         widgets_to_disable <- GetTreeCBInputs()
+                         #     
+                         #     lapply(widgets_to_disable,
+                         #            function(x){
+                         #                updateCheckboxInput(session, x, value = FALSE)
+                         #                rv$tags[rv$mapping[x]] <- FALSE
+                         #            }
+                         #     )
+                         #     
+                         # }
                          
                         # Get the values of widgets corresponding to nodes in the tree
                          events <- unlist(lapply(GetTreeCBInputs(), function(x) input[[x]]))
@@ -427,10 +427,12 @@ mod_metacell_tree_server <- function(id, level = NULL) {
                              return(NULL)
                              }
                          
+                         #browser()
                          # Deduce the new selected node
                          newSelection <- names(rv$tags)[which(compare==FALSE)]
                          # Update rv$tags vector with this new selection
-                         rv$tags[newSelection] <- input[[reverse.mapping(newSelection)]]
+                         for (i in newSelection)
+                           rv$tags[i] <- input[[reverse.mapping(i)]]
                          
                          switch(input$checkbox_mode, 
                                 single = {update_CB(newSelection)},
@@ -470,7 +472,10 @@ mod_metacell_tree_server <- function(id, level = NULL) {
 # Example
 # 
 ui <- fluidPage(
-    uiOutput('test')
+    tagList(
+      uiOutput('test'),
+      uiOutput('res')
+    )
 )
 
 server <- function(input, output) {
@@ -489,6 +494,10 @@ server <- function(input, output) {
     observeEvent(rv$tags(),{
 
         print(rv$tags())
+    })
+    
+    output$res <- renderUI({
+      p(paste0(rv$tags(), collapse=','))
     })
 }
 

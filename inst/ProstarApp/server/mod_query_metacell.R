@@ -140,15 +140,12 @@ mod_query_metacell_server <- function(id,
             })
 
             output$chooseMetacellTag_ui <- renderUI({
-                                                    
-                
-                
                 mod_metacell_tree_ui(ns('tree'))
-                
                 })
             
-    rv$tags <- mod_metacell_tree_server('tree', level = 'protein')
-                                        
+                                         
+            rv$tags <- mod_metacell_tree_server('tree', 
+                                                level = isolate({GetTypeofData(obj())}))
             
             observeEvent(rv$tags(), {
                 rv.widgets$MetacellTag <- rv$tags()
