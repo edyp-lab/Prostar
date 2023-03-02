@@ -3,17 +3,11 @@
 #                     filename = 'Aggregation_overview')
 
 callModule(moduleProcess, "moduleProcess_Aggregation",
-           isDone = reactive({
-               rvModProcess$moduleAggregationDone
-           }),
-           pages = reactive({
-               rvModProcess$moduleAggregation
-           }),
+           isDone = reactive({rvModProcess$moduleAggregationDone}),
+           pages = reactive({rvModProcess$moduleAggregation}),
            rstFunc = resetModuleAggregation,
-           forceReset = reactive({
-               rvModProcess$moduleAggregationForceReset
-           })
-)
+           forceReset = reactive({rvModProcess$moduleAggregationForceReset})
+           )
 
 
 

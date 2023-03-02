@@ -241,9 +241,7 @@ observeEvent(input$perform.POVimputation.button, {
             slsa = {
                 incProgress(0.5, detail = "slsa Imputation")
                 .tmp <- wrapper.impute.slsa(
-                    rv$dataset[[input$datasets]],
-                    na.type = "Missing POV"
-                )
+                    rv$dataset[[input$datasets]])
             },
             detQuantile = {
                 incProgress(0.5, detail = "det quantile Imputation")
@@ -251,15 +249,12 @@ observeEvent(input$perform.POVimputation.button, {
                     obj = rv$dataset[[input$datasets]],
                     qval = rv$widgets$proteinImput$POV_detQuant_quantile / 100,
                     factor = rv$widgets$proteinImput$POV_detQuant_factor,
-                    na.type = "Missing POV"
-                )
+                    na.type = 'Missing POV')
             },
             KNN = {
                 incProgress(0.5, detail = "KNN Imputation")
-                .tmp <- wrapper.impute.KNN(rv$dataset[[input$datasets]],
-                                           rv$widgets$proteinImput$POV_KNN_n,
-                                           na.type = "Missing POV"
-                )
+                .tmp <- wrapper.impute.KNN(obj = rv$dataset[[input$datasets]],
+                                           K = rv$widgets$proteinImput$POV_KNN_n)
             }
         )
         })

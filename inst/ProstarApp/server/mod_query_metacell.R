@@ -40,7 +40,8 @@ mod_query_metacell_server <- function(id,
         indices = NULL,
         trigger = NULL,
         params = NULL,
-        query = NULL
+        query = NULL,
+        tags = NULL
     )
 
     moduleServer(
@@ -93,7 +94,11 @@ mod_query_metacell_server <- function(id,
                 metacellFilter_operator = "<="
             )
 
-
+            rv <- reactiveValues(
+                tags = NULL
+            )
+            
+            
             observeEvent(req(reset()), ignoreInit = TRUE, {
                 rv.widgets$MetacellTag <- "None"
                 rv.widgets$MetacellFilters <- "None"
@@ -135,16 +140,18 @@ mod_query_metacell_server <- function(id,
             })
 
             output$chooseMetacellTag_ui <- renderUI({
-                obj()
+                                                    
+                
+                
                 mod_metacell_tree_ui(ns('tree'))
+                
                 })
             
-            tmp_tree <- mod_metacell_tree_server('tree', 
-                                                 level = isolate({DAPAR::GetTypeofData(obj())})
-                                                     )
+    rv$tags <- mod_metacell_tree_server('tree', level = 'protein')
+                                        
             
-            observeEvent(tmp_tree(), {
-                rv.widgets$MetacellTag <- tmp_tree()
+            observeEvent(rv$tags(), {
+                rv.widgets$MetacellTag <- rv$tags()
             })
             
 
@@ -153,21 +160,21 @@ mod_query_metacell_server <- function(id,
                 req(rv.widgets$MetacellTag != "None")
                 
                 radioButtons(ns("ChooseKeepRemove"),
-                    "Type of filter operation",
-                    choices = keep_vs_remove(),
-                    selected = rv.widgets$KeepRemove
-                )
+                             "Type of filter operation",
+                             choices = keep_vs_remove(),
+                             selected = rv.widgets$KeepRemove
+                             )
             })
 
 
             output$choose_metacellFilters_ui <- renderUI({
                 req(rv.widgets$MetacellTag != "None")
                 selectInput(ns("ChooseMetacellFilters"),
-                    modulePopoverUI(ns("filterScope_help")),
-                    choices = filters(),
-                    selected = rv.widgets$MetacellFilters,
-                    width = "200px"
-                )
+                            modulePopoverUI(ns("filterScope_help")),
+                            choices = filters(),
+                            selected = rv.widgets$MetacellFilters,
+                            width = "200px"
+                            )
             })
 
 
@@ -175,13 +182,12 @@ mod_query_metacell_server <- function(id,
             output$show_example_ui <- renderUI({
                 req(rv.widgets$MetacellFilters != "None")
 
-                mod_filtering_example_server(
-                    id = "filteringExample",
-                    obj = reactive({obj()}),
-                    indices = reactive({CompileIndices()}),
-                    params = reactive({rv.widgets}),
-                    txt = reactive({WriteQuery()})
-                )
+                mod_filtering_example_server(id = "filteringExample",
+                                             obj = reactive({obj()}),
+                                             indices = reactive({CompileIndices()}),
+                                             params = reactive({rv.widgets}),
+                                             txt = reactive({WriteQuery()})
+                                             )
 
                 mod_filtering_example_ui(ns("filteringExample"))
             })
@@ -192,34 +198,29 @@ mod_query_metacell_server <- function(id,
 
                 callModule(modulePopover, "choose_val_vs_percent_help",
                     data = reactive(list(
-                        title = paste(
-                            "#/% of values to ",
-                            rv.widgets$KeepRemove
-                        ),
+                        title = paste("#/% of values to ", rv.widgets$KeepRemove),
                         content = "Define xxx"
                     ))
                 )
 
                 tagList(
                     fluidRow(
-                        column(
-                            4,
+                        column(4,
                             radioButtons(ns("choose_val_vs_percent"),
-                                modulePopoverUI(
-                                    ns("choose_val_vs_percent_help")
-                                ),
-                                choices = val_vs_percent(),
-                                selected = rv.widgets$val_vs_percent
-                            )
+                                         modulePopoverUI(
+                                             ns("choose_val_vs_percent_help")
+                                             ),
+                                         choices = val_vs_percent(),
+                                         selected = rv.widgets$val_vs_percent
+                                         )
                         ),
-                        column(
-                            8,
+                        column(8,
                             selectInput(ns("choose_metacellFilter_operator"),
-                                "Choose operator",
-                                choices = operator(),
-                                selected = rv.widgets$metacellFilter_operator,
-                                width = "100px"
-                            ),
+                                        "Choose operator",
+                                        choices = operator(),
+                                        selected = rv.widgets$metacellFilter_operator,
+                                        width = "100px"
+                                        ),
                             uiOutput(ns("choose_value_ui")),
                             uiOutput(ns("choose_percentage_ui"))
                         )

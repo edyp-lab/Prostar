@@ -63,11 +63,11 @@ mod_metacell_tree_ui <- function(id) {
     
     tagList(
         shinyjs::inlineCSS(css),
-        actionButton(ns("show_metacell_tree"), "Select tags", class = actionBtnClass)
-        
-        
-    )
-    
+        h4('Cells metadata tags'),
+        actionLink(ns("show_metacell_tree"),
+                   tags$img(src = "images/metacelltree.png", height = "50px"))
+        )
+
 }
 
 mod_metacell_tree_server <- function(id, level = NULL) {
@@ -88,10 +88,18 @@ mod_metacell_tree_server <- function(id, level = NULL) {
                              div(
                                  #shinyjqui::jqui_draggable(
                              id = 'treeModal',
-                             tags$style("#treeModal .modal-dialog{width: 300px;}"),
+                             tags$style("#treeModal .modal-dialog{width: 400px;}"),
                              modalDialog(
                                  h3(modulePopoverUI(ns("metacellTag_help"))),
-                                 checkboxInput(ns('multiple'), p(style='font-size: 16px;','Multiple selection'), value = FALSE),
+                                 div(style='display: inline-block;',
+                                     radioButtons(ns('checkbox_mode'), 
+                                                    p(style='font-size: 16px;','Multiple selection'), 
+                                                    choices = c('Single selection' = 'single',
+                                                                'Complete subtree' = 'subtree',
+                                                                'Multiple selection' = 'multiple')
+                                                    ),
+                                 actionButton(ns('cleartree'), 'Clear selection')
+                                 ),
                                  uiOutput(ns('tree')),
                                  footer = tagList(
                                      modalButton("Cancel"),
@@ -152,33 +160,33 @@ mod_metacell_tree_server <- function(id, level = NULL) {
                      )
                      
                      
-                     
-                     output$tree <- renderUI({
+                     observeEvent(c(input$checkbox_mode, input$cleartree), {
+                         update_CB()
+                         for (l in GetTreeCBInputs()) {
+                             if(length(DAPAR::Children(level, rv$mapping[l]))==0)
+                                 shinyjs::toggleState(l, input$checkbox_mode != 'subtree')
+                             
+                         }
+                     })
+
+                    output$tree <- renderUI({
                          div(style = "overflow-y: auto;",
                          uiOutput(ns(paste0('metacell_tree_', level)))
                          )
                      })
                      
-                     .style <- 'vertical-align: top; 
-                     background: #bg-color#; 
-                     color: white; 
-                     padding: 5px;'
-                     
-                     
-                     
-                     
+                     .style <- 'vertical-align: top;
+                                background: #bg-color#; 
+                                color: white; 
+                                padding: 5px;'
+
                      
                      # Define tree for protein dataset
                      output$metacell_tree_protein <- renderUI({
-                         callModule(modulePopover, "metacellTag_help",
-                                    data = reactive(list(
-                                        title = "Cell metadata tags",
-                                        content = "See the FAQ at prostar-proteomics.org"
-                                    ))
-                         )
+                         
                          
                          div(class='wtree',
-                                
+                                shinyjs::useShinyjs(),
                              tags$ul(
                                  tags$li(
                                      checkboxInput(ns('quantified_cb'), 
@@ -189,10 +197,13 @@ mod_metacell_tree_server <- function(id, level = NULL) {
                                              checkboxInput(ns('quantbydirectid_cb'), 
                                                            tags$span(style = Get_bg_color('quantbydirectid_cb'), 'Quant. by direct id')
                                              )
+                                             
                                          ),
                                          tags$li(
-                                             checkboxInput(ns('quantbyrecovery_cb'), 
+                                             
+                                                 checkboxInput(ns('quantbyrecovery_cb'), 
                                                            tags$span(style = Get_bg_color('quantbyrecovery_cb'), 'Quant. by recovery')
+                                             
                                              )
                                          )
                                      )
@@ -258,7 +269,6 @@ mod_metacell_tree_server <- function(id, level = NULL) {
                      
                      output$metacell_tree_peptide <- renderUI({
                          div(class='wtree',
-                             h1(class="title", 'Cell metadata tags'),
                              tags$ul(
                                  tags$li(
                                      checkboxInput(ns('quantified_cb'), 
@@ -321,13 +331,19 @@ mod_metacell_tree_server <- function(id, level = NULL) {
                      })
                      
                      
+                     
+                     
+                     
                      Get_bg_color <- function(name){
                          gsub("#bg-color#", rv$bg_colors[name], .style)
                      }
                      
                      update_CB <- function(nametokeep=NULL){
+                         #browser()
                          if(!is.null(nametokeep))
-                            widgets_to_disable <- names(input)[-match(reverse.mapping(nametokeep) , names(input))]
+                            widgets_to_disable <- GetTreeCBInputs()[-match(reverse.mapping(nametokeep), GetTreeCBInputs())]
+                         else
+                             widgets_to_disable <- GetTreeCBInputs()
                          
                          lapply(widgets_to_disable,
                                 function(x){
@@ -339,32 +355,43 @@ mod_metacell_tree_server <- function(id, level = NULL) {
                      } 
                      
                      
-                     observeEvent(input$multiple, {
-                         update_CB <- function(nametokeep=NULL){
-                             if(!is.null(nametokeep))
-                                 widgets_to_disable <- GetTreeCBInputs()[-match(reverse.mapping(nametokeep) , GetTreeCBInputs())]
-                             else
-                                 widgets_to_disable <- GetTreeCBInputs()
-                             
-                             lapply(widgets_to_disable,
-                                    function(x){
-                                        updateCheckboxInput(session, x, value = FALSE)
-                                        rv$tags[rv$mapping[x]] <- FALSE
-                                    }
-                             )
-                             
-                         }
-                         if (!input$multiple)
-                             update_CB()
-                     })
+                     # # catch the change of selection mode
+                     # observeEvent(input$checkbox_mode, {
+                     #     # update_CB <- function(nametokeep=NULL){
+                     #     #     if(!is.null(nametokeep))
+                     #     #         widgets_to_disable <- GetTreeCBInputs()[-match(reverse.mapping(nametokeep) , GetTreeCBInputs())]
+                     #     #     else
+                     #     #         widgets_to_disable <- GetTreeCBInputs()
+                     #     #     
+                     #     #     lapply(widgets_to_disable,
+                     #     #            function(x){
+                     #     #                updateCheckboxInput(session, x, value = FALSE)
+                     #     #                rv$tags[rv$mapping[x]] <- FALSE
+                     #     #            }
+                     #     #     )
+                     #     #     
+                     #     # }
+                     #     
+                     #     switch(input$checkbox_mode, 
+                     #            single = update_CB(),
+                     #            subtree = {},
+                     #            multiple = {}
+                     #            )
+                     # })
+                     
+                     
                      
                      GetTreeCBInputs <- reactive({
                          names(input)[grepl('_cb', names(input))]
                      })
                      
+                     
+                     # Catch a change in the selection of a node
                      observeEvent(lapply(GetTreeCBInputs(), function(x) input[[x]]), ignoreInit = TRUE, {
-                         req(!is.null(input$multiple))
+                         #req(!is.null(input$multiple))
                          req(length(GetTreeCBInputs()) > 0)
+                         
+                         
                          update_CB <- function(nametokeep=NULL){
                              if(!is.null(nametokeep))
                                  widgets_to_disable <- GetTreeCBInputs()[-match(reverse.mapping(nametokeep) , GetTreeCBInputs())]
@@ -380,54 +407,49 @@ mod_metacell_tree_server <- function(id, level = NULL) {
                              
                          }
                          
+                        # Get the values of widgets corresponding to nodes in the tree
                          events <- unlist(lapply(GetTreeCBInputs(), function(x) input[[x]]))
-                        #browser()
-                         if (is.null(rv$tags)){
+                        
+                        # Initialization of the variable rv$tags.
+                        # This cannot be done directly when declaring the variable because at this time
+                        # the widgets have not been created nor initailized yet
+                        if (is.null(rv$tags)){
                              tree_cb_inputs <- GetTreeCBInputs()
                              rv$tags <- setNames(events, nm = gsub('_cb', '', unname(rv$mapping[GetTreeCBInputs()])))
                              newSelection <- names(rv$tags)[which(rv$tags)]
                              return(NULL)
                          }
 
-                         #else {
-                         #browser()
-                             compare <- rv$tags == events
+                         compare <- rv$tags == events
                              
-                             # If nothing has change, quit
-                             if (length(which(compare==FALSE))==0){
-                                 return(NULL)
+                         # If nothing has change, quit
+                         if (length(which(compare==FALSE))==0){
+                             return(NULL)
                              }
-                             newSelection <- names(rv$tags)[which(compare==FALSE)]
-                             rv$tags[newSelection] <- input[[reverse.mapping(newSelection)]]
-
-                         #}
-
-                             # Check if the new selection is a node or a leaf
-                             # If it is not a node, then it is a leaf as the hierarchy only
-                             # contains two levels
-
-                         #browser()
-                        
-                             is.leaf <- length(DAPAR::Children(level, newSelection)) == 0
-                         if (is.leaf){
-                             # If the new selection is a leaf if(!multiple)
-                             if(!input$multiple)
-                                 update_CB(newSelection)
-                         } else {
-                             # If the new selection is a node:
-                             # by default, all its children must be also selected
-                             children.names <- DAPAR::Children(level, newSelection)
-                             
-                             if(input$multiple){
-                                 lapply(children.names, function(x){
-                                     updateCheckboxInput(session, reverse.mapping(x), value = TRUE)
-                                     rv$tags[x] <- TRUE
-                                 }
-                                     )
-                                 } else{
-                                     update_CB(newSelection)
-                                 }
-                         }
+                         
+                         # Deduce the new selected node
+                         newSelection <- names(rv$tags)[which(compare==FALSE)]
+                         # Update rv$tags vector with this new selection
+                         rv$tags[newSelection] <- input[[reverse.mapping(newSelection)]]
+                         
+                         switch(input$checkbox_mode, 
+                                single = {update_CB(newSelection)},
+                                subtree = {
+                                    # As the leaves are disabled, this selection is a node
+                                    # by default, all its children must be also selected
+                                    children.names <- DAPAR::Children(level, newSelection)
+                                    
+                                    lapply(children.names, function(x){
+                                            updateCheckboxInput(session, reverse.mapping(x), value = TRUE)
+                                            rv$tags[x] <- TRUE
+                                        }
+                                        )
+                                },
+                                multiple = {}
+                                )
+                         
+                         
+                         
 
                  
                      })
@@ -435,7 +457,7 @@ mod_metacell_tree_server <- function(id, level = NULL) {
                      
                      
                      
-                     reactive({rv$dataOut})
+        return(reactive({rv$dataOut}))
                      
                  }
     )
@@ -448,14 +470,25 @@ mod_metacell_tree_server <- function(id, level = NULL) {
 # Example
 # 
 ui <- fluidPage(
-    mod_metacell_tree_ui('tree')
+    uiOutput('test')
 )
 
 server <- function(input, output) {
-    res <- mod_metacell_tree_server('tree', level = 'protein')
 
-    observe({
-        print(res())
+    rv <- reactiveValues(
+        tags = NULL
+    )
+
+    output$test <- renderUI({
+        rv$tags <- mod_metacell_tree_server('tree', level = 'protein')
+        mod_metacell_tree_ui('tree')
+
+    })
+
+
+    observeEvent(rv$tags(),{
+
+        print(rv$tags())
     })
 }
 

@@ -383,36 +383,29 @@ observeEvent(input$peptideLevel_perform.imputation.button, {
             if (algo == "imp4p") {
                 if (.widget$pepLevel_imp4p_withLapala) {
                     .distrib <- .widget$pepLevel_imp4pLAPALA_distrib
-                    .tmp <- wrapper.dapar.impute.mi(
-                        rv$dataset[[input$datasets]],
-                        nb.iter = .widget$pepLevel_imp4p_nbiter,
-                        lapala = .widget$pepLevel_imp4p_withLapala,
-                        q.min = .widget$pepLevel_imp4p_qmin / 100,
-                        distribution = as.character(.distrib)
-                    )
+                    .tmp <- wrapper.dapar.impute.mi(rv$dataset[[input$datasets]],
+                                                    nb.iter = .widget$pepLevel_imp4p_nbiter,
+                                                    lapala = .widget$pepLevel_imp4p_withLapala,
+                                                    q.min = .widget$pepLevel_imp4p_qmin / 100,
+                                                    distribution = as.character(.distrib)
+                                                    )
                 } else {
-                    .tmp <- wrapper.dapar.impute.mi(
-                        rv$dataset[[input$datasets]],
-                        nb.iter = .widget$pepLevel_imp4p_nbiter,
-                        lapala = .widget$pepLevel_imp4p_withLapala
+                    .tmp <- wrapper.dapar.impute.mi(rv$dataset[[input$datasets]],
+                                                    nb.iter = .widget$pepLevel_imp4p_nbiter,
+                                                    lapala = .widget$pepLevel_imp4p_withLapala
                     )
-                }
+                    }
             } else if (algo == "BasicMethods") {
                 algoBasic <- .widget$pepLevel_basicAlgorithm
                 switch(algoBasic,
                     KNN = {
-                        .tmp <- wrapper.impute.KNN(
-                            rv$dataset[[input$datasets]],
-                            K = .widget$pepLevel_KNN_n,
-                            na.type = "Missing POV"
-                        )
-                    },
+                        .tmp <- wrapper.impute.KNN(rv$dataset[[input$datasets]],
+                                                   K = .widget$pepLevel_KNN_n)
+                        },
                     MLE = {
                         .tmp <- wrapper.impute.mle(
-                            obj = rv$dataset[[input$datasets]],
-                            na.type = "Missing"
-                        )
-                    },
+                            obj = rv$dataset[[input$datasets]])
+                        },
                     detQuantile = {
                         .tmp <- wrapper.impute.detQuant(
                             rv$dataset[[input$datasets]],
