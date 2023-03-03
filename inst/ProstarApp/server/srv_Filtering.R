@@ -150,7 +150,8 @@ observeEvent(req(indices()$params$MetacellTag), {
 mod_plotsMetacellHistos_server(id = "MVPlots_filtering",
                                obj = reactive({rv$current.obj}),
                                pal = reactive({rv$PlotParams$paletteForConditions}),
-                               pattern = reactive({rv$widgets$filtering$MetacellTag})
+                               pattern = reactive({rv$widgets$filtering$MetacellTag}),
+                               showSelect = reactive({FALSE})
                                )
 
 
