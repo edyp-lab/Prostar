@@ -190,9 +190,8 @@ output$warningAgregationMethod <- renderUI({
     req(rv$current.obj)
     
     m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
-                        pattern = "Missing",
-                        level = "peptide"
-    )
+                        pattern = c("Missing", "Missing POV", "Missing MEC"),
+                        level = "peptide")
     
     if (length(which(m)) > 0) {
         tags$p(style = "color: red;",

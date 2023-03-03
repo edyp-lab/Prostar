@@ -62,9 +62,8 @@ output$infoAboutDemoDataset <- renderUI({
 
     isolate({
         m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
-            pattern = "Missing",
-            level = "peptide"
-        )
+                            pattern = c("Missing", "Missing POV", "Missing MEC"),
+                            level = "peptide")
         NA.count <- length(which(m))
 
         nb.empty.lines <- sum(apply(m, 1, all))

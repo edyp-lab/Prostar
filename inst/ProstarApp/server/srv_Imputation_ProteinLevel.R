@@ -5,21 +5,21 @@ callModule(moduleMVPlots, "mvImputationPlots_MV",
     data = reactive({rv$imputePlotsSteps[["step0"]]}),
     title = reactive("POV distribution"),
     pal = reactive(rv$PlotParams$paletteForConditions),
-    pattern = "Missing"
+    pattern = c("Missing", "Missing POV", "Missing MEC")
 )
 
 callModule(moduleMVPlots, "mvImputationPlots_MEC",
     data = reactive({rv$imputePlotsSteps[["step1"]]}),
     title = reactive("Distribution after POV imputation"),
     pal = reactive(rv$PlotParams$paletteForConditions),
-    pattern = "Missing"
+    pattern = c("Missing", "Missing POV", "Missing MEC")
 )
 
 callModule(moduleMVPlots, "mvImputationPlots_Valid",
     data = reactive({rv$imputePlotsSteps[["step2"]]}),
     title = reactive("Distribution after POV and MEC imputation"),
     pal = reactive(rv$PlotParams$paletteForConditions),
-    pattern = "Missing"
+    pattern = c("Missing", "Missing POV", "Missing MEC")
 )
 
 callModule(

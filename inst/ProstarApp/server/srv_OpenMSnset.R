@@ -95,7 +95,7 @@ output$infoAboutAggregationTool <- renderUI({
         )
     } else {
         m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
-            pattern = "Missing",
+            pattern = c("Missing", "Missing POV", "Missing MEC"),
             level = DAPAR::GetTypeofData(rv$current.obj)
         )
         NA.count <- length(which(m))

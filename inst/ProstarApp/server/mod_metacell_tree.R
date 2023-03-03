@@ -98,7 +98,7 @@ mod_metacell_tree_server <- function(id, level = NULL) {
                                                                 'Complete subtree' = 'subtree',
                                                                 'Multiple selection' = 'multiple')
                                                     ),
-                                 actionButton(ns('cleartree'), 'Clear selection')
+                                 actionButton(ns('cleartree'), 'Clear selection', class=actionBtnClass)
                                  ),
                                  uiOutput(ns('tree')),
                                  footer = tagList(
@@ -485,17 +485,12 @@ server <- function(input, output) {
     )
 
     output$test <- renderUI({
-        rv$tags <- mod_metacell_tree_server('tree', level = 'protein')
+        rv$tags <- mod_metacell_tree_server('tree', 
+                                            level = 'protein')
         mod_metacell_tree_ui('tree')
 
     })
 
-
-    observeEvent(rv$tags(),{
-
-        print(rv$tags())
-    })
-    
     output$res <- renderUI({
       p(paste0(rv$tags(), collapse=','))
     })

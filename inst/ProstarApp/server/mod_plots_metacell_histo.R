@@ -22,8 +22,7 @@ mod_plotsMetacellHistos_server <- function(id,
                                            obj, 
                                            pal, 
                                            pattern = reactive({NULL}),
-                                           showSelect = TRUE
-                                           ) {
+                                           showSelect = TRUE) {
     moduleServer(
         id,
         function(input, output, session) {
@@ -38,28 +37,26 @@ mod_plotsMetacellHistos_server <- function(id,
                 obj()
                 meta <- DAPAR::metacell.def(GetTypeofData(obj()))$node
                 .ch <- meta[-which(meta == 'Any')]
-
+                
                 selectInput(ns('chooseTag'), 'Choose tag', 
                             choices = .ch,
                             width = '200px',
                             multiple = TRUE,
                             selected = pattern())
-                
-                observe({
-                    rv$chooseTag <- input$chooseTag
-                })
-
             })
             
-            
+            observeEvent(input$chooseTag, ignoreInit = TRUE,{
+                rv$chooseTag <- input$chooseTag
+            })
+
             output$histo_Metacell <- renderHighchart({
-                req(rv$chooseTag)
+               req(pattern())
                 obj()
 
                 tmp <- NULL
                 # isolate({
                 tmp <- metacellHisto_HC(obj = obj(),
-                                        pattern = input$chooseTag,
+                                        pattern = pattern(),
                                         pal = pal()
                                         )
                 # future(createPNGFromWidget(tmp,pattern))
@@ -70,14 +67,14 @@ mod_plotsMetacellHistos_server <- function(id,
 
 
             output$histo_Metacell_per_lines <- renderHighchart({
-                req(input$chooseTag)
+                req(pattern())
                 obj()
                 tmp <- NULL
                 # isolate({
                 # pattern <- paste0(GetCurrentObjName(),".MVplot2")
                 tmp <-
                     metacellPerLinesHisto_HC(obj = obj(),
-                                             pattern = input$chooseTag,
+                                             pattern = pattern(),
                                              indLegend = c(2:length(colnames(Biobase::pData(obj()))))
                                              )
                 # future(createPNGFromWidget(tmp,pattern))
@@ -88,13 +85,13 @@ mod_plotsMetacellHistos_server <- function(id,
 
 
             output$histo_Metacell_per_lines_per_conditions <- renderHighchart({
-                req(input$chooseTag)
+                req(pattern())
                 obj()
                 tmp <- NULL
                 # isolate({
                 # pattern <- paste0(GetCurrentObjName(),".MVplot2")
                 tmp <- metacellPerLinesHistoPerCondition_HC(obj = obj(),
-                                                            pattern = input$chooseTag,
+                                                            pattern = pattern(),
                                                             pal = pal()
                                                             )
                 # future(createPNGFromWidget(tmp,pattern))

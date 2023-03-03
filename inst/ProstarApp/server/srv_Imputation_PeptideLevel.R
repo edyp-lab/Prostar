@@ -4,7 +4,7 @@ callModule(moduleMVPlots, "mvImputationPlots_PeptideLevel",
     data = reactive(rv$current.obj),
     title = reactive("POV distribution"),
     pal = reactive(rv$PlotParams$paletteForConditions),
-    pattern = "Missing"
+    pattern = c("Missing", "Missing POV", "Missing MEC")
 )
 
 
@@ -363,7 +363,7 @@ output$peptideLevel_TAB_detQuant_impValues <- DT::renderDataTable(server = TRUE,
 ##' @author Samuel Wieczorek
 observeEvent(input$peptideLevel_perform.imputation.button, {
     m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
-        pattern = "Missing",
+        pattern = c("Missing", "Missing POV", "Missing MEC"),
         level = DAPAR::GetTypeofData(rv$current.obj)
     )
     nbMVBefore <- length(which(m))
@@ -440,7 +440,7 @@ observeEvent(input$peptideLevel_perform.imputation.button, {
       
       rv$current.obj <- .tmp
     m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
-        pattern = "Missing",
+        pattern = c("Missing", "Missing POV", "Missing MEC"),
         level = DAPAR::GetTypeofData(rv$current.obj)
     )
     nbMVAfter <- length(which(m))

@@ -41,9 +41,9 @@ pcaPlots <- function(input, output, session, data) {
     output$pcaOptions <- renderUI({
         req(data())
         m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
-            pattern = "Missing",
-            level = DAPAR::GetTypeofData(rv$current.obj)
-        )
+                            pattern = c("Missing", "Missing POV", "Missing MEC"),
+                            level = DAPAR::GetTypeofData(rv$current.obj)
+                            )
         tagList(
             if (length(which(m)) > 0) {
                 tags$p("Warning: As your dataset contains missing values,

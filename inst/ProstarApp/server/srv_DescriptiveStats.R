@@ -110,36 +110,7 @@ output$IntensityStatsPlots <- renderUI({
                 style = "display:inline-block; vertical-align: middle;",
                 tags$p("Plot options")
             )
-            # tags$div(
-            #     style = "display:inline-block; vertical-align: middle;",
-            #     tags$div(
-            #         tags$div(
-            #             style = "display:inline-block; vertical-align: top;",
-            #             shinyWidgets::dropdownButton(
-            #                 tags$div(
-            #                     tags$div(
-            #                         style = "display:inline-block; vertical-align: bottom;",
-            #                         selectInput("whichGroup2Color",
-            #                             "Color lines",
-            #                             choices = list(
-            #                                 "By condition" = "Condition",
-            #                                 "By replicate" = "Replicate"
-            #                             ),
-            #                             selected = GetWhichGroup2Color(), width = "150px"
-            #                         )
-            #                     ),
-            #                     tags$div(
-            #                         style = "display:inline-block; vertical-align: bottom;",
-            #                         uiOutput("ChooseLegendForSamples")
-            #                     )
-            #                 ),
-            #                 tooltip = "Plots parameters",
-            #                 style = "material-circle", icon = icon("gear"),
-            #                 status = optionsBtnClass
-            #             )
-            #         )
-            #     )
-            # )
+            
         ),
         fluidRow(
             column(width = 6, moduleDensityplotUI("densityPlot_DS")),
@@ -265,9 +236,9 @@ output$pcaPlotEigen <- renderHighchart({
 output$pcaOptions <- renderUI({
     req(rv$current.obj)
     m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
-                        pattern = "Missing",
+                        pattern = c("Missing", "Missing POV", "Missing MEC"),
                         level = DAPAR::GetTypeofData(rv$current.obj)
-    )
+                        )
     
     tagList(
         if (length(which(m)) > 0) {
@@ -314,25 +285,19 @@ output$DS_sidebarPanel_tab <- renderUI({
     .choices <- NULL
     switch(rv$typeOfDataset,
            protein = {
-               .choices <- list(
-                   "Quantitative data" = "tabExprs",
-                   "Proteins metadata" = "tabfData",
-                   "Experimental design" = "tabpData"
-               )
-           },
+               .choices <- list("Quantitative data" = "tabExprs",
+                                "Proteins metadata" = "tabfData",
+                                "Experimental design" = "tabpData")
+               },
            peptide = {
-               .choices <- list(
-                   "Quantitative data" = "tabExprs",
-                   "Peptides metadata" = "tabfData",
-                   "Experimental design" = "tabpData"
-               )
+               .choices <- list("Quantitative data" = "tabExprs",
+                                "Peptides metadata" = "tabfData",
+                                "Experimental design" = "tabpData")
            },
            {
-               .choices <- list(
-                   "Quantitative data" = "tabExprs",
-                   "Analyte metadata" = "tabfData",
-                   "Experimental design" = "tabpData"
-               )
+               .choices <- list("Quantitative data" = "tabExprs",
+                                "Analyte metadata" = "tabfData",
+                                "Experimental design" = "tabpData")
            }
     )
     

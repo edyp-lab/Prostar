@@ -204,9 +204,9 @@ moduleVolcanoplot <- function(input, output, session,
 
 
         m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
-            pattern = "Missing",
-            level = "peptide"
-        )
+                            pattern = c("Missing", "Missing POV", "Missing MEC"),
+                            level = "peptide"
+                            )
         #req(length(which(m)) > 0)
 
         p <- data()
@@ -534,9 +534,9 @@ moduleVolcanoplot <- function(input, output, session,
         isolate({
             withProgress(message = "Building plot...", detail = "", value = 0, {
                 m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
-                    pattern = "Missing",
-                    level = DAPAR::GetTypeofData(rv$current.obj)
-                )
+                                    pattern = c("Missing", "Missing POV", "Missing MEC"),
+                                    level = DAPAR::GetTypeofData(rv$current.obj)
+                                    )
                 if (length(which(m)) > 0) {
                     return(NULL)
                 }
@@ -688,12 +688,12 @@ moduleMVPlots <- function(input, output, session, data, title, pal, pattern) {
     output$plot_viewNAbyMean <- renderHighchart({
         req(data())
 
-        hc_mvTypePlot2(
-            obj = data(),
-            pattern = pattern,
-            title = title(),
-            pal = pal()
-        )
+        #browser()
+        hc_mvTypePlot2( obj = data(),
+                        pattern = pattern,
+                        title = title(),
+                        pal = pal()
+                        )
     })
 
 
