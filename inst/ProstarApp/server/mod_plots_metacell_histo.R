@@ -101,3 +101,32 @@ mod_plotsMetacellHistos_server <- function(id,
         }
     )
 }
+
+
+
+# Example
+# 
+data("Exp1_R25_prot")
+
+ui <- fluidPage(
+    mod_plotsMetacellHistos_ui('test')
+)
+
+server <- function(input, output) {
+    
+    pattern <- c('Missing POV', 'Missing MEC')
+    
+    observe({
+        mod_plotsMetacellHistos_server('test',
+                                   obj = reactive({Exp1_R25_prot}),
+                                   pal = reactive({NULL}),
+                                   pattern = reactive({pattern}),
+                                   showSelect = reactive({TRUE})
+                                   )
+    })
+
+}
+
+shinyApp(ui = ui, server = server)
+
+
