@@ -366,7 +366,7 @@ output$warnDifferentSizeID <- renderUI({
 
 
 observeEvent(input$mapProtein.GO.button, ignoreInit = TRUE, {
-    browser()
+    #browser()
     req(rv$widgets$go$UniprotIDCol)
     rv$widgets$go$Organism
     rv$widgets$go$idFrom

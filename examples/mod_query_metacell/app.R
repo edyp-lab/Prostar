@@ -1,6 +1,6 @@
 
 
-options(shiny.reactlog=TRUE) 
+
 
 
 mod_query_metacell_ui <- function(id) {
@@ -8,7 +8,7 @@ mod_query_metacell_ui <- function(id) {
     tagList(
         div(
             fluidRow(
-                column(2, mod_metacell_tree_ui(ns('tree'))),
+                column(2, uiOutput(ns('toto'))),
                 column(2, uiOutput(ns("Choose_keepOrRemove_ui"))),
                 column(2, uiOutput(ns("choose_metacellFilters_ui"))),
                 column(6, tagList(
@@ -35,8 +35,7 @@ mod_query_metacell_server <- function(id,
                                       filters = NULL,
                                       val_vs_percent = NULL,
                                       operator = NULL,
-                                      reset = reactive({0})
-                                      ){
+                                      reset = 0) {
     rv <- reactiveValues(
         indices = NULL,
         trigger = NULL,
@@ -110,19 +109,11 @@ mod_query_metacell_server <- function(id,
                 rv.widgets$metacellFilter_operator <- "<="
             })
 
-            #rv.widgets$MetacellTag <- 
-            observeEvent(obj, {
-                
-                rv$level <- GetTypeofData(obj)
-                })
-            
-            observe({
-                #isolate({
-                    rv.widgets$MetacellTag <- mod_metacell_tree_server('tree', 
-                                                  level = rv$level)
-               # })
-                })
-            
+
+            # observeEvent(input$chooseMetacellTag, {
+            #     .value <- input$chooseMetacellTag
+            #     rv.widgets$MetacellTag <- .value
+            # })
             observeEvent(input$ChooseKeepRemove, {
                 .value <- input$ChooseKeepRemove
                 rv.widgets$KeepRemove <- .value
@@ -148,16 +139,17 @@ mod_query_metacell_server <- function(id,
                 rv.widgets$metacellFilter_operator <- .value
             })
 
-            # output$toto <- renderUI({
-            #     
-            #     
-            # })
+            output$toto <- renderUI({
+                #isolate({
                 
-            
+                #})
+                mod_metacell_tree_ui(ns('tree'))
+            })
+                
             observe({
-                req(rv.widgets$MetacellTag())
-                print('tutu = ')
-                print(rv.widgets$MetacellTag())
+                #browser()
+                rv.widgets$MetacellTag <- mod_metacell_tree_server('tree', 
+                                                                   level = GetTypeofData(obj))
             })
             
             output$Choose_keepOrRemove_ui <- renderUI({
@@ -281,7 +273,6 @@ mod_query_metacell_server <- function(id,
 
 
             WriteQuery <- reactive({
-                req(rv.widgets$MetacellTag())
                 if (rv.widgets$MetacellFilters == "None") {
                     txt_summary <- "No filtering is processed."
                 } else if (rv.widgets$MetacellFilters == "WholeLine") {
@@ -351,7 +342,7 @@ mod_query_metacell_server <- function(id,
                 )
                 DAPAR::GetIndices_MetacellFiltering(
                     obj = obj,
-                    level = rv$level,
+                    level = DAPAR::GetTypeofData(obj),
                     pattern = rv.widgets$MetacellTag(),
                     type = rv.widgets$MetacellFilters,
                     percent = rv.widgets$val_vs_percent == "Percentage",
@@ -403,11 +394,12 @@ server <- function(input, output) {
     
     data("Exp1_R25_prot")
     
-    rv$tags <- mod_query_metacell_server('query', 
-                                         obj = Exp1_R25_prot,
-                                         keep_vs_remove = 'delete',
-                                         filters = 'WholeLine'
-                                         )
+
+            rv$tags <- mod_query_metacell_server('query', 
+                                             obj = Exp1_R25_prot,
+                                             keep_vs_remove = 'delete',
+                                             filters = 'WholeLine'
+                                             )
  
     
     output$res <- renderUI({

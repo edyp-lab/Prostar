@@ -106,13 +106,13 @@ mod_plotsMetacellHistos_server <- function(id,
 
 # Example
 # 
-data("Exp1_R25_prot")
 
 ui <- fluidPage(
     mod_plotsMetacellHistos_ui('test')
 )
 
 server <- function(input, output) {
+    data("Exp1_R25_prot")
     
     pattern <- c('Missing POV', 'Missing MEC')
     

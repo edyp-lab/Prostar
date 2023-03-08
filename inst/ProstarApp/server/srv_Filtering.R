@@ -40,7 +40,7 @@ resetModuleFiltering <- reactive({
         stringsAsFactors = F
     )
 
-    rv$widgets$filtering$MetacellTag <- "None"
+    rv$widgets$filtering$MetacellTag <- NULL
     rv$widgets$filtering$MetacellFilters <- "None"
     rv$widgets$filtering$KeepRemove <- "delete"
     rv$widgets$filtering$metacell_value_th <- 0
@@ -107,42 +107,25 @@ output$screenFiltering1 <- renderUI({
 
 indices <- mod_query_metacell_server(
     id = "query",
-    obj = reactive({rv$current.obj}),
-    # list_tags = reactive({
-    #     c(
-    #         "None" = "None",
-    #         #DAPAR::metacell.def(GetTypeofData(rv$current.obj))$node
-    #         unique(unlist(DAPAR::GetMetacellTags(level = GetTypeofData(rv$current.obj),
-    #             obj = rv$current.obj,
-    #             onlyPresent = TRUE)))
-    #         #tagExists(DAPAR::metacell.def(GetTypeofData(rv$current.obj))$node, rv$current.obj)
-    #     
-    #     )
-    # }),
-    keep_vs_remove = reactive({setNames(nm = c("delete", "keep"))}),
-    filters = reactive({
-        c(
-            "None" = "None",
-            "Whole Line" = "WholeLine",
-            "Whole matrix" = "WholeMatrix",
-            "For every condition" = "AllCond",
-            "At least one condition" = "AtLeastOneCond"
-        )
-    }),
-    val_vs_percent = reactive({
-        setNames(nm = c("Count", "Percentage"))
-    }),
-    operator = reactive({
-        setNames(nm = DAPAR::SymFilteringOperators())
-    })
+    obj = rv$current.obj,
+    keep_vs_remove = setNames(nm = c("delete", "keep")),
+    filters = c("None" = "None",
+                "Whole Line" = "WholeLine",
+                "Whole matrix" = "WholeMatrix",
+                "For every condition" = "AllCond",
+                "At least one condition" = "AtLeastOneCond"
+                ),
+    val_vs_percent = setNames(nm = c("Count", "Percentage")),
+    operator = setNames(nm = DAPAR::SymFilteringOperators())
 )
 
 
 
 
 observeEvent(req(indices()$params$MetacellTag), {
+    print('----------------------------------------------------------')
     shinyjs::toggleState("performMetacellFiltering",
-        condition = indices()$params$MetacellTag != "None"
+        condition = !is.null(indices()$params$MetacellTag)
     )
 })
 
@@ -158,6 +141,7 @@ mod_plotsMetacellHistos_server(id = "MVPlots_filtering",
 
 ## Perform filtration
 observeEvent(input$performMetacellFiltering, ignoreInit = TRUE, {
+    print('##################   CLICK ON PERFORM METACELL FILTERING #################')
         nbDeleted <- 0
         rv$widgets$filtering$MetacellTag <- indices()$params$MetacellTag
         rv$widgets$filtering$KeepRemove <- indices()$params$KeepRemove
@@ -169,9 +153,9 @@ observeEvent(input$performMetacellFiltering, ignoreInit = TRUE, {
 
         obj.tmp <- try({
             MetaCellFiltering(obj = rv$current.obj,
-                                     indices = indices()$indices,
-                                     cmd = rv$widgets$filtering$KeepRemove
-                                     )
+                              indices = indices()$indices,
+                              cmd = rv$widgets$filtering$KeepRemove
+                              )
         })
 
         if(inherits(obj.tmp, "try-error")) {
@@ -185,8 +169,7 @@ observeEvent(input$performMetacellFiltering, ignoreInit = TRUE, {
                                             label = "",
                                             clipText = obj.tmp[[1]], 
                                             icon = icon("copy"),
-                                            class = actionBtnClass
-                                )
+                                            class = actionBtnClass)
                 ),
                 type = "error"
             )
