@@ -88,6 +88,7 @@ mod_plotsMetacellHistos_server <- function(id,
                 req(rv$chooseTag)
                 obj()
                 tmp <- NULL
+                browser()
                 # isolate({
                 # pattern <- paste0(GetCurrentObjName(),".MVplot2")
                 tmp <- metacellPerLinesHistoPerCondition_HC(obj = obj(),
@@ -115,7 +116,7 @@ server <- function(input, output) {
     data("Exp1_R25_prot")
     
     pattern <- c('Missing POV', 'Missing MEC')
-    
+    pattern <- NULL
     observe({
         mod_plotsMetacellHistos_server('test',
                                    obj = reactive({Exp1_R25_prot}),
