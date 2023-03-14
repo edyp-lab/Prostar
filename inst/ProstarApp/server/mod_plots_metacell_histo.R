@@ -88,7 +88,6 @@ mod_plotsMetacellHistos_server <- function(id,
                 req(rv$chooseTag)
                 obj()
                 tmp <- NULL
-                browser()
                 # isolate({
                 # pattern <- paste0(GetCurrentObjName(),".MVplot2")
                 tmp <- metacellPerLinesHistoPerCondition_HC(obj = obj(),

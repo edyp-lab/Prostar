@@ -64,61 +64,81 @@ mod_metacell_tree_ui <- function(id) {
     tagList(
         shinyjs::inlineCSS(css),
         h4('Cells metadata tags'),
-        actionLink(ns("show_metacell_tree"),
-                   tags$img(src = "images/metacelltree.png", height = "50px"))
+        #actionButton(ns("showMetacellTree"),
+        #           tags$img(src = "images/metacelltree.png", height = "50px"))
+        h3(modulePopoverUI(ns("metacellTag_help"))),
+                div(style='display: inline-block;',
+                    radioButtons(ns('checkbox_mode'), 
+                                 p(style='font-size: 16px;','Multiple selection'), 
+                                 choices = c('Single selection' = 'single',
+                                             'Complete subtree' = 'subtree',
+                                             'Multiple selection' = 'multiple')
+                    ),
+                    actionButton(ns('cleartree'), 'Clear selection', class=actionBtnClass)
+                ),
+        uiOutput(ns('tree'))
         )
 
 }
 
 mod_metacell_tree_server <- function(id, level = NULL) {
     
-    if(is.null(level))
-        stop('level is empty')
-    
+    # if(is.null(level))
+    #     stop('level is empty')
+    # 
     
     moduleServer(id,
                  function(input, output, session) {
                      ns <- session$ns
                      
                      # Show modal when button is clicked.
-                     observeEvent(req(input$show_metacell_tree), ignoreNULL = TRUE, {
-                         print('------------------observeEvent(input$show_metacell_tree-------------------------')
-                         showModal(
-                             div(
-                                 #shinyjqui::jqui_draggable(
-                             id = 'treeModal',
-                             tags$style("#treeModal .modal-dialog{width: 400px;}"),
-                             modalDialog(
-                                 h3(modulePopoverUI(ns("metacellTag_help"))),
-                                 div(style='display: inline-block;',
-                                     radioButtons(ns('checkbox_mode'), 
-                                                    p(style='font-size: 16px;','Multiple selection'), 
-                                                    choices = c('Single selection' = 'single',
-                                                                'Complete subtree' = 'subtree',
-                                                                'Multiple selection' = 'multiple')
-                                                    ),
-                                 actionButton(ns('cleartree'), 'Clear selection', class=actionBtnClass)
-                                 ),
-                                 uiOutput(ns('tree')),
-                                 footer = tagList(
-                                     modalButton("Cancel"),
-                                     actionButton(ns("ok"), "OK", class = actionBtnClass)
-                                 )
-                             )
-                             )
-                         )
-                     })
+                     # observeEvent(input$showMetacellTree, ignoreNULL = TRUE,{
+                     #     print('------------------observeEvent(input$show_metacell_tree-------------------------')
+                     #     print(input$showMetacellTree)
+                     #     showModal(
+                     #         div(
+                     #             #shinyjqui::jqui_draggable(
+                     #         id = 'treeModal',
+                     #         tags$style("#treeModal .modal-dialog{width: 400px;}"),
+                     #         modalDialog(
+                     #             h3(modulePopoverUI(ns("metacellTag_help"))),
+                     #             div(style='display: inline-block;',
+                     #                 radioButtons(ns('checkbox_mode'), 
+                     #                                p(style='font-size: 16px;','Multiple selection'), 
+                     #                                choices = c('Single selection' = 'single',
+                     #                                            'Complete subtree' = 'subtree',
+                     #                                            'Multiple selection' = 'multiple')
+                     #                                ),
+                     #             actionButton(ns('cleartree'), 'Clear selection', class=actionBtnClass)
+                     #             ),
+                     #             uiOutput(ns('tree')),
+                     #             footer = tagList(
+                     #                 modalButton("Cancel"),
+                     #                 actionButton(ns("ok"), "OK", class = actionBtnClass)
+                     #             )
+                     #         )
+                     #         )
+                     #     )
+                     # })
+                     
+                     
+                     # dataOut <- reactiveValues(
+                     #     trigger = NULL,
+                     #     value = NULL
+                     # )
                      
                      
                      # When OK button is pressed, attempt to load the data set. If successful,
                      # remove the modal. If not show another modal, but this time with a failure
                      # message.
-                     observeEvent(input$ok, ignoreInit = TRUE, ignoreNULL = TRUE, {
-                         print('################### observeEvent(input$ok) ##############################')
-                         removeModal()
-                         rv$dataOut <- names(rv$tags)[which(rv$tags == TRUE)]
-                         
-                     })
+                     # observeEvent(input$ok, ignoreInit = TRUE, ignoreNULL = TRUE, {
+                     #     print('################### observeEvent(input$ok) ##############################')
+                     #     removeModal()
+                     #     dataOut$trigger <- as.numeric(Sys.time())
+                     #     dataOut$value <- names(rv$tags)[which(rv$tags == TRUE)]
+                     #     
+                     # })
+                     
                      
                      
                      convertWidgetName <- function(name){
@@ -167,8 +187,7 @@ mod_metacell_tree_server <- function(id, level = NULL) {
                      rv <- reactiveValues(
                          tags = NULL,
                          mapping = BuildMapping()$names,
-                         bg_colors = BuildMapping()$colors,
-                         dataOut = NULL
+                         bg_colors = BuildMapping()$colors
                      )
                      
                      observe({
@@ -401,13 +420,13 @@ mod_metacell_tree_server <- function(id, level = NULL) {
                      somethingChanged <- reactive({
                          events <- unlist(lapply(GetTreeCBInputs(), function(x) input[[x]]))
                          compare <- rv$tags == events
-                         length(which(compare==FALSE))==0
+                         length(which(compare==FALSE))>0
                      })
                      
                      
                      
                      # Catch a change in the selection of a node
-                     observeEvent(somethingChanged(), ignoreInit = TRUE, {
+                     observeEvent(req(somethingChanged()), {
                          req(length(GetTreeCBInputs()) > 0)
                          #print('observeEvent(unlist(lapply(GetTreeCBInputs()()')
                          #browser()
@@ -438,19 +457,16 @@ mod_metacell_tree_server <- function(id, level = NULL) {
                                     childrens <- DAPAR::Children(level, newSelection)
                                     print('childrens = ')
                                     print(childrens)
+                                    
                                     update_CB_childrens(childrens)
                                 },
                                 multiple = {}
-                                )
-
-}
+                             )
+                             }
                  
                      })
-                     
-                     
-                     
-                     
-        return(reactive({rv$dataOut}))
+   
+        return(reactive({names(rv$tags)[which(rv$tags == TRUE)]}))
                      
                  }
     )
@@ -475,10 +491,12 @@ server <- function(input, output) {
         tags = NULL
     )
 
-    rv$tags <- mod_metacell_tree_server('tree', 
-                                        level = 'protein')
+    rv$tags <- mod_metacell_tree_server('tree', level = 'protein')
+    
+    
+    
     output$res <- renderUI({
-      p(paste0(rv$tags(), collapse=','))
+        p(paste0(rv$tags(), collapse=','))
     })
 }
 

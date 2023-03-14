@@ -76,36 +76,30 @@ resetModuleFiltering <- reactive({
 
 output$screenFiltering1 <- renderUI({
     tagList(
+        mod_query_metacell_ui("query"),
         div(
-            div(
-                mod_query_metacell_ui("query"),
-                div(
-                    style = "display:inline-block; vertical-align: middle;",
-                    shinyjs::disabled(
-                        actionButton("performMetacellFiltering",
-                            "Perform metacell filtering",
-                            class = actionBtnClass
+            style = "display:inline-block; vertical-align: middle;",
+            shinyjs::disabled(
+            actionButton("performMetacellFiltering",
+                         "Perform metacell filtering",
+                         class = actionBtnClass
                         )
-                    )
-                )
+            )
             ),
-            tags$hr(),
-            div(
-                style = "display:inline-block; vertical-align: middle;
-                align: center;",
-                DT::dataTableOutput("metacell_Filter_SummaryDT")
+        tags$hr(),
+        div(style = "display:inline-block; vertical-align: middle; align: center;",
+            DT::dataTableOutput("metacell_Filter_SummaryDT")
             ),
-            hr(),
-            ################## Plots section #############################
-            mod_plotsMetacellHistos_ui("MVPlots_filtering")
-        )
+        hr(),
+        ################## Plots section #############################
+        mod_plotsMetacellHistos_ui("MVPlots_filtering")
     )
 })
 
 
 
-
-indices <- mod_query_metacell_server(
+observe({
+rv$indices <- mod_query_metacell_server(
     id = "query",
     obj = rv$current.obj,
     keep_vs_remove = setNames(nm = c("delete", "keep")),
@@ -118,24 +112,26 @@ indices <- mod_query_metacell_server(
     val_vs_percent = setNames(nm = c("Count", "Percentage")),
     operator = setNames(nm = DAPAR::SymFilteringOperators())
 )
+})
 
 
 
 
-observeEvent(req(indices()$params$MetacellTag), {
-    print('----------------------------------------------------------')
+observeEvent(req(rv$indices()$trigger), {
     shinyjs::toggleState("performMetacellFiltering",
-        condition = !is.null(indices()$params$MetacellTag)
+        condition = length(rv$indices()$indices) > 0
+    )
+    
+    mod_plotsMetacellHistos_server(id = "MVPlots_filtering",
+                                   obj = reactive({rv$current.obj}),
+                                   pal = reactive({rv$PlotParams$paletteForConditions}),
+                                   pattern = reactive({req(rv$indices()$params$MetacellTag)}),
+                                   showSelect = reactive({FALSE})
     )
 })
 
 
-mod_plotsMetacellHistos_server(id = "MVPlots_filtering",
-                               obj = reactive({rv$current.obj}),
-                               pal = reactive({rv$PlotParams$paletteForConditions}),
-                               pattern = reactive({indices()$params$MetacellTag}),
-                               showSelect = reactive({FALSE})
-                               )
+
 
 
 
@@ -143,17 +139,17 @@ mod_plotsMetacellHistos_server(id = "MVPlots_filtering",
 observeEvent(input$performMetacellFiltering, ignoreInit = TRUE, {
     print('##################   CLICK ON PERFORM METACELL FILTERING #################')
         nbDeleted <- 0
-        rv$widgets$filtering$MetacellTag <- indices()$params$MetacellTag
-        rv$widgets$filtering$KeepRemove <- indices()$params$KeepRemove
-        rv$widgets$filtering$MetacellFilters <- indices()$params$MetacellFilters
-        rv$widgets$filtering$metacell_percent_th <- indices()$params$metacell_percent_th
-        rv$widgets$filtering$metacell_value_th <- indices()$params$metacell_value_th
-        rv$widgets$filtering$val_vs_percent <- indices()$params$val_vs_percent
-        rv$widgets$filtering$metacellFilter_operator <- indices()$params$metacellFilter_operator
+        rv$widgets$filtering$MetacellTag <- rv$indices()$params$MetacellTag
+        rv$widgets$filtering$KeepRemove <- rv$indices()$params$KeepRemove
+        rv$widgets$filtering$MetacellFilters <- rv$indices()$params$MetacellFilters
+        rv$widgets$filtering$metacell_percent_th <- rv$indices()$params$metacell_percent_th
+        rv$widgets$filtering$metacell_value_th <- rv$indices()$params$metacell_value_th
+        rv$widgets$filtering$val_vs_percent <- rv$indices()$params$val_vs_percent
+        rv$widgets$filtering$metacellFilter_operator <- rv$indices()$params$metacellFilter_operator
 
         obj.tmp <- try({
             MetaCellFiltering(obj = rv$current.obj,
-                              indices = indices()$indices,
+                              indices = rv$indices()$indices,
                               cmd = rv$widgets$filtering$KeepRemove
                               )
         })
@@ -184,7 +180,7 @@ observeEvent(input$performMetacellFiltering, ignoreInit = TRUE, {
         nbDeleted <- nrow(rv$deleted.metacell)
 
 
-        df <- data.frame(query = indices()$query,
+        df <- data.frame(query = rv$indices()$query,
                          nbDeleted = nbDeleted,
                          Total = nrow(rv$current.obj)
                          )
