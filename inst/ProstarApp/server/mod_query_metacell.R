@@ -122,10 +122,10 @@ mod_query_metacell_server <- function(id,
             })
 
            
-            tmp.tags <- mod_metacell_tree_server('tree', level = 'protein')
+            tmp.tags <- mod_metacell_tree_server('tree', level = GetTypeofData(obj))
 
             observeEvent(req(tmp.tags()), ignoreNULL = TRUE, {
-                                rv.widgets$MetacellTag <- tmp.tags()
+                rv.widgets$MetacellTag <- tmp.tags()
             })
             
             
