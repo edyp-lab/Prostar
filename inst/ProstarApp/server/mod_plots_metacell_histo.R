@@ -28,27 +28,32 @@ mod_plotsMetacellHistos_server <- function(id,
             ns <- session$ns
             
             rv <- reactiveValues(
-                chooseTag = pattern()
+                chooseTag = pattern(),
+                showSelect = if(is.null(pattern())) TRUE else showSelect()
             )
             
-            output$info <- renderUI({
-                req(is.null(rv$chooseTag))
-                print(rv$chooseTag)
-                p("Info: no data to view. 'Pattern' is NULL")
-                })
+            
+            # observeEvent(id, {
+            #     rv$showSelect <- !is.null(pattern())
+            # })
+            
+            # output$info <- renderUI({
+            #     req(is.null(rv$chooseTag))
+            #     print(rv$chooseTag)
+            #     p("Info: no data to view. 'Pattern' is NULL")
+            #     })
             
 
             output$chooseTagUI <- renderUI({
                 obj()
                 meta <- DAPAR::metacell.def(GetTypeofData(obj()))$node
-                .ch <- meta[-which(meta == 'Any')]
-                
-                shinyjs::toggle(selectInput(ns('chooseTag'), 'Choose tag', 
-                            choices = .ch,
-                            width = '200px',
-                            multiple = TRUE,
-                            selected = pattern()),
-                            condition = showSelect())
+                .ch <- 
+                    selectInput(ns('chooseTag'), 'Choose tag', 
+                                choices = meta[-which(meta == 'Any')],
+                                width = '200px',
+                                multiple = TRUE,
+                                selected = rv$chooseTag)
+
             })
             
             observeEvent(input$chooseTag, ignoreInit = TRUE,{
@@ -56,7 +61,7 @@ mod_plotsMetacellHistos_server <- function(id,
             })
 
             output$histo_Metacell <- renderHighchart({
-               req(rv$chooseTag)
+               #req(rv$chooseTag)
                 #obj()
 
                 tmp <- NULL
@@ -73,7 +78,7 @@ mod_plotsMetacellHistos_server <- function(id,
 
 
             output$histo_Metacell_per_lines <- renderHighchart({
-                req(rv$chooseTag)
+               # req(rv$chooseTag)
                 #obj()
                 tmp <- NULL
                 # isolate({
@@ -91,7 +96,7 @@ mod_plotsMetacellHistos_server <- function(id,
 
 
             output$histo_Metacell_per_lines_per_conditions <- renderHighchart({
-                req(rv$chooseTag)
+               # req(rv$chooseTag)
                 #obj()
                 tmp <- NULL
                 # isolate({

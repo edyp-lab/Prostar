@@ -95,6 +95,9 @@ mod_metacell_tree_server <- function(id, level = NULL) {
    
     if(is.null(level))
         stop('level is empty')
+    if (!requireNamespace("shinyBS", quietly = TRUE)) {
+        stop("Please install shinyBS: BiocManager::install('shinyBS')")
+    }
 
     moduleServer(id, function(input, output, session) {
         ns <- session$ns
@@ -205,7 +208,15 @@ observe({
     
 })
 
-observeEvent(c(input$checkbox_mode, input$cleartree), {
+observeEvent(input$cleartree, {
+    print('observeEvent(c(input$checkbox_mode, input$cleartree)')
+    
+    update_CB()
+    rv$autoChanged <- FALSE
+})
+
+
+observeEvent(input$checkbox_mode, {
     print('observeEvent(c(input$checkbox_mode, input$cleartree)')
     
     update_CB()
@@ -214,7 +225,9 @@ observeEvent(c(input$checkbox_mode, input$cleartree), {
             shinyjs::toggleState(l, input$checkbox_mode != 'subtree')
         
     }
+    rv$autoChanged <- TRUE
 })
+
 
 output$tree <- renderUI({
     print('output$tree <- renderUI')
@@ -387,48 +400,49 @@ Get_bg_color <- function(name){
 }
 
 update_CB <- function(nametokeep=NULL){
+    print('update_CB <- function(nametokeep=NULL)')
     widgets_to_disable <- GetTreeCBInputs()
     
     if(!is.null(nametokeep))
         widgets_to_disable <- GetTreeCBInputs()[-match(reverse.mapping(nametokeep), GetTreeCBInputs())]
-    
-    lapply(widgets_to_disable, function(x){
-        #browser()
-        updateCheckboxInput(session, x, value = FALSE)
-               rv$tags[rv$mapping[x]] <- FALSE
-           }
-    )
-    rv$autoChanged <- TRUE
     #browser()
-    
-}
-
-
-update_CB_childrens <- function(children.names){
-    if (is.null(children.names) || length(children.names)==0)
-        return(NULL)
-    
-    lapply(children.names, function(x){
-        updateCheckboxInput(session, reverse.mapping(x), value = TRUE)
-        rv$tags[x] <- TRUE
-    }
+    lapply(widgets_to_disable, function(x){
+        updateCheckboxInput(session, x, value = FALSE)
+        rv$tags[rv$mapping[x]] <- FALSE
+        }
     )
     rv$autoChanged <- TRUE
+    
 }
+
+
+# update_CB_childrens <- function(children.names){
+#     print('update_CB_childrens <- function(children.names)')
+#     if (is.null(children.names) || length(children.names)==0)
+#         return(NULL)
+#     lapply(children.names, function(x){
+#         updateCheckboxInput(session, reverse.mapping(x), value = TRUE)
+#         rv$tags[x] <- TRUE
+#         
+#     }
+#     )
+#     
+# }
 
 
 
 somethingChanged <- reactive({
     events <- unlist(lapply(GetTreeCBInputs(), function(x) input[[x]]))
     compare <- rv$tags == events
-    length(which(compare==FALSE))==0
+    length(which(compare==FALSE))>0
 })
 
 
 
 # Catch a change in the selection of a node
-observeEvent(somethingChanged(), ignoreInit = TRUE, {
+observeEvent(somethingChanged(), ignoreInit = FALSE, {
     req(length(GetTreeCBInputs()) > 0)
+     
     if (rv$autoChanged){
         rv$autoChanged <- FALSE
         return (NULL)
@@ -449,12 +463,22 @@ observeEvent(somethingChanged(), ignoreInit = TRUE, {
         
         
         switch(input$checkbox_mode,
-               single = {update_CB(newSelection)},
+               single = {
+                   update_CB(newSelection)
+                   },
                subtree = {
                    # As the leaves are disabled, this selection is a node
                    # by default, all its children must be also selected
                    childrens <- DAPAR::Children(level, newSelection)
-                   update_CB_childrens(childrens)
+                   #update_CB_childrens(childrens)
+                   if (!is.null(children.names) && length(children.names)>0){
+                       lapply(children.names, function(x){
+                       updateCheckboxInput(session, reverse.mapping(x), value = TRUE)
+                       rv$tags[x] <- TRUE
+                       
+                   })
+                   rv$autoChanged <- TRUE
+                   }
                },
                multiple = {}
         )

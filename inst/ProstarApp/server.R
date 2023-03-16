@@ -15,6 +15,7 @@ enableJIT(3)
 source(file.path("ui", "ui_Configure.R"), local = TRUE)$value
 source(file.path("server", "mod_errorModal.R"), local = TRUE)$value
 source(file.path("server", "mod_metacell_tree.R"), local = TRUE)$value
+source(file.path("server", "mod_popover.R"), local = TRUE)$value
 
 # # initialize data with colnames
 df <- data.frame(matrix(c("0", "0"), 1, 2))

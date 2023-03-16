@@ -12,9 +12,9 @@ tabPanel("Descriptive statistics",
                           uiOutput("versionsUI")
                       )
              ),
-             tabPanel(
-                 "Quantification nature",
+             tabPanel("Quantification nature",
                  value = "DS_tabOverviewMV",
+                 #mod_plotsMetacellHistos_ui("MVPlots_DS")
                  uiOutput("plotsMVHistograms")
              ),
              tabPanel(
