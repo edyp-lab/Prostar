@@ -1,7 +1,8 @@
 mod_plotsMetacellHistos_ui <- function(id) {
     ns <- NS(id)
     tagList(
-        
+        shinyjs::useShinyjs(),
+        uiOutput(ns('info')),
         uiOutput(ns('chooseTagUI')),
         fluidRow(
             column(width = 4,
@@ -23,15 +24,20 @@ mod_plotsMetacellHistos_server <- function(id,
                                            pal, 
                                            pattern = reactive({NULL}),
                                            showSelect = reactive({TRUE})) {
-    moduleServer(
-        id,
-        function(input, output, session) {
+    moduleServer(id, function(input, output, session) {
             ns <- session$ns
             
             rv <- reactiveValues(
                 chooseTag = pattern()
             )
             
+            output$info <- renderUI({
+                req(is.null(rv$chooseTag))
+                print(rv$chooseTag)
+                p("Info: no data to view. 'Pattern' is NULL")
+                })
+            
+
             output$chooseTagUI <- renderUI({
                 obj()
                 meta <- DAPAR::metacell.def(GetTypeofData(obj()))$node
@@ -51,7 +57,7 @@ mod_plotsMetacellHistos_server <- function(id,
 
             output$histo_Metacell <- renderHighchart({
                req(rv$chooseTag)
-                obj()
+                #obj()
 
                 tmp <- NULL
                 # isolate({
@@ -68,7 +74,7 @@ mod_plotsMetacellHistos_server <- function(id,
 
             output$histo_Metacell_per_lines <- renderHighchart({
                 req(rv$chooseTag)
-                obj()
+                #obj()
                 tmp <- NULL
                 # isolate({
                 # pattern <- paste0(GetCurrentObjName(),".MVplot2")
@@ -86,7 +92,7 @@ mod_plotsMetacellHistos_server <- function(id,
 
             output$histo_Metacell_per_lines_per_conditions <- renderHighchart({
                 req(rv$chooseTag)
-                obj()
+                #obj()
                 tmp <- NULL
                 # isolate({
                 # pattern <- paste0(GetCurrentObjName(),".MVplot2")
@@ -112,7 +118,7 @@ ui <- fluidPage(
 )
 
 server <- function(input, output) {
-    data("Exp1_R25_prot")
+    utils::data("Exp1_R25_prot", package='DAPARdata')
     
     pattern <- c('Missing POV', 'Missing MEC')
     pattern <- NULL
