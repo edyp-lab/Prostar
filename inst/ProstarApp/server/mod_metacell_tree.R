@@ -223,12 +223,24 @@ observeEvent(input$checkbox_mode, {
     ind <- which(meta$parent == 'Any')
     ll <- meta$node[ind]
     #browser()
-    if (input$checkbox_mode == 'subtree')
-        for (l in GetTreeCBInputs()[-match(ll, rv$mapping[GetTreeCBInputs()])]) {
-        #if(length(DAPAR::Children(level, rv$mapping[l]))==0)
-            shinyjs::toggleState(l, FALSE)
-        
-    }
+    ll.widgets <- switch(input$checkbox_mode,
+                         single = {
+                             for (l in GetTreeCBInputs())
+                             shinyjs::toggleState(l, TRUE)
+                         }
+                             ,
+                         subtree = {
+                             ll.widgets <- GetTreeCBInputs()[-match(ll, rv$mapping[GetTreeCBInputs()])]
+                             for (l in ll.widgets)
+                                 shinyjs::toggleState(l, FALSE)
+                             },
+                         multiple = {
+                             for (l in GetTreeCBInputs())
+                                 shinyjs::toggleState(l, TRUE)
+                         }
+                         )
+    
+    
     rv$autoChanged <- FALSE
 })
 
