@@ -223,7 +223,8 @@ observeEvent(input$checkbox_mode, {
     ind <- which(meta$parent == 'Any')
     ll <- meta$node[ind]
     #browser()
-    for (l in GetTreeCBInputs()[-match(ll, rv$mapping[GetTreeCBInputs()])]) {
+    if (input$checkbox_mode == 'subtree')
+        for (l in GetTreeCBInputs()[-match(ll, rv$mapping[GetTreeCBInputs()])]) {
         #if(length(DAPAR::Children(level, rv$mapping[l]))==0)
             shinyjs::toggleState(l, FALSE)
         
