@@ -174,26 +174,23 @@ mod_metacell_tree_server <- function(id, level = NULL) {
         
         rv <- reactiveValues(
             tags = NULL,
+            changedByUser = NULL,
             mapping = BuildMapping()$names,
             bg_colors = BuildMapping()$colors,
             dataOut = NULL,
-            autoChanged = FALSE,
             newSelection = ''
         )
         
         observe({
             tmp <- unname(rv$mapping[GetTreeCBInputs()])
-            rv$tags <- setNames(rep(FALSE, length(tmp)),
-                                nm = gsub('_cb', '', tmp)
-            )
+            rv$tags <- setNames(rep(FALSE, length(tmp)), nm = gsub('_cb', '', tmp))
+            rv$changedByUser <- setNames(rep(TRUE, length(tmp)), nm = gsub('_cb', '', tmp))
 
         })
         
         observeEvent(input$cleartree, {
             print('observeEvent(c(input$checkbox_mode, input$cleartree)')
-            
             ClearTree()
-            rv$autoChanged <- FALSE
         })
         
         
@@ -201,17 +198,18 @@ mod_metacell_tree_server <- function(id, level = NULL) {
             print('observeEvent(c(input$checkbox_mode, input$cleartree)')
             
             ClearTree()
+            
+            # Disable chlidrens of nodes
             for (l in GetTreeCBInputs()) {
                 if(length(DAPAR::Children(level, rv$mapping[l]))==0)
                     shinyjs::toggleState(l, input$checkbox_mode != 'subtree')
                 
             }
-            rv$autoChanged <- TRUE
+            
         })
         
         
         output$tree <- renderUI({
-            print('output$tree <- renderUI')
             div(style = "overflow-y: auto;",
                 uiOutput(ns(paste0('metacell_tree_', level)))
             )
@@ -381,12 +379,16 @@ mod_metacell_tree_server <- function(id, level = NULL) {
         ClearTree <- function(nametokeep=NULL){
             print('ClearTree <- function(nametokeep=NULL)')
             widgets_to_disable <- GetTreeCBInputs()
-            rv$autoChanged <- TRUE
+            
+            # Builds list of widgets to disable
             if(!is.null(nametokeep))
                 widgets_to_disable <- GetTreeCBInputs()[-match(reverse.mapping(nametokeep), GetTreeCBInputs())]
+            
+            # Disable selected widgets
             lapply(widgets_to_disable, function(x){
                 updateCheckboxInput(session, x, value = FALSE)
                 rv$tags[rv$mapping[x]] <- FALSE
+                rv$changedByUser[rv$mapping[x]] <- FALSE
             }
             )
         }
@@ -409,11 +411,14 @@ mod_metacell_tree_server <- function(id, level = NULL) {
         
         somethingChanged <- reactive({
             events <- unlist(lapply(GetTreeCBInputs(), function(x) input[[x]]))
+            browser()
             compare <- rv$tags == events
             length(which(compare==FALSE))>0
         })
         
         GetNewUserSelection <- reactive({
+            
+           # browser()
             req(length(GetTreeCBInputs()) > 0)
             new <- NULL
             events <- unlist(lapply(GetTreeCBInputs(), function(x) input[[x]]))
@@ -421,10 +426,10 @@ mod_metacell_tree_server <- function(id, level = NULL) {
             # Deduce the new selected node
             if (length(which(compare==FALSE))>0){
                 new <- names(rv$tags)[which(compare==FALSE)]
-                if (rv$autoChanged){
-                    rv$autoChanged <- FALSE
-                    return (NULL)
-                }
+                # if (rv$autoChanged){
+                #     rv$autoChanged <- FALSE
+                #     return (NULL)
+                # }
             }
             
             new
@@ -433,19 +438,25 @@ mod_metacell_tree_server <- function(id, level = NULL) {
         # Catch a change in the selection of a node
         observeEvent(req(GetNewUserSelection()), ignoreInit = FALSE, {
             
+            print('in observeEvent of somethingChanged() :')
+            
             newSelection <- GetNewUserSelection()
             browser()
+            if (rv$changedByUser[newSelection] == FALSE)
+                return(NULL)
+            print(newSelection)
+            
             # Get the values of widgets corresponding to nodes in the tree
-            print('in observeEvent of somethingChanged() :')
             # Update rv$tags vector with this new selection
-            for (i in newSelection)
-                rv$tags[i] <- input[[reverse.mapping(i)]]
+            
             
             switch(input$checkbox_mode,
                    single = {
-                       rv$autoChanged <- TRUE
                        ClearTree(newSelection)
-                       },
+                       for (i in newSelection){
+                           rv$tags[i] <- input[[reverse.mapping(i)]]
+                           rv$changedByUser[i] <- TRUE
+                       }},
                        subtree = {
                            rv$autoChanged <- TRUE
                            # As the leaves are disabled, this selection is a node

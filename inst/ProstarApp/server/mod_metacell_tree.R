@@ -177,7 +177,6 @@ BuildMapping <- function(){
 
 reverse.mapping <- function(x){
     req(rv$mapping)
-    print('reverse.mapping()')
     return(names(rv$mapping)[which(rv$mapping == x)])
 }
 
@@ -212,7 +211,7 @@ observeEvent(input$cleartree, {
     print('observeEvent(c(input$checkbox_mode, input$cleartree)')
     
     update_CB()
-    rv$autoChanged <- FALSE
+    rv$autoChanged <- TRUE
 })
 
 
@@ -220,12 +219,16 @@ observeEvent(input$checkbox_mode, {
     print('observeEvent(c(input$checkbox_mode, input$cleartree)')
     
     update_CB()
-    for (l in GetTreeCBInputs()) {
-        if(length(DAPAR::Children(level, rv$mapping[l]))==0)
-            shinyjs::toggleState(l, input$checkbox_mode != 'subtree')
+    meta <- DAPAR::metacell.def(level)
+    ind <- which(meta$parent == 'Any')
+    ll <- meta$node[ind]
+    #browser()
+    for (l in GetTreeCBInputs()[-match(ll, rv$mapping[GetTreeCBInputs()])]) {
+        #if(length(DAPAR::Children(level, rv$mapping[l]))==0)
+            shinyjs::toggleState(l, FALSE)
         
     }
-    rv$autoChanged <- TRUE
+    rv$autoChanged <- FALSE
 })
 
 
@@ -416,20 +419,6 @@ update_CB <- function(nametokeep=NULL){
 }
 
 
-# update_CB_childrens <- function(children.names){
-#     print('update_CB_childrens <- function(children.names)')
-#     if (is.null(children.names) || length(children.names)==0)
-#         return(NULL)
-#     lapply(children.names, function(x){
-#         updateCheckboxInput(session, reverse.mapping(x), value = TRUE)
-#         rv$tags[x] <- TRUE
-#         
-#     }
-#     )
-#     
-# }
-
-
 
 somethingChanged <- reactive({
     events <- unlist(lapply(GetTreeCBInputs(), function(x) input[[x]]))
@@ -440,16 +429,16 @@ somethingChanged <- reactive({
 
 
 # Catch a change in the selection of a node
-observeEvent(somethingChanged(), ignoreInit = FALSE, {
+observeEvent(somethingChanged(), ignoreInit = TRUE, {
     req(length(GetTreeCBInputs()) > 0)
-     
+    print('in observeEvent of somethingChanged() :')
+    
     if (rv$autoChanged){
         rv$autoChanged <- FALSE
         return (NULL)
     }
     
     # Get the values of widgets corresponding to nodes in the tree
-    print(paste0('in observeEvent of somethingChanged() :', input$show_metacell_tree))
     events <- unlist(lapply(GetTreeCBInputs(), function(x) input[[x]]))
     
     compare <- rv$tags == events
@@ -470,15 +459,16 @@ observeEvent(somethingChanged(), ignoreInit = FALSE, {
                    # As the leaves are disabled, this selection is a node
                    # by default, all its children must be also selected
                    childrens <- DAPAR::Children(level, newSelection)
-                   #update_CB_childrens(childrens)
-                   if (!is.null(children.names) && length(children.names)>0){
-                       lapply(children.names, function(x){
-                       updateCheckboxInput(session, reverse.mapping(x), value = TRUE)
-                       rv$tags[x] <- TRUE
-                       
-                   })
-                   rv$autoChanged <- TRUE
+                   if (!is.null(childrens) && length(childrens)>0){
+                       lapply(childrens, function(x){
+                           updateCheckboxInput(session, 
+                                               reverse.mapping(x), 
+                                               value = input[[reverse.mapping(newSelection)]])
+                           rv$tags[x] <- input[[reverse.mapping(newSelection)]]
+                           
+                       })
                    }
+                   rv$autoChanged <- TRUE
                },
                multiple = {}
         )
