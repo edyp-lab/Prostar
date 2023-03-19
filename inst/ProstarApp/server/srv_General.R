@@ -356,10 +356,12 @@ Compute_PCA_nbDimensions <- reactive({
 checksRetroCompatibility <- function(num=3){
     # Check versions
     Prostar_msnset_version <- rv$current.obj@experimentData@other$Prostar_Version
-    DAPAR_msnset_version <- rv$current.obj@experimentData@other$DAPAR_Version
+    if (!is.null(Prostar_msnset_version) && !is.na(Prostar_msnset_version))
+        Prostar_msnset_version <-  paste0(unlist(strsplit(Prostar_msnset_version, split='.', fixed=TRUE))[1:num], collapse='.')
     
-    Prostar_msnset_version <-  paste0(unlist(strsplit(Prostar_msnset_version, split='.', fixed=TRUE))[1:num], collapse='.')
-    DAPAR_msnset_version <-  paste0(unlist(strsplit(DAPAR_msnset_version, split='.', fixed=TRUE))[1:num], collapse='.')
+    DAPAR_msnset_version <- rv$current.obj@experimentData@other$DAPAR_Version
+    if (!is.null(DAPAR_msnset_version) && !is.na(DAPAR_msnset_version))
+        DAPAR_msnset_version <-  paste0(unlist(strsplit(DAPAR_msnset_version, split='.', fixed=TRUE))[1:num], collapse='.')
     
     
     df <- GetLocalVersions()

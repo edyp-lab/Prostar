@@ -16,50 +16,31 @@ convertAnaDiff2DF <- reactive({
 
 callModule(moduleVolcanoplot, "volcano_Step1",
     data = reactive({rv$resAnaDiff}),
-    comp = reactive({
-        as.character(rv$widgets$anaDiff$Comparison)
-    }),
+    comp = reactive({as.character(rv$widgets$anaDiff$Comparison)}),
     tooltip = reactive({rv$widgets$anaDiff$tooltipInfo})
 )
 
 callModule(moduleVolcanoplot, "volcano_Step2",
-    data = reactive({
-        rv$resAnaDiff
-    }),
-    comp = reactive({
-        as.character(rv$widgets$anaDiff$Comparison)
-    }),
-    tooltip = reactive({
-        rv$widgets$anaDiff$tooltipInfo
-    })
+    data = reactive({ rv$resAnaDiff}),
+    comp = reactive({as.character(rv$widgets$anaDiff$Comparison)}),
+    tooltip = reactive({rv$widgets$anaDiff$tooltipInfo})
 )
 
 mod_staticDT_server("params_AnaDiff",
-    data = reactive({
-        convertAnaDiff2DF()
-    }),
-    filename = "AnaDiffParams"
-)
+    data = reactive({convertAnaDiff2DF()}),
+    filename = "AnaDiffParams")
 
 callModule(
     module_Not_a_numeric, "test_seuilPVal",
-    reactive({
-        rv$widgets$anaDiff$th_pval
-    })
+    reactive({rv$widgets$anaDiff$th_pval})
 )
 
 
 callModule(moduleProcess, "moduleProcess_AnaDiff",
-    isDone = reactive({
-        rvModProcess$moduleAnaDiffDone
-    }),
-    pages = reactive({
-        rvModProcess$moduleAnaDiff
-    }),
+    isDone = reactive({rvModProcess$moduleAnaDiffDone}),
+    pages = reactive({rvModProcess$moduleAnaDiff}),
     rstFunc = resetModuleAnaDiff,
-    forceReset = reactive({
-        rvModProcess$moduleAnaDiffForceReset
-    })
+    forceReset = reactive({rvModProcess$moduleAnaDiffForceReset})
 )
 
 
@@ -87,7 +68,7 @@ resetModuleAnaDiff <- reactive({
     rv$widgets$anaDiff$Condition1 <- ""
     rv$widgets$anaDiff$Condition2 <- ""
     rv$widgets$anaDiff$val_vs_percent <- "Value"
-    rv$widgets$anaDiff$ChooseFilters <- "None"
+    rv$widgets$anaDiff$ChooseFilters <- NULL
     rv$widgets$anaDiff$seuilNA_percent <- 0
     rv$widgets$anaDiff$seuilNA <- 0
     rv$widgets$anaDiff$filter_th_NA <- 0
@@ -147,12 +128,8 @@ UpdateCompList <- reactive({
             )
 
             # Update of the list rv$resAnaDiff
-            rv$widgets$anaDiff$Condition1 <- strsplit(
-                as.character(rv$widgets$anaDiff$Comparison), "_vs_"
-            )[[1]][1]
-            rv$widgets$anaDiff$Condition2 <- strsplit(
-                as.character(rv$widgets$anaDiff$Comparison), "_vs_"
-            )[[1]][2]
+            rv$widgets$anaDiff$Condition1 <- strsplit(as.character(rv$widgets$anaDiff$Comparison), "_vs_")[[1]][1]
+            rv$widgets$anaDiff$Condition2 <- strsplit(as.character(rv$widgets$anaDiff$Comparison), "_vs_")[[1]][2]
 
             # if (input$swapVolcano == FALSE)
             rv$resAnaDiff <- list(
@@ -179,11 +156,7 @@ observe({
 
 GetPairwiseCompChoice <- reactive({
     req(rv$res_AllPairwiseComparisons$logFC)
-    ll <- unlist(
-        strsplit(
-            colnames(rv$res_AllPairwiseComparisons$logFC), "_logFC"
-        )
-    )
+    ll <- unlist(strsplit(colnames(rv$res_AllPairwiseComparisons$logFC), "_logFC"))
     ll
 })
 
