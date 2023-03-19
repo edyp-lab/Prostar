@@ -16,50 +16,32 @@ convertAnaDiff2DF <- reactive({
 
 callModule(moduleVolcanoplot, "volcano_Step1",
     data = reactive({rv$resAnaDiff}),
-    comp = reactive({
-        as.character(rv$widgets$anaDiff$Comparison)
-    }),
+    comp = reactive({as.character(rv$widgets$anaDiff$Comparison)}),
     tooltip = reactive({rv$widgets$anaDiff$tooltipInfo})
 )
 
 callModule(moduleVolcanoplot, "volcano_Step2",
-    data = reactive({
-        rv$resAnaDiff
-    }),
-    comp = reactive({
-        as.character(rv$widgets$anaDiff$Comparison)
-    }),
-    tooltip = reactive({
-        rv$widgets$anaDiff$tooltipInfo
-    })
+    data = reactive({rv$resAnaDiff}),
+    comp = reactive({as.character(rv$widgets$anaDiff$Comparison)}),
+    tooltip = reactive({rv$widgets$anaDiff$tooltipInfo})
 )
 
 mod_staticDT_server("params_AnaDiff",
-    data = reactive({
-        convertAnaDiff2DF()
-    }),
+    data = reactive({convertAnaDiff2DF()}),
     filename = "AnaDiffParams"
 )
 
 callModule(
     module_Not_a_numeric, "test_seuilPVal",
-    reactive({
-        rv$widgets$anaDiff$th_pval
-    })
+    reactive({ rv$widgets$anaDiff$th_pval})
 )
 
 
 callModule(moduleProcess, "moduleProcess_AnaDiff",
-    isDone = reactive({
-        rvModProcess$moduleAnaDiffDone
-    }),
-    pages = reactive({
-        rvModProcess$moduleAnaDiff
-    }),
+    isDone = reactive({rvModProcess$moduleAnaDiffDone}),
+    pages = reactive({rvModProcess$moduleAnaDiff}),
     rstFunc = resetModuleAnaDiff,
-    forceReset = reactive({
-        rvModProcess$moduleAnaDiffForceReset
-    })
+    forceReset = reactive({rvModProcess$moduleAnaDiffForceReset})
 )
 
 
@@ -147,12 +129,8 @@ UpdateCompList <- reactive({
             )
 
             # Update of the list rv$resAnaDiff
-            rv$widgets$anaDiff$Condition1 <- strsplit(
-                as.character(rv$widgets$anaDiff$Comparison), "_vs_"
-            )[[1]][1]
-            rv$widgets$anaDiff$Condition2 <- strsplit(
-                as.character(rv$widgets$anaDiff$Comparison), "_vs_"
-            )[[1]][2]
+            rv$widgets$anaDiff$Condition1 <- strsplit(as.character(rv$widgets$anaDiff$Comparison), "_vs_")[[1]][1]
+            rv$widgets$anaDiff$Condition2 <- strsplit(as.character(rv$widgets$anaDiff$Comparison), "_vs_")[[1]][2]
 
             # if (input$swapVolcano == FALSE)
             rv$resAnaDiff <- list(
@@ -169,6 +147,7 @@ UpdateCompList <- reactive({
 
 # By default, the tooltip for volcanoplot is set to the proteinId
 observe({
+  print('toto')
     req(rv$current.obj)
     if (is.null(rv$widgets$anaDiff$tooltipInfo)) {
         .protId <- rv$current.obj@experimentData@other$proteinId
@@ -195,8 +174,7 @@ output$screenAnaDiff1 <- renderUI({
             tags$hr(),
             tags$div(
                 tags$div(
-                    style = "display:inline-block; vertical-align: top;
-          padding-right: 60px",
+                    style = "display:inline-block; vertical-align: top; padding-right: 60px",
                     moduleVolcanoplotUI("volcano_Step1")
                 ),
                 tags$div(
@@ -213,6 +191,7 @@ output$screenAnaDiff1 <- renderUI({
 
 
 output$pushpval_ui <- renderUI({
+  print('tutu')
     req(rv$widgets$anaDiff$Comparison != "None")
   
     callModule(modulePopover, "modulePopover_pushPVal",
@@ -245,10 +224,12 @@ output$pushpval_ui <- renderUI({
     wellPanel(
         modulePopoverUI("modulePopover_pushPVal"),
         mod_query_metacell_ui("AnaDiff_query"),
-        shinyjs::disabled(actionButton("AnaDiff_performFilteringMV",
-            "Push p-value",
-            class = actionBtnClass
-        ))
+        shinyjs::disabled(
+          actionButton("AnaDiff_performFilteringMV",
+                       "Push p-value",
+                       class = actionBtnClass
+                       )
+          )
     )
 })
 
@@ -318,65 +299,40 @@ GetPairwiseCompChoice <- reactive({
     ll
 })
 
+GetFiltersScope <- function()
+  c("Whole Line" = "WholeLine",
+    "Whole matrix" = "WholeMatrix",
+    "For every condition" = "AllCond",
+    "At least one condition" = "AtLeastOneCond"
+  )
 
 
-AnaDiff_indices <- mod_query_metacell_server(
-    id = "AnaDiff_query",
-    obj = reactive({
-        Get_Dataset_to_Analyze()
-    }),
-    # list_tags = reactive({
-    #     c(
-    #         "None" = "None",
-    #       unique(unlist(DAPAR::GetMetacellTags(level = GetTypeofData(rv$current.obj),
-    #         obj = rv$current.obj,
-    #         onlyPresent = TRUE)))
-    #       #DAPAR::metacell.def(GetTypeofData(rv$current.obj))$node
-    #     )
-    # }),
-    keep_vs_remove = reactive({
-        setNames(nm = c("delete", "keep"))
-    }),
-    filters = reactive({
-        c(
-            "None" = "None",
-            "Whole Line" = "WholeLine",
-            "Whole matrix" = "WholeMatrix",
-            "For every condition" = "AllCond",
-            "At least one condition" = "AtLeastOneCond"
-        )
-    }),
-    val_vs_percent = reactive({
-        setNames(nm = c("Count", "Percentage"))
-    }),
-    operator = reactive({
-        setNames(nm = DAPAR::SymFilteringOperators())
-    }),
-    reset = reactive({
-        rv_anaDiff$local.reset
-    })
-)
+observe({
+  rv$AnaDiff_indices <- mod_query_metacell_server(id = "AnaDiff_query",
+                                             obj = Get_Dataset_to_Analyze(),
+                                             keep_vs_remove = setNames(nm = c("delete", "keep")),
+                                             filters =  c("None" = "None", GetFiltersScope()),
+                                             val_vs_percent = setNames(nm = c("Count", "Percentage")),
+                                             operator = setNames(nm = DAPAR::SymFilteringOperators()),
+                                             reset = reactive({rv_anaDiff$local.reset})
+                                             )
+})
 #----------------------------------------------------
 
 
 
-observe({
-    req(AnaDiff_indices()$params$MetacellTag)
-
-    shinyjs::toggleState("AnaDiff_performFilteringMV",
-        condition = AnaDiff_indices()$params$MetacellTag != "None"
+observeEvent( req(rv$AnaDiff_indices()$trigger), {
+   shinyjs::toggleState("AnaDiff_performFilteringMV",
+        condition = length(rv$AnaDiff_indices()$indices > 0)
     )
 })
 
 ########################################################
 ## Perform missing values filtering
 ########################################################
-observeEvent(input$AnaDiff_performFilteringMV,
-    ignoreInit = TRUE,
-    ignoreNULL = TRUE,
-    {
+observeEvent(input$AnaDiff_performFilteringMV, ignoreInit = TRUE, ignoreNULL = TRUE,{
         UpdateCompList()
-        .ind <- AnaDiff_indices()
+        .ind <- rv$AnaDiff_indices()
         .protId <- rv$current.obj@experimentData@other$proteinId
         rv$widgets$anaDiff$MetacellTag <- .ind$params$MetacellTag
         rv$widgets$anaDiff$KeepRemove <- .ind$params$KeepRemove
@@ -392,7 +348,7 @@ observeEvent(input$AnaDiff_performFilteringMV,
         }
 
         #--------------------------------
-        if (!is.null(AnaDiff_indices()$indices) &&
+        if (!is.null(rv$AnaDiff_indices()$indices) &&
             length(.ind$indices) < nrow(Get_Dataset_to_Analyze())) {
             rv$resAnaDiff$P_Value[-(.ind$indices)] <- 1
             n <- length(rv$resAnaDiff$P_Value)

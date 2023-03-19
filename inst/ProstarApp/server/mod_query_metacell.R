@@ -65,7 +65,6 @@ mod_query_metacell_server <- function(id,
 
 
             output$testUI <- renderUI({
-                #req(xxx)
                 mod_metacell_tree_ui(ns('tree'))
             })
             
@@ -396,6 +395,10 @@ mod_query_metacell_server <- function(id,
 
 # Example
 # 
+library(DAPAR)
+library(DAPARdata)
+library(Prostar)
+library(shinyBS)
 
     ui <- fluidPage(
     tagList(
@@ -408,7 +411,7 @@ server <- function(input, output) {
     
     
     
-    data("Exp1_R25_prot")
+    utils::data("Exp1_R25_prot")
     
     tmp <- mod_query_metacell_server('query', 
                                          obj = Exp1_R25_prot,

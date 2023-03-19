@@ -355,6 +355,7 @@ Compute_PCA_nbDimensions <- reactive({
 
 checksRetroCompatibility <- function(num=3){
     # Check versions
+    #browser()
     Prostar_msnset_version <- rv$current.obj@experimentData@other$Prostar_Version
     DAPAR_msnset_version <- rv$current.obj@experimentData@other$DAPAR_Version
     #browser()
@@ -381,7 +382,7 @@ checksRetroCompatibility <- function(num=3){
         txt <- paste0("The Msnset file has been created with an older version of ", txt, ".\n", 
                       "This can lead to unexpected behaviour.")
         
-        sendSweetAlert(
+        shinyWidgets::sendSweetAlert(
             session = session,
             title = "Info",
             text = tags$div(style = "display:inline-block; vertical-align: top;",
@@ -461,10 +462,7 @@ loadObjectInMemoryFromConverter <- function() {
             if (is.null(GetCC(rv$current.obj))) {
                 #print("Start computing Connected Components")
                 incProgress(0.7, detail = "Compute Connected Components")
-                rv$current.obj <- SetCC(
-                    rv$current.obj,
-                    ComputeConnectedComposants()
-                )
+                rv$current.obj <- SetCC(rv$current.obj, ComputeConnectedComposants())
             }
         }
         

@@ -97,18 +97,19 @@ output$screenFiltering1 <- renderUI({
 })
 
 
+GetFiltersScope <- function()
+    c("Whole Line" = "WholeLine",
+      "Whole matrix" = "WholeMatrix",
+      "For every condition" = "AllCond",
+      "At least one condition" = "AtLeastOneCond"
+    )
 
 observe({
 rv$indices <- mod_query_metacell_server(
     id = "query",
     obj = rv$current.obj,
     keep_vs_remove = setNames(nm = c("delete", "keep")),
-    filters = c("None" = "None",
-                "Whole Line" = "WholeLine",
-                "Whole matrix" = "WholeMatrix",
-                "For every condition" = "AllCond",
-                "At least one condition" = "AtLeastOneCond"
-                ),
+    filters = c("None" = "None", GetFiltersScope()),
     val_vs_percent = setNames(nm = c("Count", "Percentage")),
     operator = setNames(nm = DAPAR::SymFilteringOperators())
 )
