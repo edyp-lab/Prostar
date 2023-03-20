@@ -1437,7 +1437,8 @@ rv <- reactiveValues(
             "Number of proteins defined both by shared and specific peptides"
         ),
         nb = rep(0, 7)
-    )
+    ),
+    AnaDiff_indices = NULL
 )
 
 

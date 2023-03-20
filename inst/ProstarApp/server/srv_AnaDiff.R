@@ -321,8 +321,11 @@ observe({
 
 
 
-observeEvent( req(rv$AnaDiff_indices()$trigger), {
-   shinyjs::toggleState("AnaDiff_performFilteringMV",
+observe({
+  req(rv$AnaDiff_indices)
+  rv$AnaDiff_indices()$trigger
+  
+  shinyjs::toggleState("AnaDiff_performFilteringMV",
         condition = length(rv$AnaDiff_indices()$indices > 0)
     )
 })
