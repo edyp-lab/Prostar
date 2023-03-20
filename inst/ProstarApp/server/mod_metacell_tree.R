@@ -222,7 +222,6 @@ observeEvent(input$checkbox_mode, {
     meta <- DAPAR::metacell.def(level)
     ind <- which(meta$parent == 'Any')
     ll <- meta$node[ind]
-    #browser()
     ll.widgets <- switch(input$checkbox_mode,
                          single = {
                              for (l in GetTreeCBInputs())
@@ -246,7 +245,6 @@ observeEvent(input$checkbox_mode, {
 
 
 output$tree <- renderUI({
-    print('output$tree <- renderUI')
     div(style = "overflow-y: auto;",
         uiOutput(ns(paste0('metacell_tree_', level)))
     )
@@ -416,12 +414,11 @@ Get_bg_color <- function(name){
 }
 
 update_CB <- function(nametokeep=NULL){
-    print('update_CB <- function(nametokeep=NULL)')
     widgets_to_disable <- GetTreeCBInputs()
     
     if(!is.null(nametokeep))
         widgets_to_disable <- GetTreeCBInputs()[-match(reverse.mapping(nametokeep), GetTreeCBInputs())]
-    #browser()
+    
     lapply(widgets_to_disable, function(x){
         updateCheckboxInput(session, x, value = FALSE)
         rv$tags[rv$mapping[x]] <- FALSE
@@ -444,7 +441,6 @@ somethingChanged <- reactive({
 # Catch a change in the selection of a node
 observeEvent(somethingChanged(), ignoreInit = TRUE, {
     req(length(GetTreeCBInputs()) > 0)
-    print('in observeEvent of somethingChanged() :')
     
     if (rv$autoChanged){
         rv$autoChanged <- FALSE
