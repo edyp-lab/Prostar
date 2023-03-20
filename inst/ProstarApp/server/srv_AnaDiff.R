@@ -147,8 +147,7 @@ UpdateCompList <- reactive({
 
 # By default, the tooltip for volcanoplot is set to the proteinId
 observe({
-  print('toto')
-    req(rv$current.obj)
+  req(rv$current.obj)
     if (is.null(rv$widgets$anaDiff$tooltipInfo)) {
         .protId <- rv$current.obj@experimentData@other$proteinId
         rv$widgets$anaDiff$tooltipInfo <- .protId
@@ -191,8 +190,7 @@ output$screenAnaDiff1 <- renderUI({
 
 
 output$pushpval_ui <- renderUI({
-  print('tutu')
-    req(rv$widgets$anaDiff$Comparison != "None")
+  req(rv$widgets$anaDiff$Comparison != "None")
   
     callModule(modulePopover, "modulePopover_pushPVal",
         data = reactive(

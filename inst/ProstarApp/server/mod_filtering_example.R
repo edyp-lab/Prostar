@@ -1,4 +1,8 @@
 
+library(shiny)
+library(shinyBS)
+library(highcharter)
+
 mod_filtering_example_ui <- function(id) {
     ns <- NS(id)
 
@@ -18,21 +22,11 @@ mod_filtering_example_ui <- function(id) {
                         nm = c("original dataset", "simulate filtered dataset")
                     )
                 ),
-                dataTableOutput(ns("example_tab_filtered"))
+                DT::dataTableOutput(ns("example_tab_filtered"))
             ),
-            tags$head(tags$style(paste0(
-                "#", ns("example_modal"),
-                " .modal-footer{ display:none}"
-            ))),
-            tags$head(tags$style(paste0(
-                "#",
-                ns("example_modal"), " .modal-dialog{ width:1000px}"
-            ))),
-            tags$head(
-                tags$style(paste0(
-                    "#", ns("example_modal"),
-                    " .modal-body{ min-height:700px}"
-                ))
+            tags$head(tags$style(paste0("#", ns("example_modal"), " .modal-footer{ display:none}"))),
+            tags$head(tags$style(paste0("#", ns("example_modal"), " .modal-dialog{ width:1000px}"))),
+            tags$head(tags$style(paste0("#", ns("example_modal"), " .modal-body{ min-height:700px}"))
             )
         )
     )
@@ -43,9 +37,10 @@ mod_filtering_example_ui <- function(id) {
 
 
 mod_filtering_example_server <- function(id, obj, indices, params, txt) {
-    moduleServer(
-        id,
-        function(input, output, session) {
+    moduleServer(id, function(input, output, session) {
+            
+            ns <- session$ns
+            
             output$show_text <- renderUI({
                 h3(txt())
             })
@@ -101,7 +96,7 @@ mod_filtering_example_server <- function(id, obj, indices, params, txt) {
             }
 
             output$example_tab_filtered <- DT::renderDataTable({
-                df <- getDataForExprs(obj(), NULL)
+                df <- Prostar::getDataForExprs(obj(), NULL)
                 c.tags <- BuildColorStyles(obj())$tags
                 c.colors <- BuildColorStyles(obj())$colors
                 range.invisible <- ((ncol(df) / 2) + 1):ncol(df)
@@ -116,43 +111,84 @@ mod_filtering_example_server <- function(id, obj, indices, params, txt) {
                     }
 
                     for (i in index2darken) {
-                        df[i, range.invisible] <- paste0(
-                            "darken_",
-                            df[i, range.invisible]
-                        )
+                        df[i, range.invisible] <- paste0("darken_", df[i, range.invisible])
                     }
 
                     c.tags <- c(c.tags, paste0("darken_", c.tags))
                     c.colors <- c(c.colors, DarkenColors(c.colors))
                 }
-
-                DT::datatable(df,
-                    extensions = c("Scroller"),
-                    options = list(
-                        dom = "Brtip",
-                        pageLength = 15,
-                        orderClasses = TRUE,
-                        autoWidth = TRUE,
-                        deferRender = TRUE,
-                        bLengthChange = FALSE,
-                        scrollX = 200,
-                        scrollY = 500,
-                        scroller = TRUE,
-                        server = FALSE,
-                        columnDefs = list(
-                            list(
-                                targets = range.invisible,
-                                visible = FALSE
-                            )
-                        )
-                    )
-                ) %>%
-                    DT::formatStyle(
-                        colnames(df)[1:(ncol(df) / 2)],
-                        colnames(df)[range.invisible],
-                        backgroundColor = DT::styleEqual(c.tags, c.colors)
-                    )
+                
+                dt <- DT::datatable(df,
+               extensions = c("Scroller"),
+               options = list(
+                  dom = "Brtip",
+               pageLength = 15,
+               orderClasses = TRUE,
+               autoWidth = TRUE,
+               deferRender = TRUE,
+               bLengthChange = FALSE,
+               scrollX = 200,
+               scrollY = 500,
+               scroller = TRUE,
+               server = FALSE,
+               columnDefs = list(
+                   list(
+                       targets = range.invisible,
+                       visible = FALSE
+                   )
+               )
+               )
+               ) %>%
+                   DT::formatStyle(
+                       colnames(df)[1:(ncol(df) / 2)],
+                       colnames(df)[range.invisible],
+                       backgroundColor = DT::styleEqual(c.tags, c.colors)
+                   )
+                
+                dt
             })
         }
     )
 }
+
+
+
+
+
+# Example
+#
+ui <- fluidPage(
+        mod_filtering_example_ui('tree')
+)
+
+server <- function(input, output) {
+    utils::data('Exp1_R25_prot', package='DAPARdata')
+    obj <- Exp1_R25_prot[1:20]
+    params <- list(
+        MetacellTag = c('Missing POV', 'Missing MEC'),
+        MetacellFilters = "WholeMatrix",
+        KeepRemove = "delete",
+        metacell_value_th = 1,
+        metacell_percent_th = 0,
+        val_vs_percent = "Count",
+        metacellFilter_operator = ">="
+        )
+    
+    
+    indices <- DAPAR::GetIndices_MetacellFiltering(obj = obj,
+                                                   level = GetTypeofData(obj),
+                                                   pattern = params$MetacellTag,
+                                                   type = params$MetacellFilters,
+                                                   percent = params$val_vs_percent == "Percentage",
+                                                   op = params$metacellFilter_operator,
+                                                   th = params$metacell_value_th)
+    
+    mod_filtering_example_server('tree',
+                                 obj = reactive({obj}),
+                                 indices = reactive({indices}),
+                                 params = reactive({params}),
+                                 txt = reactive({'protein'}))
+}
+
+shinyApp(ui = ui, server = server)
+
