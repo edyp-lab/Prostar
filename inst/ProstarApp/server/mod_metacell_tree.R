@@ -91,7 +91,9 @@ mod_metacell_tree_ui <- function(id) {
 
 }
 
-mod_metacell_tree_server <- function(id, level = NULL) {
+mod_metacell_tree_server <- function(id, 
+                                     level = NULL,
+                                     reset = reactive({NULL})) {
    
     if(is.null(level))
         stop('level is empty')
@@ -198,18 +200,14 @@ rv <- reactiveValues(
 )
 
 observe({
-    print('observe rv$tags <- setNames(r')
     tmp <- unname(rv$mapping[GetTreeCBInputs()])
     rv$tags <- setNames(rep(FALSE, length(tmp)),
                         nm = gsub('_cb', '', tmp)
     )
-    #browser()
-    
 })
 
-observeEvent(input$cleartree, {
-    print('observeEvent(c(input$checkbox_mode, input$cleartree)')
-    
+observeEvent(req(c(reset(), input$cleartree)), ignoreInit = TRUE, {
+    print('internal reset')
     update_CB()
     rv$autoChanged <- TRUE
 })

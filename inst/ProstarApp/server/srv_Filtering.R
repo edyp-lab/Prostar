@@ -107,11 +107,12 @@ GetFiltersScope <- function()
 observe({
 rv$indices <- mod_query_metacell_server(
     id = "query",
-    obj = rv$current.obj,
-    keep_vs_remove = setNames(nm = c("delete", "keep")),
-    filters = c("None" = "None", GetFiltersScope()),
-    val_vs_percent = setNames(nm = c("Count", "Percentage")),
-    operator = setNames(nm = DAPAR::SymFilteringOperators())
+    obj = reactive({rv$current.obj}),
+    keep_vs_remove = reactive({setNames(nm = c("delete", "keep"))}),
+    filters = reactive({c("None" = "None", GetFiltersScope())}),
+    val_vs_percent = reactive({setNames(nm = c("Count", "Percentage"))}),
+    operator = reactive({setNames(nm = DAPAR::SymFilteringOperators())}),
+    reset = reactive({req(input$performMetacellFiltering)})
 )
 })
 
@@ -140,18 +141,29 @@ observeEvent(req(rv$indices()$trigger), {
 observeEvent(input$performMetacellFiltering, ignoreInit = TRUE, {
     print('##################   CLICK ON PERFORM METACELL FILTERING #################')
         nbDeleted <- 0
-        rv$widgets$filtering$MetacellTag <- rv$indices()$params$MetacellTag
-        rv$widgets$filtering$KeepRemove <- rv$indices()$params$KeepRemove
-        rv$widgets$filtering$MetacellFilters <- rv$indices()$params$MetacellFilters
-        rv$widgets$filtering$metacell_percent_th <- rv$indices()$params$metacell_percent_th
-        rv$widgets$filtering$metacell_value_th <- rv$indices()$params$metacell_value_th
-        rv$widgets$filtering$val_vs_percent <- rv$indices()$params$val_vs_percent
-        rv$widgets$filtering$metacellFilter_operator <- rv$indices()$params$metacellFilter_operator
+        # rv$widgets$filtering$MetacellTag <- rv$indices()$params$MetacellTag
+        # rv$widgets$filtering$KeepRemove <- rv$indices()$params$KeepRemove
+        # rv$widgets$filtering$MetacellFilters <- rv$indices()$params$MetacellFilters
+        # rv$widgets$filtering$metacell_percent_th <- rv$indices()$params$metacell_percent_th
+        # rv$widgets$filtering$metacell_value_th <- rv$indices()$params$metacell_value_th
+        # rv$widgets$filtering$val_vs_percent <- rv$indices()$params$val_vs_percent
+        # rv$widgets$filtering$metacellFilter_operator <- rv$indices()$params$metacellFilter_operator
 
+        
+        rv$widgets$filtering$MetacellTag <- NULL
+        rv$widgets$filtering$MetacellFilters <- "None"
+        rv$widgets$filtering$KeepRemove <- "delete"
+        rv$widgets$filtering$metacell_value_th <- 0
+        rv$widgets$filtering$choose_metacell_percent_th <- 0
+        rv$widgets$filtering$metacell_value_percent <- 0
+        rv$widgets$filtering$val_vs_percent <- "Value"
+        rv$widgets$filtering$metacellFilter_operator <- "<="
+        
+        
         obj.tmp <- try({
             MetaCellFiltering(obj = rv$current.obj,
                               indices = rv$indices()$indices,
-                              cmd = rv$widgets$filtering$KeepRemove
+                              cmd = rv$indices()$params$KeepRemove
                               )
         })
 

@@ -223,10 +223,7 @@ output$pushpval_ui <- renderUI({
         modulePopoverUI("modulePopover_pushPVal"),
         mod_query_metacell_ui("AnaDiff_query"),
         shinyjs::disabled(
-          actionButton("AnaDiff_performFilteringMV",
-                       "Push p-value",
-                       class = actionBtnClass
-                       )
+          actionButton("AnaDiff_performFilteringMV", "Push p-value", class = actionBtnClass)
           )
     )
 })
@@ -253,12 +250,8 @@ Get_Dataset_to_Analyze <- reactive({
         datasetToAnalyze <- rv$current.obj
         Biobase::pData(datasetToAnalyze)$Condition[ind_virtual_cond2] <- "virtual_cond_2"
     } else {
-        condition1 <- strsplit(
-            as.character(rv$widgets$anaDiff$Comparison), "_vs_"
-        )[[1]][1]
-        condition2 <- strsplit(
-            as.character(rv$widgets$anaDiff$Comparison), "_vs_"
-        )[[1]][2]
+        condition1 <- strsplit(as.character(rv$widgets$anaDiff$Comparison), "_vs_")[[1]][1]
+        condition2 <- strsplit(as.character(rv$widgets$anaDiff$Comparison), "_vs_")[[1]][2]
 
         if (substr(condition1, 1, 1) == "(" &&
             substr(condition1, nchar(condition1), nchar(condition1)) == ")") {
@@ -281,7 +274,7 @@ Get_Dataset_to_Analyze <- reactive({
         datasetToAnalyze@experimentData@other$names_metacell <-
             rv$current.obj@experimentData@other$names_metacell[ind]
     }
-
+    #browser()
     datasetToAnalyze
 }) %>% bindCache(rv$current.obj, rv$widgets$anaDiff$Comparison)
 
@@ -289,11 +282,7 @@ Get_Dataset_to_Analyze <- reactive({
 
 GetPairwiseCompChoice <- reactive({
     req(rv$res_AllPairwiseComparisons$logFC)
-    ll <- unlist(
-        strsplit(
-            colnames(rv$res_AllPairwiseComparisons$logFC), "_logFC"
-        )
-    )
+    ll <- unlist(strsplit(colnames(rv$res_AllPairwiseComparisons$logFC), "_logFC"))
     ll
 })
 
@@ -306,12 +295,14 @@ GetFiltersScope <- function()
 
 
 observe({
+    #browser()
+   req(Get_Dataset_to_Analyze())
   rv$AnaDiff_indices <- mod_query_metacell_server(id = "AnaDiff_query",
-                                             obj = Get_Dataset_to_Analyze(),
-                                             keep_vs_remove = setNames(nm = c("delete", "keep")),
-                                             filters =  c("None" = "None", GetFiltersScope()),
-                                             val_vs_percent = setNames(nm = c("Count", "Percentage")),
-                                             operator = setNames(nm = DAPAR::SymFilteringOperators()),
+                                             obj = reactive({Get_Dataset_to_Analyze()}),
+                                             keep_vs_remove = reactive({setNames(nm = c("delete", "keep"))}),
+                                             filters =  reactive({c("None" = "None", GetFiltersScope())}),
+                                             val_vs_percent = reactive({setNames(nm = c("Count", "Percentage"))}),
+                                             operator = reactive({setNames(nm = DAPAR::SymFilteringOperators())}),
                                              reset = reactive({rv_anaDiff$local.reset})
                                              )
 })
@@ -320,9 +311,8 @@ observe({
 
 
 observe({
-  req(rv$AnaDiff_indices)
-  rv$AnaDiff_indices()$trigger
-  
+    #req(Get_Dataset_to_Analyze())
+    req(rv$AnaDiff_indices)
   shinyjs::toggleState("AnaDiff_performFilteringMV",
         condition = length(rv$AnaDiff_indices()$indices > 0)
     )
