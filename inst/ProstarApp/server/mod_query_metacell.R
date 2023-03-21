@@ -138,7 +138,10 @@ mod_query_metacell_server <- function(id,
                 rv.widgets$metacellFilter_operator <- "<="
                 
                 rv$tags <- NULL
-                dataOut <- list()
+                dataOut$trigger <- NULL
+                dataOut$params <- list()
+                dataOut$query <- NULL
+
             })
 
            
@@ -328,8 +331,7 @@ mod_query_metacell_server <- function(id,
                     } else {
                         text_threshold <- paste(
                             as.character(rv.widgets$metacell_percent_th),
-                            " %",
-                            sep = ""
+                            " %", sep = ""
                         )
                     }
 
@@ -402,6 +404,18 @@ mod_query_metacell_server <- function(id,
                 
                 dataOut$query <- WriteQuery()
                 dataOut$indices <- CompileIndices()
+                
+                # # SELF RESET
+                # rv.widgets$MetacellTag <- NULL
+                # rv.widgets$MetacellFilters <- "None"
+                # rv.widgets$KeepRemove <- "delete"
+                # rv.widgets$metacell_value_th <- 0
+                # rv.widgets$metacell_percent_th <- 0
+                # rv.widgets$val_vs_percent <- "Count"
+                # rv.widgets$metacellFilter_operator <- "<="
+                # 
+                # rv$tags <- NULL
+                # dataOut <- list()
             })
 
             reactive({dataOut})
@@ -423,7 +437,9 @@ library(shinyBS)
     tagList(
         actionButton('reset', 'Reset'),
         mod_query_metacell_ui('query'),
-        uiOutput('res')
+        uiOutput('res'),
+        actionButton('perform', 'Perform'),
+        
     )
 )
 
@@ -437,7 +453,7 @@ server <- function(input, output) {
                                      obj = reactive({Exp1_R25_prot}),
                                      keep_vs_remove = reactive({'delete'}),
                                      filters = reactive({'WholeLine'}),
-                                     reset = reactive({input$reset})
+                                     reset = reactive({input$perform})
                                          )
  
     
