@@ -119,7 +119,7 @@ rv$indices <- mod_query_metacell_server(
 
 
 
-observeEvent(req(rv$indices()$trigger), {
+observeEvent(req(rv$indices()$indices), {
     shinyjs::toggleState("performMetacellFiltering",
         condition = length(rv$indices()$indices) > 0
     )

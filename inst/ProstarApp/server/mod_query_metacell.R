@@ -141,7 +141,7 @@ mod_query_metacell_server <- function(id,
                 dataOut$trigger <- NULL
                 dataOut$params <- list()
                 dataOut$query <- NULL
-
+                dataOut$indices <- NULL
             })
 
            
@@ -435,10 +435,11 @@ library(shinyBS)
 
     ui <- fluidPage(
     tagList(
+        useShinyjs(),
         actionButton('reset', 'Reset'),
         mod_query_metacell_ui('query'),
         uiOutput('res'),
-        actionButton('perform', 'Perform'),
+        shinyjs::disabled(actionButton('perform', 'Perform')),
         
     )
 )
@@ -456,7 +457,13 @@ server <- function(input, output) {
                                      reset = reactive({input$perform})
                                          )
  
-    
+    observeEvent(req(tmp()$trigger), {
+        print(tmp()$indices)
+        shinyjs::toggleState("perform",
+                             condition = length(tmp()$indices) > 0
+        )
+        
+    })
     
     output$res <- renderUI({
         p(paste0(tmp()$params$MetacellTag, collapse='\n'))
