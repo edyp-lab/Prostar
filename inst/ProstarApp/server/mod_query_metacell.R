@@ -138,7 +138,7 @@ mod_query_metacell_server <- function(id,
                 rv.widgets$metacellFilter_operator <- "<="
                 
                 rv$tags <- NULL
-                dataOut$trigger <- NULL
+                dataOut$trigger <- as.numeric(Sys.time())
                 dataOut$params <- list()
                 dataOut$query <- NULL
                 dataOut$indices <- NULL
@@ -454,11 +454,10 @@ server <- function(input, output) {
                                      obj = reactive({Exp1_R25_prot}),
                                      keep_vs_remove = reactive({'delete'}),
                                      filters = reactive({'WholeLine'}),
-                                     reset = reactive({input$perform})
+                                     reset = reactive({input$reset + input$perform})
                                          )
  
     observeEvent(req(tmp()$trigger), {
-        print(tmp()$indices)
         shinyjs::toggleState("perform",
                              condition = length(tmp()$indices) > 0
         )

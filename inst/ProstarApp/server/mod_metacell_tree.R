@@ -209,13 +209,14 @@ observe({
 observeEvent(req(c(reset(), input$cleartree)), ignoreInit = TRUE, {
     print('internal reset')
     update_CB()
+    updateRadioButtons(session, 'checkbox_mode', selected = 'single')
+    
     rv$autoChanged <- TRUE
 })
 
 
 observeEvent(input$checkbox_mode, {
-    print('observeEvent(c(input$checkbox_mode, input$cleartree)')
-    
+     
     update_CB()
     meta <- DAPAR::metacell.def(level)
     ind <- which(meta$parent == 'Any')
@@ -422,6 +423,7 @@ update_CB <- function(nametokeep=NULL){
         rv$tags[rv$mapping[x]] <- FALSE
         }
     )
+    
     rv$autoChanged <- TRUE
     
 }
