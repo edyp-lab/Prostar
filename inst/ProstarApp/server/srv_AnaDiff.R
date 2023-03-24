@@ -236,11 +236,14 @@ output$pushpval_ui <- renderUI({
 # the data
 # within the 'Push p-value' feature
 Get_Dataset_to_Analyze <- reactive({
-    req(rv$widgets$anaDiff$Comparison != "None")
-    req(rv$current.obj)
+    #req(rv$widgets$anaDiff$Comparison != "None")
+    #req(rv$current.obj)
 
+ 
     datasetToAnalyze <- NULL
-
+if (rv$widgets$anaDiff$Comparison == "None" || is.null(rv$current.obj))
+  return(NULL)
+  
     if (length(grep("all-", rv$widgets$anaDiff$Comparison)) == 1) {
         .conds <- Biobase::pData(rv$current.obj)$Condition
         condition1 <- strsplit(
@@ -274,7 +277,7 @@ Get_Dataset_to_Analyze <- reactive({
         datasetToAnalyze@experimentData@other$names_metacell <-
             rv$current.obj@experimentData@other$names_metacell[ind]
     }
-    #browser()
+
     datasetToAnalyze
 }) %>% bindCache(rv$current.obj, rv$widgets$anaDiff$Comparison)
 
@@ -294,9 +297,7 @@ GetFiltersScope <- function()
   )
 
 
-observe({
-    #browser()
-   req(Get_Dataset_to_Analyze())
+
   rv$AnaDiff_indices <- mod_query_metacell_server(id = "AnaDiff_query",
                                              obj = reactive({Get_Dataset_to_Analyze()}),
                                              keep_vs_remove = reactive({setNames(nm = c("delete", "keep"))}),
@@ -305,17 +306,14 @@ observe({
                                              operator = reactive({setNames(nm = DAPAR::SymFilteringOperators())}),
                                              reset = reactive({rv_anaDiff$local.reset})
                                              )
-})
-#----------------------------------------------------
+  
+  
 
 
 
-observe({
-    #req(Get_Dataset_to_Analyze())
-    req(rv$AnaDiff_indices)
-  shinyjs::toggleState("AnaDiff_performFilteringMV",
-        condition = length(rv$AnaDiff_indices()$indices > 0)
-    )
+observeEvent(rv$AnaDiff_indices()$indices, {
+    shinyjs::toggleState("AnaDiff_performFilteringMV", 
+                         condition = length(rv$AnaDiff_indices()$indices > 0))
 })
 
 ########################################################

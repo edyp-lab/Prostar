@@ -52,10 +52,6 @@ mod_query_metacell_server <- function(id,
     )
     
     
-    observeEvent(id,{
-        if (is.null(obj()))
-            stop('obj() is NULL')
-    }, priority = 1000)
     
     moduleServer(id, function(input, output, session) {
             ns <- session$ns
@@ -67,7 +63,16 @@ mod_query_metacell_server <- function(id,
             #     ))
             # )
 
-
+            
+            observeEvent(id,{
+                if (is.null(obj())){
+                    dataOut$trigger <- as.numeric(Sys.time())
+                    dataOut$params <- NULL
+                    dataOut$query <- NULL
+                    dataOut$indices <- NULL
+                }
+            }, priority = 1000)
+            
             # observeEvent(id, {
             #     print(paste0("mod_query_metacell_server(id = '", id, "')"))
             #     #print(obj())
@@ -153,7 +158,7 @@ mod_query_metacell_server <- function(id,
                                                         )
             })
 
-            observeEvent(req(rv$tmp.tags()), ignoreNULL = TRUE, {
+            observeEvent(req(obj(), rv$tmp.tags()), ignoreNULL = TRUE, {
                 rv.widgets$MetacellTag <- rv$tmp.tags()
             })
             
@@ -316,7 +321,8 @@ mod_query_metacell_server <- function(id,
                 } else if (rv.widgets$MetacellFilters == "WholeLine") {
                     txt_summary <- paste(
                         rv.widgets$KeepRemove,
-                        "lines that contain only ",
+                        " ", length(CompileIndices()),
+                        " lines that contain only ",
                         paste0(rv.widgets$MetacellTag, collapse=', ')
                     )
                 } else {
@@ -336,6 +342,7 @@ mod_query_metacell_server <- function(id,
                     }
 
                     txt_summary <- paste(rv.widgets$KeepRemove,
+                                         length(CompileIndices()), " ",
                                          " lines where number of (",
                                          paste0(rv.widgets$MetacellTag, collapse=', '),
                                          ") data ",
@@ -390,7 +397,7 @@ mod_query_metacell_server <- function(id,
 
 
             
-            observeEvent(req(CompileIndices()), {
+            observeEvent(CompileIndices(), ignoreInit = FALSE, ignoreNULL = FALSE, {
                 dataOut$trigger <- as.numeric(Sys.time())
                 dataOut$params<- list(
                     MetacellTag = rv.widgets$MetacellTag,
@@ -415,7 +422,7 @@ mod_query_metacell_server <- function(id,
                 # rv.widgets$metacellFilter_operator <- "<="
                 # 
                 # rv$tags <- NULL
-                # dataOut <- list()
+
             })
 
             reactive({dataOut})
@@ -451,7 +458,7 @@ server <- function(input, output) {
     utils::data("Exp1_R25_prot")
     
     tmp <- mod_query_metacell_server('query', 
-                                     obj = reactive({Exp1_R25_prot}),
+                                     obj = reactive({NULL}),
                                      keep_vs_remove = reactive({'delete'}),
                                      filters = reactive({'WholeLine'}),
                                      reset = reactive({input$reset + input$perform})
