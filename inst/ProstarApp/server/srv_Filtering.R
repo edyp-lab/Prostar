@@ -97,21 +97,15 @@ output$screenFiltering1 <- renderUI({
 })
 
 
-GetFiltersScope <- function()
-    c("Whole Line" = "WholeLine",
-      "Whole matrix" = "WholeMatrix",
-      "For every condition" = "AllCond",
-      "At least one condition" = "AtLeastOneCond"
-    )
 
 observe({
 rv$indices <- mod_query_metacell_server(
     id = "query",
     obj = reactive({rv$current.obj}),
-    keep_vs_remove = reactive({setNames(nm = c("delete", "keep"))}),
-    filters = reactive({c("None" = "None", GetFiltersScope())}),
-    val_vs_percent = reactive({setNames(nm = c("Count", "Percentage"))}),
-    operator = reactive({setNames(nm = DAPAR::SymFilteringOperators())}),
+    #keep_vs_remove = reactive({setNames(nm = c("delete", "keep"))}),
+    #filters = reactive({c("None" = "None", GetFiltersScope())}),
+    #val_vs_percent = reactive({setNames(nm = c("Count", "Percentage"))}),
+    #operator = reactive({setNames(nm = DAPAR::SymFilteringOperators())}),
     reset = reactive({req(input$performMetacellFiltering)})
 )
 })

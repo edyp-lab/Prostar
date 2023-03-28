@@ -63,25 +63,6 @@ mod_metacell_tree_ui <- function(id) {
    
     tagList(
         shinyjs::inlineCSS(css),
-  #       tags$script('
-  # $( document ).ready(function() {
-  #   $("#modalExample").on("hidden.bs.modal", function (event) {
-  #   x = new Date().toLocaleString();
-  #   Shiny.onInputChange(', ns("last_modal_close"), ', x);
-  # });
-  # })
-  # '),
-  
-  tags$script('
-  $( document ).ready(function() {
-    $("#modalExample").on("hidden.bs.modal", function (event) {
-    x = new Date().toLocaleString();
-    Shiny.onInputChange(', "last_modal_close", ', x);
-  });
-  })
-  '),
-  
-  
         h4('Cells metadata tags'),
         actionLink(ns("openModalBtn"),
                    tags$img(src = "images/metacelltree.png", height = "50px")),
@@ -92,35 +73,82 @@ mod_metacell_tree_ui <- function(id) {
 }
 
 mod_metacell_tree_server <- function(id, 
-                                     level = NULL,
+                                     obj = reactive({NULL}),
                                      reset = reactive({NULL})) {
    
-    if(is.null(level))
-        stop('level is empty')
     if (!requireNamespace("shinyBS", quietly = TRUE)) {
         stop("Please install shinyBS: BiocManager::install('shinyBS')")
     }
+    
+    
+    
+    convertWidgetName <- function(name){
+        # This function implements the transformations used to
+        # create the names of the checkboxes
+        ll <- lapply(name, function(x){
+            tmp <- gsub('.', '', x, fixed = TRUE)
+            tmp <- gsub(' ', '', tmp, fixed = TRUE)
+            tmp <- tolower(tmp)
+            tmp <- paste0(tmp, '_cb')
+        })
+        
+        return(unlist(ll))
+    }
+    
+    
+    BuildMapping <- function(meta){
+        mapping <- c()
+        ll <- meta$node
+        .ind <- which(ll == 'Any')
+        ll <- ll[-.ind]
+        colors <- setNames(meta$color[-.ind], nm = convertWidgetName(ll))
+        widgets.names <- setNames(ll, nm = convertWidgetName(ll))
+        return(list(names = widgets.names,
+                    colors = colors)
+        )
+    }
+    
+    reverse.mapping <- function(mapping, target){
+        req(mapping)
+        return(names(mapping)[which(mapping == target)])
+    }
+
 
     moduleServer(id, function(input, output, session) {
         ns <- session$ns
         
+        
+        
+        dataOut <- reactiveValues(
+            trigger = NULL,
+            values = ''
+        )
+        
+        rv <- reactiveValues(
+            tags = NULL,
+            mapping = NULL,
+            bg_colors = NULL,
+            autoChanged = FALSE
+        )
+        
+        
+        Get_bg_color <- function(name){
+            gsub("#bg-color#", rv$bg_colors[name], .style)
+        }
+        
         output$modaltree <- renderUI({
             tagList(
-            tags$script(paste0('
-  $( document ).ready(function() {
-    $("#modalExample").on("hidden.bs.modal", function (event) {
-    x = new Date().toLocaleString();
-    Shiny.onInputChange("', ns('last_modal_close'), '",x);
-  });
-  })
-  ')),
+            tags$script(paste0('$( document ).ready(function() {
+                $("#modalExample").on("hidden.bs.modal", function (event) {
+                x = new Date().toLocaleString();
+                Shiny.onInputChange("', ns('lastModalClose'), '",x);});})')),
             tags$head(tags$style(paste0(".modal-dialog { width:", 100, " }"))),
             tags$head(tags$style(".modal-dialog {z-index: 1000;}")),
             #tags$head(tags$style(".modal-footer{ display:none;")),
             
             tags$head(tags$style("#test .modal-dialog {width: fit-content !important;}")),
 
-shinyBS::bsModal("modalExample",
+            shinyBS::bsModal("modalExample",
                  title = "Data Table",
                  trigger = ns("openModalBtn"),
                  size = "large",
@@ -130,84 +158,72 @@ shinyBS::bsModal("modalExample",
                                   p(style='font-size: 16px;','Multiple selection'),
                                   choices = c('Single selection' = 'single',
                                               'Complete subtree' = 'subtree',
-                                              'Multiple selection' = 'multiple')
-                     ),
+                                              'Multiple selection' = 'multiple')),
                      actionButton(ns('cleartree'), 'Clear selection', class=actionBtnClass)
                  ),
                  uiOutput(ns('tree'))
-)
-)
-})
+                 )
+            )
+            })
 
-                     
+     
+        set_dataOut <- function(value = NULL){
+            dataOut$trigger <- as.numeric(Sys.time())
+            dataOut$values <- value
+        }
+        
+        init_tree <- function(){
+            req(GetTypeofData(obj()))
+            rv$meta <- DAPAR::metacell.def(GetTypeofData(obj()))
+            rv$mapping <- BuildMapping(rv$meta)$names
+            rv$bg_colors <- BuildMapping(rv$meta)$colors
+            
+            tmp <- unname(rv$mapping[names(rv$mapping)])
+            rv$tags <- setNames(rep(FALSE, length(tmp)), nm = gsub('_cb', '', tmp))
+            rv$autoChanged <- FALSE
+        }
+        
+        
+        observeEvent(req(reset(), input$openModalBtn), {
+            init_tree()
+            update_CB()
+            updateRadioButtons(session, 'checkbox_mode', selected = 'single')
+            rv$autoChanged <- FALSE
+            set_dataOut()
+            })                
                      
 
 # When OK button is pressed, attempt to load the data set. If successful,
 # remove the modal. If not show another modal, but this time with a failure
 # message.
-observeEvent(input$last_modal_close, ignoreInit = TRUE, ignoreNULL = TRUE, {
-    rv$dataOut <- names(rv$tags)[which(rv$tags == TRUE)]
+observeEvent(input$lastModalClose,  ignoreInit = TRUE, ignoreNULL = TRUE, {
+    set_dataOut(names(rv$tags)[which(rv$tags == TRUE)])
 })
 
 
-convertWidgetName <- function(name){
-    # This function implements the transformations used to
-    # create the names of the checkboxes
-    ll <- lapply(name, function(x){
-        tmp <- gsub('.', '', x, fixed = TRUE)
-        tmp <- gsub(' ', '', tmp, fixed = TRUE)
-        tmp <- tolower(tmp)
-        tmp <- paste0(tmp, '_cb')
-    })
+
+
+observeEvent(id, {
     
-    return(unlist(ll))
-}
-
-BuildMapping <- function(){
-    print('BuildMapping()')
-    mapping <- c()
-    meta <- DAPAR::metacell.def(level)
-    ll <- meta$node
-    .ind <- which(ll == 'Any')
-    ll <- ll[-.ind]
-    colors <- setNames(meta$color[-.ind], nm = convertWidgetName(ll))
-    widgets.names <- setNames(ll, nm = convertWidgetName(ll))
-    return(list(names = widgets.names,
-                colors = colors)
-    )
-}
-
-reverse.mapping <- function(x){
-    req(rv$mapping)
-    return(names(rv$mapping)[which(rv$mapping == x)])
-}
+    if (!is.null(GetTypeofData(obj())))
+        init_tree()
+    set_dataOut()
+}, priority = 1000)
 
 
-GetTreeCBInputs <- reactive({
-    print('GetTreeCBInputs()')
-    names(rv$mapping)
-    #    names(input)[grepl('_cb', names(input))]
-    #})
-})
 
+# observeEvent(req(reset()), ignoreInit = FALSE, {
+#     init_tree()
+#     
+#     update_CB()
+#     updateRadioButtons(session, 'checkbox_mode', selected = 'single')
+#     rv$autoChanged <- FALSE
+#     
+#    set_dataOut()
+#     
+# })
 
-rv <- reactiveValues(
-    tags = NULL,
-    mapping = BuildMapping()$names,
-    bg_colors = BuildMapping()$colors,
-    dataOut = NULL,
-    autoChanged = FALSE
-)
-
-observe({
-    tmp <- unname(rv$mapping[GetTreeCBInputs()])
-    rv$tags <- setNames(rep(FALSE, length(tmp)),
-                        nm = gsub('_cb', '', tmp)
-    )
-})
-
-observeEvent(req(c(reset(), input$cleartree)), ignoreInit = TRUE, {
-    print('internal reset')
+observeEvent(req(input$cleartree), ignoreInit = TRUE, {
     update_CB()
     updateRadioButtons(session, 'checkbox_mode', selected = 'single')
     
@@ -218,22 +234,20 @@ observeEvent(req(c(reset(), input$cleartree)), ignoreInit = TRUE, {
 observeEvent(input$checkbox_mode, {
      
     update_CB()
-    meta <- DAPAR::metacell.def(level)
-    ind <- which(meta$parent == 'Any')
-    ll <- meta$node[ind]
+    ind <- which(rv$meta$parent == 'Any')
+    ll <- rv$meta$node[ind]
     ll.widgets <- switch(input$checkbox_mode,
                          single = {
-                             for (l in GetTreeCBInputs())
+                             for (l in names(rv$mapping))
                              shinyjs::toggleState(l, TRUE)
-                         }
-                             ,
+                         },
                          subtree = {
-                             ll.widgets <- GetTreeCBInputs()[-match(ll, rv$mapping[GetTreeCBInputs()])]
+                             ll.widgets <- names(rv$mapping)[-match(ll, rv$mapping[names(rv$mapping)])]
                              for (l in ll.widgets)
                                  shinyjs::toggleState(l, FALSE)
                              },
                          multiple = {
-                             for (l in GetTreeCBInputs())
+                             for (l in names(rv$mapping))
                                  shinyjs::toggleState(l, TRUE)
                          }
                          )
@@ -245,14 +259,11 @@ observeEvent(input$checkbox_mode, {
 
 output$tree <- renderUI({
     div(style = "overflow-y: auto;",
-        uiOutput(ns(paste0('metacell_tree_', level)))
+        uiOutput(ns(paste0('metacell_tree_', GetTypeofData(obj()))))
     )
 })
 
-.style <- 'vertical-align: top;
-                                background: #bg-color#;
-                                color: white;
-                                padding: 5px;'
+.style <- 'vertical-align: top; background: #bg-color#; color: white; padding: 5px;'
 
 
 # Define tree for protein dataset
@@ -408,15 +419,13 @@ output$metacell_tree_peptide <- renderUI({
 
 
 
-Get_bg_color <- function(name){
-    gsub("#bg-color#", rv$bg_colors[name], .style)
-}
+
 
 update_CB <- function(nametokeep=NULL){
-    widgets_to_disable <- GetTreeCBInputs()
+    widgets_to_disable <- names(rv$mapping)
     
     if(!is.null(nametokeep))
-        widgets_to_disable <- GetTreeCBInputs()[-match(reverse.mapping(nametokeep), GetTreeCBInputs())]
+        widgets_to_disable <- names(rv$mapping)[-match(reverse.mapping(rv$mapping, nametokeep), names(rv$mapping))]
     
     lapply(widgets_to_disable, function(x){
         updateCheckboxInput(session, x, value = FALSE)
@@ -431,7 +440,7 @@ update_CB <- function(nametokeep=NULL){
 
 
 somethingChanged <- reactive({
-    events <- unlist(lapply(GetTreeCBInputs(), function(x) input[[x]]))
+    events <- unlist(lapply(names(rv$mapping), function(x) input[[x]]))
     compare <- rv$tags == events
     length(which(compare==FALSE))>0
 })
@@ -440,15 +449,14 @@ somethingChanged <- reactive({
 
 # Catch a change in the selection of a node
 observeEvent(somethingChanged(), ignoreInit = TRUE, {
-    req(length(GetTreeCBInputs()) > 0)
-    
+    req(length(names(rv$mapping)) > 0)
     if (rv$autoChanged){
         rv$autoChanged <- FALSE
         return (NULL)
     }
     
     # Get the values of widgets corresponding to nodes in the tree
-    events <- unlist(lapply(GetTreeCBInputs(), function(x) input[[x]]))
+    events <- unlist(lapply(names(rv$mapping), function(x) input[[x]]))
     
     compare <- rv$tags == events
     
@@ -457,7 +465,7 @@ observeEvent(somethingChanged(), ignoreInit = TRUE, {
     # Update rv$tags vector with this new selection
     if (length(newSelection) > 0) {
         for (i in newSelection)
-            rv$tags[i] <- input[[reverse.mapping(i)]]
+            rv$tags[i] <- input[[reverse.mapping(rv$mapping, i)]]
         
         
         switch(input$checkbox_mode,
@@ -467,13 +475,13 @@ observeEvent(somethingChanged(), ignoreInit = TRUE, {
                subtree = {
                    # As the leaves are disabled, this selection is a node
                    # by default, all its children must be also selected
-                   childrens <- DAPAR::Children(level, newSelection)
+                   childrens <- DAPAR::Children(GetTypeofData(obj()), newSelection)
                    if (!is.null(childrens) && length(childrens)>0){
                        lapply(childrens, function(x){
                            updateCheckboxInput(session, 
-                                               reverse.mapping(x), 
-                                               value = input[[reverse.mapping(newSelection)]])
-                           rv$tags[x] <- input[[reverse.mapping(newSelection)]]
+                                               reverse.mapping(rv$mapping, x), 
+                                               value = input[[reverse.mapping(rv$mapping, newSelection)]])
+                           rv$tags[x] <- input[[reverse.mapping(rv$mapping, newSelection)]]
                            
                        })
                    }
@@ -489,7 +497,7 @@ observeEvent(somethingChanged(), ignoreInit = TRUE, {
 
 
 
-return(reactive({rv$dataOut}))
+reactive({dataOut})
 
 }
 )
@@ -514,10 +522,13 @@ server <- function(input, output) {
         tags = NULL
     )
     
-    rv$tags <- mod_metacell_tree_server('tree',
-                                        level = 'protein')
+    observe({
+        rv$tags <- mod_metacell_tree_server('tree', obj = reactive({Exp1_R25_prot}))
+    })
+    
     output$res <- renderUI({
-        p(paste0(rv$tags(), collapse=','))
+        req(rv$tags()$values)
+        p(paste0(rv$tags()$values, collapse=','))
     })
 }
 

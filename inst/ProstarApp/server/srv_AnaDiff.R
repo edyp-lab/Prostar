@@ -246,9 +246,7 @@ if (rv$widgets$anaDiff$Comparison == "None" || is.null(rv$current.obj))
   
     if (length(grep("all-", rv$widgets$anaDiff$Comparison)) == 1) {
         .conds <- Biobase::pData(rv$current.obj)$Condition
-        condition1 <- strsplit(
-            as.character(rv$widgets$anaDiff$Comparison), "_vs_"
-        )[[1]][1]
+        condition1 <- strsplit(as.character(rv$widgets$anaDiff$Comparison), "_vs_")[[1]][1]
         ind_virtual_cond2 <- which(.conds != condition1)
         datasetToAnalyze <- rv$current.obj
         Biobase::pData(datasetToAnalyze)$Condition[ind_virtual_cond2] <- "virtual_cond_2"
@@ -298,22 +296,18 @@ GetFiltersScope <- function()
 
 
 
-  rv$AnaDiff_indices <- mod_query_metacell_server(id = "AnaDiff_query",
-                                             obj = reactive({Get_Dataset_to_Analyze()}),
-                                             keep_vs_remove = reactive({setNames(nm = c("delete", "keep"))}),
-                                             filters =  reactive({c("None" = "None", GetFiltersScope())}),
-                                             val_vs_percent = reactive({setNames(nm = c("Count", "Percentage"))}),
-                                             operator = reactive({setNames(nm = DAPAR::SymFilteringOperators())}),
+
+      AnaDiff_indices <- mod_query_metacell_server(id = "AnaDiff_query",
+                                             obj = reactive({req(Get_Dataset_to_Analyze())}),
                                              reset = reactive({rv_anaDiff$local.reset})
                                              )
-  
-  
 
 
 
-observeEvent(rv$AnaDiff_indices()$indices, {
-    shinyjs::toggleState("AnaDiff_performFilteringMV", 
-                         condition = length(rv$AnaDiff_indices()$indices > 0))
+
+      observeEvent(req(AnaDiff_indices()$trigger),{
+         shinyjs::toggleState("AnaDiff_performFilteringMV",
+                         condition = length(AnaDiff_indices()$indices > 0))
 })
 
 ########################################################
@@ -321,7 +315,7 @@ observeEvent(rv$AnaDiff_indices()$indices, {
 ########################################################
 observeEvent(input$AnaDiff_performFilteringMV, ignoreInit = TRUE, ignoreNULL = TRUE,{
         UpdateCompList()
-        .ind <- rv$AnaDiff_indices()
+        .ind <- AnaDiff_indices()
         .protId <- rv$current.obj@experimentData@other$proteinId
         rv$widgets$anaDiff$MetacellTag <- .ind$params$MetacellTag
         rv$widgets$anaDiff$KeepRemove <- .ind$params$KeepRemove
@@ -337,8 +331,7 @@ observeEvent(input$AnaDiff_performFilteringMV, ignoreInit = TRUE, ignoreNULL = T
         }
 
         #--------------------------------
-        if (!is.null(rv$AnaDiff_indices()$indices) &&
-            length(.ind$indices) < nrow(Get_Dataset_to_Analyze())) {
+        if (!is.null(AnaDiff_indices()$indices) && length(.ind$indices) < nrow(Get_Dataset_to_Analyze())) {
             rv$resAnaDiff$P_Value[-(.ind$indices)] <- 1
             n <- length(rv$resAnaDiff$P_Value)
             rv$resAnaDiff$pushed <- seq_len(n)[-(.ind$indices)]

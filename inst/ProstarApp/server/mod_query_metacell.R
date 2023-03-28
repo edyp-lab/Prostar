@@ -8,7 +8,7 @@ mod_query_metacell_ui <- function(id) {
     tagList(
         div(
             fluidRow(
-                column(2, uiOutput(ns('testUI'))),
+                column(2, mod_metacell_tree_ui(ns('tree'))),
                 column(2, uiOutput(ns("Choose_keepOrRemove_ui"))),
                 column(2, uiOutput(ns("choose_metacellFilters_ui"))),
                 column(6, tagList(
@@ -16,9 +16,8 @@ mod_query_metacell_ui <- function(id) {
                     uiOutput(ns("MetacellFilters_widgets_set2_ui"))
                 ))
             ),
-            div(
-                style = "display:inline-block; vertical-align: middle;
-                align: center;",
+            actionButton(ns('buildQueryBtn'), 'Add query'),
+            div(style = "display:inline-block; vertical-align: middle; align: center;",
                 uiOutput(ns("metacellFilter_request_ui"))
             )
         )
@@ -31,7 +30,6 @@ mod_query_metacell_ui <- function(id) {
 
 mod_query_metacell_server <- function(id,
                                       obj = reactive({NULL}),
-                                      keep_vs_remove = reactive({NULL}),
                                       filters = reactive({NULL}),
                                       val_vs_percent = reactive({NULL}),
                                       operator = reactive({NULL}),
@@ -46,13 +44,20 @@ mod_query_metacell_server <- function(id,
     )
 
     dataOut <- reactiveValues(
-        trigger = NULL,
+        trigger = as.numeric(Sys.time()),
         params = list(),
-        query = NULL
+        query = NULL,
+        indices = NULL
     )
     
+    GetFiltersScope <- function()
+        c("Whole Line" = "WholeLine",
+          "Whole matrix" = "WholeMatrix",
+          "For every condition" = "AllCond",
+          "At least one condition" = "AtLeastOneCond"
+        )
     
-    
+
     moduleServer(id, function(input, output, session) {
             ns <- session$ns
 
@@ -64,31 +69,23 @@ mod_query_metacell_server <- function(id,
             # )
 
             
-            observeEvent(id,{
-                if (is.null(obj())){
-                    dataOut$trigger <- as.numeric(Sys.time())
-                    dataOut$params <- NULL
-                    dataOut$query <- NULL
-                    dataOut$indices <- NULL
-                }
-            }, priority = 1000)
+                                                 
+                                                 
+            # observeEvent(req(obj()),{
+            #     #req(obj())
+            #     #req(obj())
+            #     rv$tmp.tags <- mod_metacell_tree_server('tree', 
+            #                                             level = reactive({GetTypeofData(obj())}),
+            #                                             reset = reactive({reset()})
+            #     )
+            # 
+            # }, priority = 1000)
             
-            # observeEvent(id, {
-            #     print(paste0("mod_query_metacell_server(id = '", id, "')"))
-            #     #print(obj())
-            #     print(paste0('keep_vs_remove() = ', keep_vs_remove()))
-            #     print(paste0('filters() = ', filters()))
-            #     print(paste0('val_vs_percent() = ', val_vs_percent()))
-            #     print(paste0('operator() = ', operator()))
-            #     print(paste0('reset() = ', reset()))
-            #     
-            #    # browser()
+          
+
+            # output$testUI <- renderUI({
+            #     mod_metacell_tree_ui(ns('tree'))
             # })
-            
-            
-            output$testUI <- renderUI({
-                mod_metacell_tree_ui(ns('tree'))
-            })
             
             callModule(modulePopover, "filterScope_help",
                 data = reactive(list(
@@ -128,12 +125,13 @@ mod_query_metacell_server <- function(id,
             )
 
             rv <- reactiveValues(
-                tags = NULL
+                tags = NULL, 
+                tmp.tags = NULL
             )
             
             
             observeEvent(req(reset()), {
-                print('In reset mode')
+                print('mod_query_metacell::observeEvent(req(reset()))')
                 rv.widgets$MetacellTag <- NULL
                 rv.widgets$MetacellFilters <- "None"
                 rv.widgets$KeepRemove <- "delete"
@@ -142,64 +140,99 @@ mod_query_metacell_server <- function(id,
                 rv.widgets$val_vs_percent <- "Count"
                 rv.widgets$metacellFilter_operator <- "<="
                 
+                print('INNNNNNN reset')
                 rv$tags <- NULL
                 dataOut$trigger <- as.numeric(Sys.time())
                 dataOut$params <- list()
                 dataOut$query <- NULL
                 dataOut$indices <- NULL
             })
+            
+            
+            
+            observeEvent(id, {
+                if(is.null(obj())){
+                    dataOut$trigger <- as.numeric(Sys.time())
+                    dataOut$params<- list(
+                        MetacellTag = NULL,
+                        KeepRemove = NULL,
+                        MetacellFilters = NULL,
+                        metacell_percent_th = NULL,
+                        metacell_value_th = NULL,
+                        val_vs_percent = NULL,
+                        metacellFilter_operator = NULL
+                    )
+                    
+                    dataOut$query <- ''
+                    dataOut$indices <- NULL
+                } else {
+                       print('mod_query_metacell::observeEvent(req(reset()))')
+                    rv.widgets$MetacellTag <- NULL
+                    rv.widgets$MetacellFilters <- "None"
+                    rv.widgets$KeepRemove <- "delete"
+                    rv.widgets$metacell_value_th <- 0
+                    rv.widgets$metacell_percent_th <- 0
+                    rv.widgets$val_vs_percent <- "Count"
+                    rv.widgets$metacellFilter_operator <- "<="
+                    
+                    print('INNNNNNN reset')
+                    rv$tags <- NULL
+                    dataOut$trigger <- as.numeric(Sys.time())
+                    dataOut$params <- list()
+                    dataOut$query <- NULL
+                    dataOut$indices <- NULL
+                }
+            }, priority=1000)
 
-           
+            tmp.tags <- mod_metacell_tree_server('tree',
+                                                 obj = reactive({obj()}),
+                                                 reset = reactive({reset()})
+            )
+            
+            observeEvent(tmp.tags()$trigger, ignoreNULL = TRUE, {
+                print('toto')
+                rv.widgets$MetacellTag <- tmp.tags()$values
+            }, priority = 900)
+            
+
+            
             observe({
-                req(obj())
-                rv$tmp.tags <- mod_metacell_tree_server('tree', 
-                                                        level = GetTypeofData(obj()),
-                                                        reset = reactive({reset()})
-                                                        )
-            })
-
-            observeEvent(req(obj(), rv$tmp.tags()), ignoreNULL = TRUE, {
-                rv.widgets$MetacellTag <- rv$tmp.tags()
+                tmp.tags()$trigger
+                print('titi')
+                rv.widgets$MetacellTag <- tmp.tags()$values
             })
             
             
             observeEvent(input$ChooseKeepRemove, {
-                .value <- input$ChooseKeepRemove
-                rv.widgets$KeepRemove <- .value
+                rv.widgets$KeepRemove <- input$ChooseKeepRemove
             })
-            observeEvent(input$ChooseMetacellFilters, {
-                .value <- input$ChooseMetacellFilters
-                rv.widgets$MetacellFilters <- .value
-            })
-            observeEvent(input$choose_val_vs_percent, {
-                .value <- input$choose_val_vs_percent
-                rv.widgets$val_vs_percent <- .value
-            })
-            observeEvent(input$choose_metacell_value_th, {
-                .value <- input$choose_metacell_value_th
-                rv.widgets$metacell_value_th <- .value
-            })
-            observeEvent(input$choose_metacell_percent_th, {
-                .value <- input$choose_metacell_percent_th
-                rv.widgets$metacell_percent_th <- .value
-            })
-            observeEvent(input$choose_metacellFilter_operator, {
-                .value <- input$choose_metacellFilter_operator
-                rv.widgets$metacellFilter_operator <- .value
-            })
-
-            # output$toto <- renderUI({
-            #     
-            #     
-            # })
-
             
+            observeEvent(input$ChooseMetacellFilters, {
+                rv.widgets$MetacellFilters <- input$ChooseMetacellFilters
+            })
+            
+            observeEvent(input$choose_val_vs_percent, {
+                rv.widgets$val_vs_percent <- input$choose_val_vs_percent
+            })
+            
+            observeEvent(input$choose_metacell_value_th, {
+                rv.widgets$metacell_value_th <- input$choose_metacell_value_th
+            })
+            
+            observeEvent(input$choose_metacell_percent_th, {
+                rv.widgets$metacell_percent_th <- input$choose_metacell_percent_th
+            })
+            
+            observeEvent(input$choose_metacellFilter_operator, {
+                rv.widgets$metacellFilter_operator <- input$choose_metacellFilter_operator
+            })
+
+
             output$Choose_keepOrRemove_ui <- renderUI({
                 req(rv.widgets$MetacellTag)
                 
-                radioButtons(ns("ChooseKeepRemove"),
-                             "Type of filter operation",
-                             choices = keep_vs_remove(),
+                radioButtons(ns("ChooseKeepRemove"), "Type of filter operation",
+                             choices =  setNames(nm = c("delete", "keep")),
                              selected = rv.widgets$KeepRemove
                              )
             })
@@ -209,7 +242,7 @@ mod_query_metacell_server <- function(id,
                 req(rv.widgets$MetacellTag)
                 selectInput(ns("ChooseMetacellFilters"),
                             modulePopoverUI(ns("filterScope_help")),
-                            choices = filters(),
+                            choices = c("None" = "None", GetFiltersScope()),
                             selected = rv.widgets$MetacellFilters,
                             width = "200px"
                             )
@@ -248,14 +281,14 @@ mod_query_metacell_server <- function(id,
                         column(4,
                             radioButtons(ns("choose_val_vs_percent"),
                                          modulePopoverUI(ns("choose_val_vs_percent_help")),
-                                         choices = val_vs_percent(),
+                                         choices = setNames(nm = c("Count", "Percentage")),
                                          selected = rv.widgets$val_vs_percent
                                          )
                         ),
                         column(8,
                             selectInput(ns("choose_metacellFilter_operator"),
                                         "Choose operator()",
-                                        choices = operator(),
+                                        choices = setNames(nm = DAPAR::SymFilteringOperators()),
                                         selected = rv.widgets$metacellFilter_operator,
                                         width = "100px"
                                         ),
@@ -362,14 +395,11 @@ mod_query_metacell_server <- function(id,
             })
 
             # Set useless widgets to default values
-            observeEvent(rv.widgets$MetacellFilters == "WholeLine",
-                {
-                    rv.widgets$metacell_percent_th <- 0
-                    rv.widgets$metacell_value_th <- 0
-                    rv.widgets$val_vs_percent <- "Percentage"
-                },
-                priority = 1000
-            )
+            observeEvent(rv.widgets$MetacellFilters == "WholeLine",{
+                rv.widgets$metacell_percent_th <- 0
+                rv.widgets$metacell_value_th <- 0
+                rv.widgets$val_vs_percent <- "Percentage"
+                },  priority = 1000)
 
 
             CompileIndices <- reactive({
@@ -397,7 +427,7 @@ mod_query_metacell_server <- function(id,
 
 
             
-            observeEvent(CompileIndices(), ignoreInit = FALSE, ignoreNULL = FALSE, {
+            observeEvent(input$buildQueryBtn, ignoreInit = FALSE, ignoreNULL = FALSE, {
                 dataOut$trigger <- as.numeric(Sys.time())
                 dataOut$params<- list(
                     MetacellTag = rv.widgets$MetacellTag,
@@ -412,16 +442,16 @@ mod_query_metacell_server <- function(id,
                 dataOut$query <- WriteQuery()
                 dataOut$indices <- CompileIndices()
                 
-                # # SELF RESET
-                # rv.widgets$MetacellTag <- NULL
-                # rv.widgets$MetacellFilters <- "None"
-                # rv.widgets$KeepRemove <- "delete"
-                # rv.widgets$metacell_value_th <- 0
-                # rv.widgets$metacell_percent_th <- 0
-                # rv.widgets$val_vs_percent <- "Count"
-                # rv.widgets$metacellFilter_operator <- "<="
-                # 
-                # rv$tags <- NULL
+                
+                
+                # reset
+                rv.widgets$MetacellTag <- NULL
+                rv.widgets$MetacellFilters <- "None"
+                rv.widgets$KeepRemove <- "delete"
+                rv.widgets$metacell_value_th <- 0
+                rv.widgets$metacell_percent_th <- 0
+                rv.widgets$val_vs_percent <- "Count"
+                rv.widgets$metacellFilter_operator <- "<="
 
             })
 
@@ -442,8 +472,8 @@ library(shinyBS)
 
     ui <- fluidPage(
     tagList(
-        useShinyjs(),
-        actionButton('reset', 'Reset'),
+        shinyjs::useShinyjs(),
+        actionButton('external_reset', 'Reset'),
         mod_query_metacell_ui('query'),
         uiOutput('res'),
         shinyjs::disabled(actionButton('perform', 'Perform')),
@@ -458,13 +488,12 @@ server <- function(input, output) {
     utils::data("Exp1_R25_prot")
     
     tmp <- mod_query_metacell_server('query', 
-                                     obj = reactive({NULL}),
-                                     keep_vs_remove = reactive({'delete'}),
-                                     filters = reactive({'WholeLine'}),
-                                     reset = reactive({input$reset + input$perform})
-                                         )
+                                     obj = reactive({Exp1_R25_prot}),
+                                     reset = reactive({input$external_reset + input$perform})
+                                     )
  
-    observeEvent(req(tmp()$trigger), {
+    observeEvent(tmp()$trigger, {
+        print(tmp()$indices)
         shinyjs::toggleState("perform",
                              condition = length(tmp()$indices) > 0
         )
