@@ -77,15 +77,15 @@ resetModuleFiltering <- reactive({
 output$screenFiltering1 <- renderUI({
     tagList(
         mod_query_metacell_ui("query"),
-        div(
-            style = "display:inline-block; vertical-align: middle;",
-            shinyjs::disabled(
-            actionButton("performMetacellFiltering",
-                         "Perform metacell filtering",
-                         class = actionBtnClass
-                        )
-            )
-            ),
+        # div(
+        #     style = "display:inline-block; vertical-align: middle;",
+        #     shinyjs::disabled(
+        #     actionButton("performMetacellFiltering",
+        #                  "Perform metacell filtering",
+        #                  class = actionBtnClass
+        #                 )
+        #     )
+        #     ),
         tags$hr(),
         div(style = "display:inline-block; vertical-align: middle; align: center;",
             DT::dataTableOutput("metacell_Filter_SummaryDT")
@@ -102,21 +102,86 @@ observe({
 rv$indices <- mod_query_metacell_server(
     id = "query",
     obj = reactive({rv$current.obj}),
-    #keep_vs_remove = reactive({setNames(nm = c("delete", "keep"))}),
-    #filters = reactive({c("None" = "None", GetFiltersScope())}),
-    #val_vs_percent = reactive({setNames(nm = c("Count", "Percentage"))}),
-    #operator = reactive({setNames(nm = DAPAR::SymFilteringOperators())}),
-    reset = reactive({req(input$performMetacellFiltering)})
+    reset = reactive({rvModProcess$moduleFilteringForceReset})
 )
 })
 
 
 
 
-observeEvent(req(rv$indices()$trigger), {
-    shinyjs::toggleState("performMetacellFiltering",
-        condition = length(rv$indices()$indices) > 0
-    )
+observeEvent(req(rv$indices()$indices), {
+    # shinyjs::toggleState("performMetacellFiltering",
+    #     condition = length(rv$indices()$indices) > 0
+    # )
+    
+    
+    nbDeleted <- 0
+    # rv$widgets$filtering$MetacellTag <- rv$indices()$params$MetacellTag
+    # rv$widgets$filtering$KeepRemove <- rv$indices()$params$KeepRemove
+    # rv$widgets$filtering$MetacellFilters <- rv$indices()$params$MetacellFilters
+    # rv$widgets$filtering$metacell_percent_th <- rv$indices()$params$metacell_percent_th
+    # rv$widgets$filtering$metacell_value_th <- rv$indices()$params$metacell_value_th
+    # rv$widgets$filtering$val_vs_percent <- rv$indices()$params$val_vs_percent
+    # rv$widgets$filtering$metacellFilter_operator <- rv$indices()$params$metacellFilter_operator
+    
+    
+    rv$widgets$filtering$MetacellTag <- NULL
+    rv$widgets$filtering$MetacellFilters <- "None"
+    rv$widgets$filtering$KeepRemove <- "delete"
+    rv$widgets$filtering$metacell_value_th <- 0
+    rv$widgets$filtering$choose_metacell_percent_th <- 0
+    rv$widgets$filtering$metacell_value_percent <- 0
+    rv$widgets$filtering$val_vs_percent <- "Value"
+    rv$widgets$filtering$metacellFilter_operator <- "<="
+    
+    
+    obj.tmp <- try({
+        MetaCellFiltering(obj = rv$current.obj,
+                          indices = rv$indices()$indices,
+                          cmd = rv$indices()$params$KeepRemove
+        )
+    })
+    
+    if(inherits(obj.tmp, "try-error")) {
+        # browser()
+        sendSweetAlert(
+            session = session,
+            title = "Error",
+            text = tags$div(style = "display:inline-block; vertical-align: top;",
+                            p(obj.tmp[[1]]),
+                            rclipButton(inputId = "clipbtn",
+                                        label = "",
+                                        clipText = obj.tmp[[1]], 
+                                        icon = icon("copy"),
+                                        class = actionBtnClass)
+            ),
+            type = "error"
+        )
+    } else {
+        # sendSweetAlert(
+        #   session = session,
+        #   title = "Success",
+        #   type = "success"
+        # )
+        rv$deleted.metacell <- obj.tmp$deleted
+        rv$current.obj <- obj.tmp$new
+        nbDeleted <- nrow(rv$deleted.metacell)
+        
+        
+        df <- data.frame(query = rv$indices()$query,
+                         nbDeleted = nbDeleted,
+                         Total = nrow(rv$current.obj)
+        )
+        
+        rv$widgets$filtering$metacell_Filter_SummaryDT <- rbind(
+            rv$widgets$filtering$metacell_Filter_SummaryDT, df
+        )
+        
+        rvModProcess$moduleFilteringDone[1] <- TRUE
+    }
+    
+    
+    
     
     mod_plotsMetacellHistos_server(id = "MVPlots_filtering",
                                    obj = reactive({rv$current.obj}),
@@ -132,75 +197,75 @@ observeEvent(req(rv$indices()$trigger), {
 
 
 ## Perform filtration
-observeEvent(input$performMetacellFiltering, ignoreInit = TRUE, {
-    print('##################   CLICK ON PERFORM METACELL FILTERING #################')
-        nbDeleted <- 0
-        # rv$widgets$filtering$MetacellTag <- rv$indices()$params$MetacellTag
-        # rv$widgets$filtering$KeepRemove <- rv$indices()$params$KeepRemove
-        # rv$widgets$filtering$MetacellFilters <- rv$indices()$params$MetacellFilters
-        # rv$widgets$filtering$metacell_percent_th <- rv$indices()$params$metacell_percent_th
-        # rv$widgets$filtering$metacell_value_th <- rv$indices()$params$metacell_value_th
-        # rv$widgets$filtering$val_vs_percent <- rv$indices()$params$val_vs_percent
-        # rv$widgets$filtering$metacellFilter_operator <- rv$indices()$params$metacellFilter_operator
-
-        
-        rv$widgets$filtering$MetacellTag <- NULL
-        rv$widgets$filtering$MetacellFilters <- "None"
-        rv$widgets$filtering$KeepRemove <- "delete"
-        rv$widgets$filtering$metacell_value_th <- 0
-        rv$widgets$filtering$choose_metacell_percent_th <- 0
-        rv$widgets$filtering$metacell_value_percent <- 0
-        rv$widgets$filtering$val_vs_percent <- "Value"
-        rv$widgets$filtering$metacellFilter_operator <- "<="
-        
-        
-        obj.tmp <- try({
-            MetaCellFiltering(obj = rv$current.obj,
-                              indices = rv$indices()$indices,
-                              cmd = rv$indices()$params$KeepRemove
-                              )
-        })
-
-        if(inherits(obj.tmp, "try-error")) {
-            # browser()
-            sendSweetAlert(
-                session = session,
-                title = "Error",
-                text = tags$div(style = "display:inline-block; vertical-align: top;",
-                                p(obj.tmp[[1]]),
-                                rclipButton(inputId = "clipbtn",
-                                            label = "",
-                                            clipText = obj.tmp[[1]], 
-                                            icon = icon("copy"),
-                                            class = actionBtnClass)
-                ),
-                type = "error"
-            )
-        } else {
-            # sendSweetAlert(
-            #   session = session,
-            #   title = "Success",
-            #   type = "success"
-            # )
-        rv$deleted.metacell <- obj.tmp$deleted
-        rv$current.obj <- obj.tmp$new
-        nbDeleted <- nrow(rv$deleted.metacell)
-
-
-        df <- data.frame(query = rv$indices()$query,
-                         nbDeleted = nbDeleted,
-                         Total = nrow(rv$current.obj)
-                         )
-
-        rv$widgets$filtering$metacell_Filter_SummaryDT <- rbind(
-            rv$widgets$filtering$metacell_Filter_SummaryDT, df
-        )
-
-        rvModProcess$moduleFilteringDone[1] <- TRUE
-        }
-    },
-    priority = 900
-)
+# observeEvent(input$performMetacellFiltering, ignoreInit = TRUE, {
+#     print('##################   CLICK ON PERFORM METACELL FILTERING #################')
+#         nbDeleted <- 0
+#         # rv$widgets$filtering$MetacellTag <- rv$indices()$params$MetacellTag
+#         # rv$widgets$filtering$KeepRemove <- rv$indices()$params$KeepRemove
+#         # rv$widgets$filtering$MetacellFilters <- rv$indices()$params$MetacellFilters
+#         # rv$widgets$filtering$metacell_percent_th <- rv$indices()$params$metacell_percent_th
+#         # rv$widgets$filtering$metacell_value_th <- rv$indices()$params$metacell_value_th
+#         # rv$widgets$filtering$val_vs_percent <- rv$indices()$params$val_vs_percent
+#         # rv$widgets$filtering$metacellFilter_operator <- rv$indices()$params$metacellFilter_operator
+# 
+#         
+#         rv$widgets$filtering$MetacellTag <- NULL
+#         rv$widgets$filtering$MetacellFilters <- "None"
+#         rv$widgets$filtering$KeepRemove <- "delete"
+#         rv$widgets$filtering$metacell_value_th <- 0
+#         rv$widgets$filtering$choose_metacell_percent_th <- 0
+#         rv$widgets$filtering$metacell_value_percent <- 0
+#         rv$widgets$filtering$val_vs_percent <- "Value"
+#         rv$widgets$filtering$metacellFilter_operator <- "<="
+#         
+#         
+#         obj.tmp <- try({
+#             MetaCellFiltering(obj = rv$current.obj,
+#                               indices = rv$indices()$indices,
+#                               cmd = rv$indices()$params$KeepRemove
+#                               )
+#         })
+# 
+#         if(inherits(obj.tmp, "try-error")) {
+#             # browser()
+#             sendSweetAlert(
+#                 session = session,
+#                 title = "Error",
+#                 text = tags$div(style = "display:inline-block; vertical-align: top;",
+#                                 p(obj.tmp[[1]]),
+#                                 rclipButton(inputId = "clipbtn",
+#                                             label = "",
+#                                             clipText = obj.tmp[[1]], 
+#                                             icon = icon("copy"),
+#                                             class = actionBtnClass)
+#                 ),
+#                 type = "error"
+#             )
+#         } else {
+#             # sendSweetAlert(
+#             #   session = session,
+#             #   title = "Success",
+#             #   type = "success"
+#             # )
+#         rv$deleted.metacell <- obj.tmp$deleted
+#         rv$current.obj <- obj.tmp$new
+#         nbDeleted <- nrow(rv$deleted.metacell)
+# 
+# 
+#         df <- data.frame(query = rv$indices()$query,
+#                          nbDeleted = nbDeleted,
+#                          Total = nrow(rv$current.obj)
+#                          )
+# 
+#         rv$widgets$filtering$metacell_Filter_SummaryDT <- rbind(
+#             rv$widgets$filtering$metacell_Filter_SummaryDT, df
+#         )
+# 
+#         rvModProcess$moduleFilteringDone[1] <- TRUE
+#         }
+#     },
+#     priority = 900
+# )
 
 
 

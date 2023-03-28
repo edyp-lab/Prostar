@@ -16,7 +16,7 @@ mod_query_metacell_ui <- function(id) {
                     uiOutput(ns("MetacellFilters_widgets_set2_ui"))
                 ))
             ),
-            actionButton(ns('buildQueryBtn'), 'Apply query'),
+            actionButton(ns('buildQueryBtn'), 'Apply', class = actionBtnClass),
             div(style = "display:inline-block; vertical-align: middle; align: center;",
                 uiOutput(ns("metacellFilter_request_ui"))
             )

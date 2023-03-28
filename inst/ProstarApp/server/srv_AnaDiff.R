@@ -221,10 +221,8 @@ output$pushpval_ui <- renderUI({
 
     wellPanel(
         modulePopoverUI("modulePopover_pushPVal"),
-        mod_query_metacell_ui("AnaDiff_query"),
-        shinyjs::disabled(
-          actionButton("AnaDiff_performFilteringMV", "Push p-value", class = actionBtnClass)
-          )
+        mod_query_metacell_ui("AnaDiff_query")
+       # shinyjs::disabled(actionButton("AnaDiff_performFilteringMV", "Push p-value", class = actionBtnClass))
     )
 })
 
@@ -305,39 +303,62 @@ GetFiltersScope <- function()
 
 
 
-      observeEvent(req(AnaDiff_indices()$trigger),{
-         shinyjs::toggleState("AnaDiff_performFilteringMV",
-                         condition = length(AnaDiff_indices()$indices > 0))
+      observeEvent(req(AnaDiff_indices()$indices),{
+         # shinyjs::toggleState("AnaDiff_performFilteringMV",
+         #                 condition = length(AnaDiff_indices()$indices > 0))
+         #  
+          UpdateCompList()
+          .ind <- AnaDiff_indices()
+          .protId <- rv$current.obj@experimentData@other$proteinId
+          rv$widgets$anaDiff$MetacellTag <- .ind$params$MetacellTag
+          rv$widgets$anaDiff$KeepRemove <- .ind$params$KeepRemove
+          rv$widgets$anaDiff$ChooseFilters <- .ind$params$MetacellFilters
+          rv$widgets$anaDiff$seuilNA_percent <- .ind$params$metacell_percent_th
+          rv$widgets$anaDiff$seuilNA <- .ind$params$metacell_value_th
+          rv$widgets$anaDiff$val_vs_percent <- .ind$params$val_vs_percent
+          rv$widgets$anaDiff$operator <- .ind$params$metacellFilter_operator
+          rv$widgets$anaDiff$tooltipInfo <- .protId
+          
+          if (as.character(rv$widgets$anaDiff$ChooseFilters) == "None") {
+              GetBackToCurrentResAnaDiff()
+          }
+          
+          #--------------------------------
+          if (!is.null(AnaDiff_indices()$indices) && length(.ind$indices) < nrow(Get_Dataset_to_Analyze())) {
+              rv$resAnaDiff$P_Value[-(.ind$indices)] <- 1
+              n <- length(rv$resAnaDiff$P_Value)
+              rv$resAnaDiff$pushed <- seq_len(n)[-(.ind$indices)]
+          }
 })
 
 ########################################################
 ## Perform missing values filtering
 ########################################################
-observeEvent(input$AnaDiff_performFilteringMV, ignoreInit = TRUE, ignoreNULL = TRUE,{
-        UpdateCompList()
-        .ind <- AnaDiff_indices()
-        .protId <- rv$current.obj@experimentData@other$proteinId
-        rv$widgets$anaDiff$MetacellTag <- .ind$params$MetacellTag
-        rv$widgets$anaDiff$KeepRemove <- .ind$params$KeepRemove
-        rv$widgets$anaDiff$ChooseFilters <- .ind$params$MetacellFilters
-        rv$widgets$anaDiff$seuilNA_percent <- .ind$params$metacell_percent_th
-        rv$widgets$anaDiff$seuilNA <- .ind$params$metacell_value_th
-        rv$widgets$anaDiff$val_vs_percent <- .ind$params$val_vs_percent
-        rv$widgets$anaDiff$operator <- .ind$params$metacellFilter_operator
-        rv$widgets$anaDiff$tooltipInfo <- .protId
-
-        if (as.character(rv$widgets$anaDiff$ChooseFilters) == "None") {
-            GetBackToCurrentResAnaDiff()
-        }
-
-        #--------------------------------
-        if (!is.null(AnaDiff_indices()$indices) && length(.ind$indices) < nrow(Get_Dataset_to_Analyze())) {
-            rv$resAnaDiff$P_Value[-(.ind$indices)] <- 1
-            n <- length(rv$resAnaDiff$P_Value)
-            rv$resAnaDiff$pushed <- seq_len(n)[-(.ind$indices)]
-        }
-    }
-)
+# observeEvent(input$AnaDiff_performFilteringMV, ignoreInit = TRUE, ignoreNULL = TRUE,{
+#         UpdateCompList()
+#         .ind <- AnaDiff_indices()
+#         .protId <- rv$current.obj@experimentData@other$proteinId
+#         rv$widgets$anaDiff$MetacellTag <- .ind$params$MetacellTag
+#         rv$widgets$anaDiff$KeepRemove <- .ind$params$KeepRemove
+#         rv$widgets$anaDiff$ChooseFilters <- .ind$params$MetacellFilters
+#         rv$widgets$anaDiff$seuilNA_percent <- .ind$params$metacell_percent_th
+#         rv$widgets$anaDiff$seuilNA <- .ind$params$metacell_value_th
+#         rv$widgets$anaDiff$val_vs_percent <- .ind$params$val_vs_percent
+#         rv$widgets$anaDiff$operator <- .ind$params$metacellFilter_operator
+#         rv$widgets$anaDiff$tooltipInfo <- .protId
+# 
+#         if (as.character(rv$widgets$anaDiff$ChooseFilters) == "None") {
+#             GetBackToCurrentResAnaDiff()
+#         }
+# 
+#         #--------------------------------
+#         if (!is.null(AnaDiff_indices()$indices) && length(.ind$indices) < nrow(Get_Dataset_to_Analyze())) {
+#             rv$resAnaDiff$P_Value[-(.ind$indices)] <- 1
+#             n <- length(rv$resAnaDiff$P_Value)
+#             rv$resAnaDiff$pushed <- seq_len(n)[-(.ind$indices)]
+#         }
+#     }
+# )
 
 observeEvent(input$selectComparison, ignoreInit = TRUE, {
     rv$widgets$anaDiff$Comparison <- input$selectComparison

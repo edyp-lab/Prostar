@@ -45,10 +45,12 @@ mod_plotsMetacellHistos_server <- function(id,
             
 
             output$chooseTagUI <- renderUI({
+                req(showSelect())
                 obj()
                 meta <- DAPAR::metacell.def(GetTypeofData(obj()))$node
                 .ch <- 
-                    selectInput(ns('chooseTag'), 'Choose tag', 
+                    selectInput(ns('chooseTag'), 
+                                'Select at least one tag to display statistics about', 
                                 choices = meta[-which(meta == 'Any')],
                                 width = '200px',
                                 multiple = TRUE,
