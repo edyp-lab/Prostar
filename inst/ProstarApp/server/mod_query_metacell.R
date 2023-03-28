@@ -16,7 +16,7 @@ mod_query_metacell_ui <- function(id) {
                     uiOutput(ns("MetacellFilters_widgets_set2_ui"))
                 ))
             ),
-            actionButton(ns('buildQueryBtn'), 'Add query'),
+            actionButton(ns('buildQueryBtn'), 'Apply query'),
             div(style = "display:inline-block; vertical-align: middle; align: center;",
                 uiOutput(ns("metacellFilter_request_ui"))
             )
@@ -35,12 +35,19 @@ mod_query_metacell_server <- function(id,
                                       operator = reactive({NULL}),
                                       reset = reactive({NULL})
                                       ){
+    rv.widgets <- reactiveValues(
+        MetacellTag = NULL,
+        MetacellFilters = "None",
+        KeepRemove = "delete",
+        metacell_value_th = 0,
+        metacell_percent_th = 0,
+        val_vs_percent = "Count",
+        metacellFilter_operator = "<="
+    )
+    
     rv <- reactiveValues(
-        indices = NULL,
-        trigger = NULL,
-        params = NULL,
-        query = NULL,
-        tags = NULL
+        tags = NULL, 
+        tmp.tags = NULL
     )
 
     dataOut <- reactiveValues(
@@ -61,32 +68,6 @@ mod_query_metacell_server <- function(id,
     moduleServer(id, function(input, output, session) {
             ns <- session$ns
 
-            # callModule(modulePopover, "metacellTag_help",
-            #     data = reactive(list(
-            #         title = "Nature of data to filter",
-            #         content = "See the FAQ at prostar-proteomics.org"
-            #     ))
-            # )
-
-            
-                                                 
-                                                 
-            # observeEvent(req(obj()),{
-            #     #req(obj())
-            #     #req(obj())
-            #     rv$tmp.tags <- mod_metacell_tree_server('tree', 
-            #                                             level = reactive({GetTypeofData(obj())}),
-            #                                             reset = reactive({reset()})
-            #     )
-            # 
-            # }, priority = 1000)
-            
-          
-
-            # output$testUI <- renderUI({
-            #     mod_metacell_tree_ui(ns('tree'))
-            # })
-            
             callModule(modulePopover, "filterScope_help",
                 data = reactive(list(
                     title = "Scope",
@@ -114,24 +95,8 @@ mod_query_metacell_server <- function(id,
                 ))
             )
 
-            rv.widgets <- reactiveValues(
-                MetacellTag = NULL,
-                MetacellFilters = "None",
-                KeepRemove = "delete",
-                metacell_value_th = 0,
-                metacell_percent_th = 0,
-                val_vs_percent = "Count",
-                metacellFilter_operator = "<="
-            )
 
-            rv <- reactiveValues(
-                tags = NULL, 
-                tmp.tags = NULL
-            )
-            
-            
-            observeEvent(req(reset()), {
-                print('mod_query_metacell::observeEvent(req(reset()))')
+            init_rv_widgets <- function(){
                 rv.widgets$MetacellTag <- NULL
                 rv.widgets$MetacellFilters <- "None"
                 rv.widgets$KeepRemove <- "delete"
@@ -139,8 +104,11 @@ mod_query_metacell_server <- function(id,
                 rv.widgets$metacell_percent_th <- 0
                 rv.widgets$val_vs_percent <- "Count"
                 rv.widgets$metacellFilter_operator <- "<="
+                }
+            
+            observeEvent(req(reset()), {
+                init_rv_widgets()
                 
-                print('INNNNNNN reset')
                 rv$tags <- NULL
                 dataOut$trigger <- as.numeric(Sys.time())
                 dataOut$params <- list()
@@ -161,21 +129,13 @@ mod_query_metacell_server <- function(id,
                         metacell_value_th = NULL,
                         val_vs_percent = NULL,
                         metacellFilter_operator = NULL
-                    )
+                        )
                     
                     dataOut$query <- ''
                     dataOut$indices <- NULL
                 } else {
-                       print('mod_query_metacell::observeEvent(req(reset()))')
-                    rv.widgets$MetacellTag <- NULL
-                    rv.widgets$MetacellFilters <- "None"
-                    rv.widgets$KeepRemove <- "delete"
-                    rv.widgets$metacell_value_th <- 0
-                    rv.widgets$metacell_percent_th <- 0
-                    rv.widgets$val_vs_percent <- "Count"
-                    rv.widgets$metacellFilter_operator <- "<="
+                    init_rv_widgets()
                     
-                    print('INNNNNNN reset')
                     rv$tags <- NULL
                     dataOut$trigger <- as.numeric(Sys.time())
                     dataOut$params <- list()
@@ -190,18 +150,17 @@ mod_query_metacell_server <- function(id,
             )
             
             observeEvent(tmp.tags()$trigger, ignoreNULL = TRUE, {
-                print('toto')
                 rv.widgets$MetacellTag <- tmp.tags()$values
             }, priority = 900)
             
 
             
-            observe({
-                tmp.tags()$trigger
-                print('titi')
-                rv.widgets$MetacellTag <- tmp.tags()$values
-            })
-            
+            # observe({
+            #     tmp.tags()$trigger
+            #     print('titi')
+            #     rv.widgets$MetacellTag <- tmp.tags()$values
+            # })
+            # 
             
             observeEvent(input$ChooseKeepRemove, {
                 rv.widgets$KeepRemove <- input$ChooseKeepRemove
@@ -445,13 +404,7 @@ mod_query_metacell_server <- function(id,
                 
                 
                 # reset
-                rv.widgets$MetacellTag <- NULL
-                rv.widgets$MetacellFilters <- "None"
-                rv.widgets$KeepRemove <- "delete"
-                rv.widgets$metacell_value_th <- 0
-                rv.widgets$metacell_percent_th <- 0
-                rv.widgets$val_vs_percent <- "Count"
-                rv.widgets$metacellFilter_operator <- "<="
+                init_rv_widgets()
 
             })
 

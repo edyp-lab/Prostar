@@ -66,6 +66,7 @@ mod_metacell_tree_ui <- function(id) {
         h4('Cells metadata tags'),
         actionLink(ns("openModalBtn"),
                    tags$img(src = "images/metacelltree.png", height = "50px")),
+        uiOutput(ns('selectedNodes')),
         #actionButton(ns("openModalBtn"), 'show',class = "btn-success"),
         uiOutput(ns('modaltree'))
         )
@@ -166,13 +167,15 @@ mod_metacell_tree_server <- function(id,
             )
             })
 
-     
-        set_dataOut <- function(value = NULL){
-            dataOut$trigger <- as.numeric(Sys.time())
-            dataOut$values <- value
-        }
         
-        init_tree <- function(){
+        output$selectedNodes <- renderUI({
+            req(length(dataOut$values) > 0)
+            p(paste0('Selected tags: ', paste0(dataOut$values, collapse=',')))
+        })
+     
+
+        
+        init_tree <- reactive({
             req(GetTypeofData(obj()))
             rv$meta <- DAPAR::metacell.def(GetTypeofData(obj()))
             rv$mapping <- BuildMapping(rv$meta)$names
@@ -181,23 +184,34 @@ mod_metacell_tree_server <- function(id,
             tmp <- unname(rv$mapping[names(rv$mapping)])
             rv$tags <- setNames(rep(FALSE, length(tmp)), nm = gsub('_cb', '', tmp))
             rv$autoChanged <- FALSE
-        }
+        })
         
         
-        observeEvent(req(reset(), input$openModalBtn), {
+        observeEvent(req(reset()), {
             init_tree()
             update_CB()
             updateRadioButtons(session, 'checkbox_mode', selected = 'single')
             rv$autoChanged <- FALSE
-            set_dataOut()
-            })                
+            dataOut$trigger <- as.numeric(Sys.time())
+            dataOut$values <- NULL
+            }) 
+        
+        observeEvent(input$openModalBtn, {
+            init_tree()
+            update_CB()
+            updateRadioButtons(session, 'checkbox_mode', selected = 'single')
+            rv$autoChanged <- FALSE
+            dataOut$trigger <- as.numeric(Sys.time())
+            dataOut$values <- NULL
+        })  
                      
 
 # When OK button is pressed, attempt to load the data set. If successful,
 # remove the modal. If not show another modal, but this time with a failure
 # message.
 observeEvent(input$lastModalClose,  ignoreInit = TRUE, ignoreNULL = TRUE, {
-    set_dataOut(names(rv$tags)[which(rv$tags == TRUE)])
+    dataOut$trigger <- as.numeric(Sys.time())
+    dataOut$values <- names(rv$tags)[which(rv$tags == TRUE)]
 })
 
 
@@ -207,21 +221,11 @@ observeEvent(id, {
     
     if (!is.null(GetTypeofData(obj())))
         init_tree()
-    set_dataOut()
+    dataOut$trigger <- as.numeric(Sys.time())
+    dataOut$values <- NULL
 }, priority = 1000)
 
 
-
-# observeEvent(req(reset()), ignoreInit = FALSE, {
-#     init_tree()
-#     
-#     update_CB()
-#     updateRadioButtons(session, 'checkbox_mode', selected = 'single')
-#     rv$autoChanged <- FALSE
-#     
-#    set_dataOut()
-#     
-# })
 
 observeEvent(req(input$cleartree), ignoreInit = TRUE, {
     update_CB()
@@ -518,18 +522,9 @@ ui <- fluidPage(
 
 server <- function(input, output) {
     
-    rv <- reactiveValues(
-        tags = NULL
-    )
-    
-    observe({
-        rv$tags <- mod_metacell_tree_server('tree', obj = reactive({Exp1_R25_prot}))
-    })
-    
-    output$res <- renderUI({
-        req(rv$tags()$values)
-        p(paste0(rv$tags()$values, collapse=','))
-    })
+    utils::data('Exp1_R25_prot')
+    tags <- mod_metacell_tree_server('tree', obj = reactive({Exp1_R25_prot}))
+
 }
 
 shinyApp(ui = ui, server = server)
