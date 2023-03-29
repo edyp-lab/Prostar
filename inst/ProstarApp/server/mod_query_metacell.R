@@ -110,10 +110,9 @@ mod_query_metacell_server <- function(id,
             
             
             observeEvent(op_names, {
-                rv$op_names <-  if(is.null(op_names))
-                                    setNames(nm = c("delete", "keep"))
-                                else
-                                    op_names
+                rv$op_names <- c("delete", "keep")
+                if(!is.null(op_names))
+                    rv$op_names <- op_names
             })
             
             observeEvent(req(reset()), {
@@ -194,7 +193,7 @@ mod_query_metacell_server <- function(id,
                 req(rv$op_names)
                 
                 radioButtons(ns("ChooseKeepRemove"), "Type of filter operation",
-                             choices =  rv$op_names,
+                             choices =  setNames(c('delete', 'keep'), nm = rv$op_names),
                              selected = rv.widgets$KeepRemove
                              )
             })
@@ -314,9 +313,9 @@ mod_query_metacell_server <- function(id,
                 req(rv$op_names)
                 
                 query <- ''
-                browser()
+                
                 # Format the variables to be inserted in text
-                operation <- names(rv$op_names)
+                operation <- rv$op_names[ which(c('delete', 'keep') == rv.widgets$KeepRemove)]
                 nblines <- length(CompileIndices())
                 tags <- ''
                 if (!is.null(rv.widgets$MetacellTag))
@@ -453,8 +452,7 @@ server <- function(input, output) {
     tmp <- mod_query_metacell_server('query', 
                                      obj = reactive({Exp1_R25_prot}),
                                      reset = reactive({input$external_reset + input$perform}),
-                                     op_names = c('Push p-value' = 'delete', 
-                                                  'Keep original p-value' = 'keep')
+                                     op_names = c('Push p-value', 'Keep original p-value')
                                      )
  
     observeEvent(tmp()$trigger, {
