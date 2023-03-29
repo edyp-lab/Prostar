@@ -34,7 +34,7 @@ mod_query_metacell_server <- function(id,
                                       val_vs_percent = reactive({NULL}),
                                       operator = reactive({NULL}),
                                       reset = reactive({NULL}), 
-                                      op_names = NULL
+                                      op_names = reactive({NULL})
                                       ){
     rv.widgets <- reactiveValues(
         MetacellTag = NULL,
@@ -49,7 +49,7 @@ mod_query_metacell_server <- function(id,
     rv <- reactiveValues(
         tags = NULL, 
         tmp.tags = NULL,
-        op_names = NULL
+        op_names = setNames(nm = c('delete', 'keep'))
     )
 
     dataOut <- reactiveValues(
@@ -109,11 +109,11 @@ mod_query_metacell_server <- function(id,
                 }
             
             
-            observeEvent(op_names, {
-                rv$op_names <- c("delete", "keep")
-                if(!is.null(op_names))
-                    rv$op_names <- op_names
-            })
+            # observeEvent(op_names, {
+            #     rv$op_names <- c("delete", "keep")
+            #     if(!is.null(op_names))
+            #         rv$op_names <- op_names
+            # })
             
             observeEvent(req(reset()), {
                 init_rv_widgets()
@@ -151,12 +151,14 @@ mod_query_metacell_server <- function(id,
                     dataOut$query <- NULL
                     dataOut$indices <- NULL
                 }
+                
+                
             }, priority=1000)
 
             tmp.tags <- mod_metacell_tree_server('tree',
                                                  obj = reactive({obj()}),
                                                  reset = reactive({reset()})
-            )
+                                                 )
             
             observeEvent(tmp.tags()$trigger, ignoreNULL = TRUE, {
                 rv.widgets$MetacellTag <- tmp.tags()$values
@@ -188,12 +190,18 @@ mod_query_metacell_server <- function(id,
             })
 
 
+            
             output$Choose_keepOrRemove_ui <- renderUI({
                 req(rv.widgets$MetacellTag)
-                req(rv$op_names)
+                
+                if(is.null(op_names()))
+                    rv$op <- setNames(nm = c('delete', 'keep'))
+                else
+                    rv$op <- setNames(c('delete', 'keep'), nm = op_names())
+                
                 
                 radioButtons(ns("ChooseKeepRemove"), "Type of filter operation",
-                             choices =  setNames(c('delete', 'keep'), nm = rv$op_names),
+                             choices =  rv$op,
                              selected = rv.widgets$KeepRemove
                              )
             })
@@ -310,13 +318,15 @@ mod_query_metacell_server <- function(id,
 
             WriteQuery <- reactive({
                 req(rv.widgets$MetacellTag)
-                req(rv$op_names)
                 
                 query <- ''
                 
                 # Format the variables to be inserted in text
-                operation <- rv$op_names[ which(c('delete', 'keep') == rv.widgets$KeepRemove)]
+                operation <- names(rv$op)[ which(rv$op == rv.widgets$KeepRemove)]
                 nblines <- length(CompileIndices())
+                plural <- ''
+                if (nblines > 1)
+                    plural <- 's'
                 tags <- ''
                 if (!is.null(rv.widgets$MetacellTag))
                     tags <- paste0(rv.widgets$MetacellTag, collapse=', ')
@@ -338,10 +348,16 @@ mod_query_metacell_server <- function(id,
                                 query <- "Query is empty."
                                 },
                             WholeLine = {
-                                query <- "#operation# #nblines# lines that contain only (#tags#)."
+                                query <- "#operation# #nblines# #datatype##plural# that are only (#tags#)."
                                 },
-                            default = {
-                                query <- "#operation# #nblines# lines where number of (#tags#) data #arithmetic_op# #threshold# in #method#"
+                            WholeMatrix = {
+                                query <- "#operation# #nblines# #datatype##plural# where number of (#tags#) data #arithmetic_op# #threshold# in #method#"
+                                },
+                            AllCond = {
+                                query <- "#operation# #nblines# #datatype##plural# where number of (#tags#) data #arithmetic_op# #threshold# in #method#"
+                                },
+                            AtLeastOneCond = {
+                                query <- "#operation# #nblines# #datatype##plural# where number of (#tags#) data #arithmetic_op# #threshold# in #method#"
                                 }
                             )
                 
@@ -352,7 +368,11 @@ mod_query_metacell_server <- function(id,
                 query <- gsub('#arithmetic_op#', arithmetic_op, query)
                 query <- gsub('#threshold#', threshold, query)
                 query <- gsub('#method#', method, query)
+                query <- gsub('#datatype#', GetTypeofData(obj()), query)
+                query <- gsub('#plural#', plural, query)
                 
+                
+                #browser()
                 query
             })
 
@@ -452,7 +472,7 @@ server <- function(input, output) {
     tmp <- mod_query_metacell_server('query', 
                                      obj = reactive({Exp1_R25_prot}),
                                      reset = reactive({input$external_reset + input$perform}),
-                                     op_names = c('Push p-value', 'Keep original p-value')
+                                     op_names = reactive({c('Push p-value', 'Keep original p-value')})
                                      )
  
     observeEvent(tmp()$trigger, {

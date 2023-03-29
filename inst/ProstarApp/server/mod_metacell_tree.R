@@ -83,6 +83,10 @@ mod_metacell_tree_server <- function(id,
         stop("Please install shinyBS: BiocManager::install('shinyBS')")
     }
     
+    if (!requireNamespace("shinyjs", quietly = TRUE)) {
+        stop("Please install shinyjs: BiocManager::install('shinyjs')")
+    }
+    
     
     
     convertWidgetName <- function(name){

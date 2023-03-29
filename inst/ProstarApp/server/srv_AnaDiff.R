@@ -297,7 +297,8 @@ GetFiltersScope <- function()
 
       AnaDiff_indices <- mod_query_metacell_server(id = "AnaDiff_query",
                                              obj = reactive({req(Get_Dataset_to_Analyze())}),
-                                             reset = reactive({rv_anaDiff$local.reset})
+                                             reset = reactive({rv_anaDiff$local.reset}),
+                                             op_names = reactive({c('Push p-value', 'Keep original p-value')})
                                              )
 
 
@@ -324,10 +325,20 @@ GetFiltersScope <- function()
           }
           
           #--------------------------------
+          
+          
           if (!is.null(AnaDiff_indices()$indices) && length(.ind$indices) < nrow(Get_Dataset_to_Analyze())) {
-              rv$resAnaDiff$P_Value[-(.ind$indices)] <- 1
+              
+              if (.ind$params$KeepRemove == 'delete')
+                  indices_to_push <- .ind$indices
+              else if (.ind$params$KeepRemove == 'keep')
+                  indices_to_push <- seq_len(nrow(Get_Dataset_to_Analyze()))[-(.ind$indices)]
+              
+              
+              
+              rv$resAnaDiff$P_Value[indices_to_push] <- 1
               n <- length(rv$resAnaDiff$P_Value)
-              rv$resAnaDiff$pushed <- seq_len(n)[-(.ind$indices)]
+              rv$resAnaDiff$pushed <- seq_len(n)[indices_to_push]
           }
 })
 
