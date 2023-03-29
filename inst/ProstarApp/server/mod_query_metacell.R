@@ -33,7 +33,8 @@ mod_query_metacell_server <- function(id,
                                       filters = reactive({NULL}),
                                       val_vs_percent = reactive({NULL}),
                                       operator = reactive({NULL}),
-                                      reset = reactive({NULL})
+                                      reset = reactive({NULL}), 
+                                      op_names = NULL
                                       ){
     rv.widgets <- reactiveValues(
         MetacellTag = NULL,
@@ -47,7 +48,8 @@ mod_query_metacell_server <- function(id,
     
     rv <- reactiveValues(
         tags = NULL, 
-        tmp.tags = NULL
+        tmp.tags = NULL,
+        op_names = NULL
     )
 
     dataOut <- reactiveValues(
@@ -106,6 +108,14 @@ mod_query_metacell_server <- function(id,
                 rv.widgets$metacellFilter_operator <- "<="
                 }
             
+            
+            observeEvent(op_names, {
+                rv$op_names <-  if(is.null(op_names))
+                                    setNames(nm = c("delete", "keep"))
+                                else
+                                    op_names
+            })
+            
             observeEvent(req(reset()), {
                 init_rv_widgets()
                 
@@ -154,14 +164,6 @@ mod_query_metacell_server <- function(id,
             }, priority = 900)
             
 
-            
-            # observe({
-            #     tmp.tags()$trigger
-            #     print('titi')
-            #     rv.widgets$MetacellTag <- tmp.tags()$values
-            # })
-            # 
-            
             observeEvent(input$ChooseKeepRemove, {
                 rv.widgets$KeepRemove <- input$ChooseKeepRemove
             })
@@ -189,9 +191,10 @@ mod_query_metacell_server <- function(id,
 
             output$Choose_keepOrRemove_ui <- renderUI({
                 req(rv.widgets$MetacellTag)
+                req(rv$op_names)
                 
                 radioButtons(ns("ChooseKeepRemove"), "Type of filter operation",
-                             choices =  setNames(nm = c("delete", "keep")),
+                             choices =  rv$op_names,
                              selected = rv.widgets$KeepRemove
                              )
             })
@@ -308,49 +311,56 @@ mod_query_metacell_server <- function(id,
 
             WriteQuery <- reactive({
                 req(rv.widgets$MetacellTag)
-                if (rv.widgets$MetacellFilters == "None") {
-                    txt_summary <- "No filtering is processed."
-                } else if (rv.widgets$MetacellFilters == "WholeLine") {
-                    txt_summary <- paste(
-                        rv.widgets$KeepRemove,
-                        " ", length(CompileIndices()),
-                        " lines that contain only ",
-                        paste0(rv.widgets$MetacellTag, collapse=', ')
-                    )
-                } else {
-                    text_method <- switch(rv.widgets$MetacellFilters,
-                        "WholeMatrix" = "the whole matrix.",
-                        "AllCond" = "each condition.",
-                        "AtLeastOneCond" = "at least one condition."
-                    )
+                req(rv$op_names)
+                
+                query <- ''
+                browser()
+                # Format the variables to be inserted in text
+                operation <- names(rv$op_names)
+                nblines <- length(CompileIndices())
+                tags <- ''
+                if (!is.null(rv.widgets$MetacellTag))
+                    tags <- paste0(rv.widgets$MetacellTag, collapse=', ')
+                method <- switch(rv.widgets$MetacellFilters,
+                                 None = '',
+                                 WholeLine = 'entire line',
+                                 WholeMatrix = "the whole matrix.",
+                                 AllCond = "each condition.",
+                                 AtLeastOneCond = "at least one condition.")
+                arithmetic_op <- rv.widgets$metacellFilter_operator
+                
+                threshold <- rv.widgets$metacell_value_th
+                if (rv.widgets$val_vs_percent == "Percentage")
+                    threshold <- paste(as.character(rv.widgets$metacell_percent_th)," %", sep = "")
 
-                    if (rv.widgets$val_vs_percent == "Count") {
-                        text_threshold <- rv.widgets$metacell_value_th
-                    } else {
-                        text_threshold <- paste(
-                            as.character(rv.widgets$metacell_percent_th),
-                            " %", sep = ""
-                        )
-                    }
-
-                    txt_summary <- paste(rv.widgets$KeepRemove,
-                                         length(CompileIndices()), " ",
-                                         " lines where number of (",
-                                         paste0(rv.widgets$MetacellTag, collapse=', '),
-                                         ") data ",
-                                         rv.widgets$metacellFilter_operator,
-                                         " ",
-                                         text_threshold,
-                                         " in ",
-                                         text_method
-                                         )
-                }
-                txt_summary
+                # Builds the query
+                query <- switch(rv.widgets$MetacellFilters, 
+                            None = {
+                                query <- "Query is empty."
+                                },
+                            WholeLine = {
+                                query <- "#operation# #nblines# lines that contain only (#tags#)."
+                                },
+                            default = {
+                                query <- "#operation# #nblines# lines where number of (#tags#) data #arithmetic_op# #threshold# in #method#"
+                                }
+                            )
+                
+                
+                query <- gsub('#tags#', tags, query)
+                query <- gsub('#operation#', operation, query)
+                query <- gsub('#nblines#', nblines, query)
+                query <- gsub('#arithmetic_op#', arithmetic_op, query)
+                query <- gsub('#threshold#', threshold, query)
+                query <- gsub('#method#', method, query)
+                
+                query
             })
 
             output$metacellFilter_request_ui <- renderUI({
                 txt_summary <- paste("You are about to ", WriteQuery())
-                tags$p(txt_summary, style = "font-size: small; text-align : center; color: purple;")
+                tags$p(style = "font-size: small; text-align : center; color: purple;",
+                       txt_summary)
             })
 
             # Set useless widgets to default values
@@ -442,7 +452,9 @@ server <- function(input, output) {
     
     tmp <- mod_query_metacell_server('query', 
                                      obj = reactive({Exp1_R25_prot}),
-                                     reset = reactive({input$external_reset + input$perform})
+                                     reset = reactive({input$external_reset + input$perform}),
+                                     op_names = c('Push p-value' = 'delete', 
+                                                  'Keep original p-value' = 'keep')
                                      )
  
     observeEvent(tmp()$trigger, {
