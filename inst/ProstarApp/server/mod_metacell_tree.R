@@ -62,6 +62,7 @@ mod_metacell_tree_ui <- function(id) {
     ns <- NS(id)
    
     tagList(
+        shinyjs::useShinyjs(),
         shinyjs::inlineCSS(css),
         h4('Cells metadata tags'),
         div(style="align: center;display:inline-block; vertical-align: top;",
@@ -124,6 +125,12 @@ mod_metacell_tree_server <- function(id,
     moduleServer(id, function(input, output, session) {
         ns <- session$ns
         
+        if (!requireNamespace("shinyBS", quietly = TRUE))
+            stop("Please install shinyBS: BiocManager::install('shinyBS')")
+
+        
+        if (!requireNamespace("shinyjs", quietly = TRUE))
+            stop("Please install shinyjs: BiocManager::install('shinyjs')")
         
         
         dataOut <- reactiveValues(
@@ -145,7 +152,7 @@ mod_metacell_tree_server <- function(id,
         
         output$modaltree <- renderUI({
             tagList(
-            tags$script(paste0('$( document ).ready(function() {
+                tags$script(paste0('$( document ).ready(function() {
                 $("#modalExample").on("hidden.bs.modal", function (event) {
                 x = new Date().toLocaleString();
                 Shiny.onInputChange("', ns('lastModalClose'), '",x);});})')),
@@ -206,7 +213,7 @@ mod_metacell_tree_server <- function(id,
             init_tree()
             update_CB()
             updateRadioButtons(session, 'checkbox_mode', selected = 'single')
-            rv$autoChanged <- FALSE
+            rv$autoChanged <- TRUE
             dataOut$trigger <- as.numeric(Sys.time())
             dataOut$values <- NULL
         })  
@@ -281,7 +288,6 @@ output$metacell_tree_protein <- renderUI({
     
     
     div(class='wtree',
-        shinyjs::useShinyjs(),
         tags$ul(
             tags$li(
                 checkboxInput(ns('quantified_cb'),

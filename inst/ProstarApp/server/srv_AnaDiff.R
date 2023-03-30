@@ -160,8 +160,7 @@ output$screenAnaDiff1 <- renderUI({
         tagList(
             tags$div(
                 tags$div(
-                    style = "display:inline-block; vertical-align: top;
-          padding-right: 60px",
+                    style = "display:inline-block; vertical-align: top; padding-right: 60px",
                     selectInput("selectComparison", "Select a comparison",
                         choices = c("None" = "None", GetPairwiseCompChoice()),
                         selected = rv$widgets$anaDiff$Comparison,
@@ -295,29 +294,31 @@ GetFiltersScope <- function()
 
 
 
-      AnaDiff_indices <- mod_query_metacell_server(id = "AnaDiff_query",
+      observe({
+          rv$AnaDiff_indices <- mod_query_metacell_server(id = "AnaDiff_query",
                                              obj = reactive({req(Get_Dataset_to_Analyze())}),
                                              reset = reactive({rv_anaDiff$local.reset}),
                                              op_names = reactive({c('Push p-value', 'Keep original p-value')})
                                              )
 
+})
 
 
-
-      observeEvent(req(AnaDiff_indices()$indices),{
+      observeEvent(req(rv$AnaDiff_indices()$indices),{
          # shinyjs::toggleState("AnaDiff_performFilteringMV",
          #                 condition = length(AnaDiff_indices()$indices > 0))
          #  
           UpdateCompList()
-          .ind <- AnaDiff_indices()
+          .ind <- rv$AnaDiff_indices()
+          params <- rv$AnaDiff_indices()$params
           .protId <- rv$current.obj@experimentData@other$proteinId
-          rv$widgets$anaDiff$MetacellTag <- .ind$params$MetacellTag
-          rv$widgets$anaDiff$KeepRemove <- .ind$params$KeepRemove
-          rv$widgets$anaDiff$ChooseFilters <- .ind$params$MetacellFilters
-          rv$widgets$anaDiff$seuilNA_percent <- .ind$params$metacell_percent_th
-          rv$widgets$anaDiff$seuilNA <- .ind$params$metacell_value_th
-          rv$widgets$anaDiff$val_vs_percent <- .ind$params$val_vs_percent
-          rv$widgets$anaDiff$operator <- .ind$params$metacellFilter_operator
+          rv$widgets$anaDiff$MetacellTag <- params$MetacellTag
+          rv$widgets$anaDiff$KeepRemove <- params$KeepRemove
+          rv$widgets$anaDiff$ChooseFilters <- params$MetacellFilters
+          rv$widgets$anaDiff$seuilNA_percent <- params$metacell_percent_th
+          rv$widgets$anaDiff$seuilNA <- params$metacell_value_th
+          rv$widgets$anaDiff$val_vs_percent <- params$val_vs_percent
+          rv$widgets$anaDiff$operator <- params$metacellFilter_operator
           rv$widgets$anaDiff$tooltipInfo <- .protId
           
           if (as.character(rv$widgets$anaDiff$ChooseFilters) == "None") {
@@ -325,13 +326,14 @@ GetFiltersScope <- function()
           }
           
           #--------------------------------
+         # browser()
           
           
-          if (!is.null(AnaDiff_indices()$indices) && length(.ind$indices) < nrow(Get_Dataset_to_Analyze())) {
+          if (!is.null(rv$AnaDiff_indices()$indices) && length(.ind$indices) < nrow(Get_Dataset_to_Analyze())) {
               
-              if (.ind$params$KeepRemove == 'delete')
+              if (params$KeepRemove == 'delete')
                   indices_to_push <- .ind$indices
-              else if (.ind$params$KeepRemove == 'keep')
+              else if (params$KeepRemove == 'keep')
                   indices_to_push <- seq_len(nrow(Get_Dataset_to_Analyze()))[-(.ind$indices)]
               
               

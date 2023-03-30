@@ -123,7 +123,7 @@ mod_plotsMetacellHistos_server(id = "MVPlots_DS",
                                obj = reactive({rv$current.obj}),
                                pal = reactive({rv$PlotParams$paletteForConditions}),
                                pattern = reactive({NULL}),
-                               showSelect = reactive({FALSE})
+                               showSelect = reactive({TRUE})
                                )
 
 output$plotsDistCV <- renderUI({

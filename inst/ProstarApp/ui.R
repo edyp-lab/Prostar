@@ -1,6 +1,7 @@
 
 library(shiny)
 library(shinyjs)
+library(shinyBS)
 library(rclipboard)
 library(sass)
 source(file.path("ui", "ui_Configure.R"), local = TRUE)$value

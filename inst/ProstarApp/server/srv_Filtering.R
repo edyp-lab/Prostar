@@ -77,15 +77,6 @@ resetModuleFiltering <- reactive({
 output$screenFiltering1 <- renderUI({
     tagList(
         mod_query_metacell_ui("query"),
-        # div(
-        #     style = "display:inline-block; vertical-align: middle;",
-        #     shinyjs::disabled(
-        #     actionButton("performMetacellFiltering",
-        #                  "Perform metacell filtering",
-        #                  class = actionBtnClass
-        #                 )
-        #     )
-        #     ),
         tags$hr(),
         div(style = "display:inline-block; vertical-align: middle; align: center;",
             DT::dataTableOutput("metacell_Filter_SummaryDT")

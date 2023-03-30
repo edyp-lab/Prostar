@@ -36,6 +36,15 @@ mod_query_metacell_server <- function(id,
                                       reset = reactive({NULL}), 
                                       op_names = reactive({NULL})
                                       ){
+    
+    if (!requireNamespace("shinyjs", quietly = TRUE)) {
+        stop("Please install shinyjs: BiocManager::install('shinyjs')")
+    }
+    
+    if (!requireNamespace("shinyBS", quietly = TRUE)) {
+        stop("Please install shinyBS: BiocManager::install('shinyBS')")
+    }
+    
     rv.widgets <- reactiveValues(
         MetacellTag = NULL,
         MetacellFilters = "None",
