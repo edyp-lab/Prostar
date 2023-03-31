@@ -200,11 +200,16 @@ mod_metacell_tree_server <- function(id,
         }
         
         
-        observeEvent(req(reset()), {
-            init_tree()
-            update_CB()
-            updateRadioButtons(session, 'checkbox_mode', selected = 'single')
-            rv$autoChanged <- TRUE
+        observeEvent(reset(), ignoreInit = FALSE, {
+            # init_tree()
+            # update_CB()
+            # updateRadioButtons(session, 'checkbox_mode', selected = 'single')
+            # rv$autoChanged <- TRUE
+            # dataOut$trigger <- as.numeric(Sys.time())
+            # dataOut$values <- NULL
+            
+            if (!is.null(GetTypeofData(obj())))
+                init_tree()
             dataOut$trigger <- as.numeric(Sys.time())
             dataOut$values <- NULL
             }) 

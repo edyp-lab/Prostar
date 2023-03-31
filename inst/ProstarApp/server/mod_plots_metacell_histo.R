@@ -20,8 +20,8 @@ mod_plotsMetacellHistos_ui <- function(id) {
 
 
 mod_plotsMetacellHistos_server <- function(id, 
-                                           obj, 
-                                           pal, 
+                                           obj = reactive({NULL}), 
+                                           pal = reactive({NULL}), 
                                            pattern = reactive({NULL}),
                                            showSelect = reactive({TRUE})) {
     moduleServer(id, function(input, output, session) {
@@ -46,7 +46,7 @@ mod_plotsMetacellHistos_server <- function(id,
 
             output$chooseTagUI <- renderUI({
                 req(showSelect())
-                obj()
+                req(obj())
                 meta <- DAPAR::metacell.def(GetTypeofData(obj()))$node
                 .ch <- 
                     selectInput(ns('chooseTag'), 
