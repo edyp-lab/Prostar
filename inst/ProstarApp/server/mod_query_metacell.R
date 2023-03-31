@@ -442,8 +442,8 @@ mod_query_metacell_server <- function(id,
                 dataOut$query <- WriteQuery()
                 dataOut$indices <- CompileIndices()
                 # reset
-                init_rv_widgets()
-                rv$tags <- NULL
+                #init_rv_widgets()
+                #rv$tags <- NULL
             })
 
             reactive({dataOut})

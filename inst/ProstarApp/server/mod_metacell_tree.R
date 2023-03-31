@@ -190,6 +190,7 @@ mod_metacell_tree_server <- function(id,
         
         init_tree <- function(){
             req(GetTypeofData(obj()))
+            print('------------ init_tree() ---------------')
             rv$meta <- DAPAR::metacell.def(GetTypeofData(obj()))
             rv$mapping <- BuildMapping(rv$meta)$names
             rv$bg_colors <- BuildMapping(rv$meta)$colors
@@ -201,6 +202,7 @@ mod_metacell_tree_server <- function(id,
         
         
         observeEvent(req(reset()), ignoreInit = TRUE, {
+            print('------------ observeEvent(req(reset()) ---------------')
             # init_tree()
             # update_CB()
             # updateRadioButtons(session, 'checkbox_mode', selected = 'single')
@@ -214,28 +216,33 @@ mod_metacell_tree_server <- function(id,
             dataOut$values <- NULL
             }) 
         
-        observeEvent(input$openModalBtn, ignoreInit = FALSE,{
+        observeEvent(input$openModalBtn, ignoreInit = TRUE, ignoreNULL = TRUE, {
+            
+            print('------------ observeEvent(input$openModalBtn ---------------')
             init_tree()
             update_CB()
             updateRadioButtons(session, 'checkbox_mode', selected = 'single')
-            rv$autoChanged <- TRUE
-            dataOut$trigger <- as.numeric(Sys.time())
-            dataOut$values <- NULL
+            rv$autoChanged <- FALSE
+            #dataOut$trigger <- as.numeric(Sys.time())
+            #dataOut$values <- NULL
         })  
                      
 
 # When OK button is pressed, attempt to load the data set. If successful,
 # remove the modal. If not show another modal, but this time with a failure
 # message.
-observeEvent(input$lastModalClose,  ignoreInit = TRUE, ignoreNULL = TRUE, {
+observeEvent(input$lastModalClose,  ignoreInit = FALSE, ignoreNULL = TRUE, {
+    print('------------ input$lastModalClose ---------------')
     dataOut$trigger <- as.numeric(Sys.time())
     dataOut$values <- names(rv$tags)[which(rv$tags == TRUE)]
+    #browser()
 })
 
 
 
 
 observeEvent(id, {
+    print('------------ observeEvent(id ---------------')
     
     if (!is.null(GetTypeofData(obj())))
         init_tree()
@@ -246,6 +253,8 @@ observeEvent(id, {
 
 
 observeEvent(req(input$cleartree), ignoreInit = TRUE, {
+    print('------------ req(input$cleartree) ---------------')
+    
     update_CB()
     updateRadioButtons(session, 'checkbox_mode', selected = 'single')
     
@@ -500,6 +509,7 @@ observeEvent(somethingChanged(), ignoreInit = TRUE, {
                    # by default, all its children must be also selected
                    for (i in newSelection){
                        if (i %in% metacell.def(level)$parent) {
+                           #browser()
                            childrens <- DAPAR::Children(level, i)
                            if (!is.null(childrens) && length(childrens)>0){
                                lapply(childrens, function(x){

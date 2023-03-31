@@ -217,12 +217,11 @@ output$pushpval_ui <- renderUI({
         )
     )
 
-
     wellPanel(
         modulePopoverUI("modulePopover_pushPVal"),
-        mod_query_metacell_ui("AnaDiff_query")
+        mod_query_metacell_ui("AnaDiff_query"))
        # shinyjs::disabled(actionButton("AnaDiff_performFilteringMV", "Push p-value", class = actionBtnClass))
-    )
+
 })
 
 #---------------------------
@@ -341,7 +340,10 @@ GetFiltersScope <- function()
               rv$resAnaDiff$P_Value[indices_to_push] <- 1
               n <- length(rv$resAnaDiff$P_Value)
               rv$resAnaDiff$pushed <- seq_len(n)[indices_to_push]
+              
+              #shinyjs::toggleState("div_AnaDiff_query", condition = FALSE)
           }
+          #shinyjs::toggleState("div_AnaDiff_query", condition = TRUE)
 })
 
 ########################################################
