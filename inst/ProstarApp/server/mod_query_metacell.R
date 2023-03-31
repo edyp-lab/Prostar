@@ -58,7 +58,8 @@ mod_query_metacell_server <- function(id,
     rv <- reactiveValues(
         tags = NULL, 
         tmp.tags = NULL,
-        op_names = setNames(nm = c('delete', 'keep'))
+        op_names = setNames(nm = c('delete', 'keep')),
+        reset_tree = NULL
     )
 
     dataOut <- reactiveValues(
@@ -115,6 +116,8 @@ mod_query_metacell_server <- function(id,
                 rv.widgets$metacell_percent_th <- 0
                 rv.widgets$val_vs_percent <- "Count"
                 rv.widgets$metacellFilter_operator <- "<="
+                
+                rv$reset_tree <- as.numeric(Sys.time()) 
                 }
             
             
@@ -126,7 +129,7 @@ mod_query_metacell_server <- function(id,
             
             observeEvent(req(reset()), {
                 init_rv_widgets()
-                
+                rv$reset_tree <- as.numeric(Sys.time()) 
                 rv$tags <- NULL
                 dataOut$trigger <- as.numeric(Sys.time())
                 dataOut$params <- list()
@@ -166,7 +169,7 @@ mod_query_metacell_server <- function(id,
 
             tmp.tags <- mod_metacell_tree_server('tree',
                                                  obj = reactive({obj()}),
-                                                 reset = reactive({reset()})
+                                                 reset = reactive({rv$reset_tree})
                                                  )
             
             observeEvent(tmp.tags()$trigger, ignoreNULL = TRUE, {
@@ -438,12 +441,9 @@ mod_query_metacell_server <- function(id,
                 
                 dataOut$query <- WriteQuery()
                 dataOut$indices <- CompileIndices()
-                
-                
-                
                 # reset
                 init_rv_widgets()
-
+                rv$tags <- NULL
             })
 
             reactive({dataOut})

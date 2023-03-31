@@ -57,12 +57,10 @@ resetModuleFiltering <- reactive({
     # rv$deleted.byMSMSLines <- NULL
     rv$deleted.numeric <- NULL
 
+    rv.filtering$reset <- as.numeric(Sys.time())
 
     rv$current.obj <- rv$dataset[[input$datasets]]
-    rvModProcess$moduleFilteringDone <- rep(
-        FALSE,
-        length(rvModProcess$moduleFiltering$stepsNames)
-    )
+    rvModProcess$moduleFilteringDone <- rep(FALSE, length(rvModProcess$moduleFiltering$stepsNames))
 })
 
 
@@ -87,14 +85,15 @@ output$screenFiltering1 <- renderUI({
     )
 })
 
-
+rv.filtering <- reactiveValues(
+    reset = NULL
+)
 
 observe({
-rv$indices <- mod_query_metacell_server(
-    id = "query",
-    obj = reactive({rv$current.obj}),
-    reset = reactive({rvModProcess$moduleFilteringForceReset})
-)
+rv$indices <- mod_query_metacell_server(id = "query",
+                                        obj = reactive({rv$current.obj}),
+                                        reset = reactive({rv.filtering$reset})
+                                        )
 })
 
 

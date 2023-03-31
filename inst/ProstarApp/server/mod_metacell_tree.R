@@ -196,11 +196,11 @@ mod_metacell_tree_server <- function(id,
             
             tmp <- unname(rv$mapping[names(rv$mapping)])
             rv$tags <- setNames(rep(FALSE, length(tmp)), nm = gsub('_cb', '', tmp))
-            rv$autoChanged <- FALSE
+            rv$autoChanged <- TRUE
         }
         
         
-        observeEvent(reset(), ignoreInit = FALSE, {
+        observeEvent(req(reset()), ignoreInit = TRUE, {
             # init_tree()
             # update_CB()
             # updateRadioButtons(session, 'checkbox_mode', selected = 'single')
@@ -214,7 +214,7 @@ mod_metacell_tree_server <- function(id,
             dataOut$values <- NULL
             }) 
         
-        observeEvent(input$openModalBtn, {
+        observeEvent(input$openModalBtn, ignoreInit = FALSE,{
             init_tree()
             update_CB()
             updateRadioButtons(session, 'checkbox_mode', selected = 'single')
@@ -475,7 +475,7 @@ observeEvent(somethingChanged(), ignoreInit = TRUE, {
         rv$autoChanged <- FALSE
         return (NULL)
     }
-    
+    #browser()
     # Get the values of widgets corresponding to nodes in the tree
     events <- unlist(lapply(names(rv$mapping), function(x) input[[x]]))
     
@@ -483,6 +483,7 @@ observeEvent(somethingChanged(), ignoreInit = TRUE, {
     
     # Deduce the new selected node
     newSelection <- names(rv$tags)[which(compare==FALSE)]
+    print(paste0('newSelection = ', paste0(newSelection, collapse = ', ')))
     # Update rv$tags vector with this new selection
     if (length(newSelection) > 0) {
         for (i in newSelection)
@@ -494,19 +495,23 @@ observeEvent(somethingChanged(), ignoreInit = TRUE, {
                    update_CB(newSelection)
                    },
                subtree = {
+                   level <- GetTypeofData(obj())
                    # As the leaves are disabled, this selection is a node
                    # by default, all its children must be also selected
-                   childrens <- DAPAR::Children(GetTypeofData(obj()), newSelection)
-                   if (!is.null(childrens) && length(childrens)>0){
-                       lapply(childrens, function(x){
-                           updateCheckboxInput(session, 
+                   for (i in newSelection){
+                       if (i %in% metacell.def(level)$parent) {
+                           childrens <- DAPAR::Children(level, i)
+                           if (!is.null(childrens) && length(childrens)>0){
+                               lapply(childrens, function(x){
+                                   updateCheckboxInput(session, 
                                                reverse.mapping(rv$mapping, x), 
-                                               value = input[[reverse.mapping(rv$mapping, newSelection)]])
-                           rv$tags[x] <- input[[reverse.mapping(rv$mapping, newSelection)]]
-                           
-                       })
+                                               value = input[[reverse.mapping(rv$mapping, i)]])
+                                   rv$tags[x] <- input[[reverse.mapping(rv$mapping, i)]]
+                                   })
+                               rv$autoChanged <- TRUE
+                           }
+                       }
                    }
-                   rv$autoChanged <- TRUE
                },
                multiple = {}
         )
