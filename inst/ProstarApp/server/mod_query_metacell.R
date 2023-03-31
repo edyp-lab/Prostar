@@ -172,7 +172,7 @@ mod_query_metacell_server <- function(id,
                                                  reset = reactive({rv$reset_tree})
                                                  )
             
-            observeEvent(tmp.tags()$trigger, ignoreNULL = TRUE, {
+            observeEvent(tmp.tags()$trigger, ignoreNULL = FALSE, {
                 rv.widgets$MetacellTag <- tmp.tags()$values
             }, priority = 900)
             

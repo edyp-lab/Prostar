@@ -99,7 +99,7 @@ rv$indices <- mod_query_metacell_server(id = "query",
 
 
 
-observeEvent(req(rv$indices()$indices), {
+observeEvent(rv$indices()$indices, {
     # shinyjs::toggleState("performMetacellFiltering",
     #     condition = length(rv$indices()$indices) > 0
     # )
@@ -169,20 +169,18 @@ observeEvent(req(rv$indices()$indices), {
         
         rvModProcess$moduleFilteringDone[1] <- TRUE
     }
-    
-    
-    
-    
-    mod_plotsMetacellHistos_server(id = "MVPlots_filtering",
-                                   obj = reactive({rv$current.obj}),
-                                   pal = reactive({rv$PlotParams$paletteForConditions}),
-                                   pattern = reactive({req(rv$indices()$params$MetacellTag)}),
-                                   showSelect = reactive({FALSE})
-    )
+
 })
 
 
-
+observe({
+    mod_plotsMetacellHistos_server(id = "MVPlots_filtering",
+                               obj = reactive({rv$current.obj}),
+                               pal = reactive({rv$PlotParams$paletteForConditions}),
+                               pattern = reactive({rv$indices()$params$MetacellTag}),
+                               showSelect = reactive({FALSE})
+)
+})
 
 
 
