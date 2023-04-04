@@ -3,24 +3,18 @@ if (!requireNamespace("shinyTree", quietly = TRUE)) {
 }
 
 
-mod_staticDT_server("viewProcessingData",
-    data = reactive({
-        BuildParamDataProcessingDT()
-    }),
+format_DT_server("viewProcessingData",
+    data = reactive({BuildParamDataProcessingDT()}),
     filename = "processingData"
 )
 
-mod_staticDT_server("viewDataMining",
-    data = reactive({
-        BuildParamDataMiningDT()
-    }),
+format_DT_server("viewDataMining",
+    data = reactive({BuildParamDataMiningDT()}),
     filename = "datamining_view"
 )
 
-mod_staticDT_server("viewProstarVersions",
-    data = reactive({
-        getPackagesVersions()[-3, ]
-    }),
+format_DT_server("viewProstarVersions",
+    data = reactive({getPackagesVersions()[-3, ]}),
     filename = "Prostar_Versions"
 )
 
@@ -140,7 +134,7 @@ output$exportOptions <- renderUI({
         fluidRow(
             column(
                 width = 2,
-                modulePopoverUI("modulePopover_exportFileFormat")
+                popover_for_help_ui("modulePopover_exportFileFormat")
             ),
             column(
                 width = 10,
@@ -149,7 +143,7 @@ output$exportOptions <- renderUI({
         ),
         br(),
         fluidRow(
-            column(width = 2, modulePopoverUI("modulePopover_exportFilename")),
+            column(width = 2, popover_for_help_ui("modulePopover_exportFilename")),
             column(width = 10, uiOutput("chooseExportFilename"))
         ),
         br(),
@@ -158,29 +152,29 @@ output$exportOptions <- renderUI({
 })
 
 
-callModule(modulePopover, "modulePopover_exportMetaData",
-    data = reactive(list(
+popover_for_help_server("modulePopover_exportMetaData",
+    data = list(
         title = "Metadata",
         content = "Select the columns you want to keep as metadata. By default,
     if any column is specified, all metadata in your dataset
     will be exported."
-    ))
+    )
 )
 
-callModule(modulePopover, "modulePopover_exportFileFormat",
-    data = reactive(list(
+popover_for_help_server("modulePopover_exportFileFormat",
+    data = list(
         title = "File format",
         content = "File format"
-    ))
+    )
 )
 
 
 
-callModule(modulePopover, "modulePopover_exportFilename",
-    data = reactive(list(
+popover_for_help_server("modulePopover_exportFilename",
+    data = list(
         title = "Filename",
         content = "Enter the name of the files to be created"
-    ))
+    )
 )
 
 

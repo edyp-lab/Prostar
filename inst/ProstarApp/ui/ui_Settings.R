@@ -8,7 +8,7 @@ tabPanel(
                 div(
                     style = "display:inline-block; vertical-align: middle;
           padding-right: 20px;",
-                    modulePopoverUI("modulePopover_numPrecision")
+                    popover_for_help_ui("modulePopover_numPrecision")
                 ),
                 div(
                     style = "display:inline-block; vertical-align: middle;",

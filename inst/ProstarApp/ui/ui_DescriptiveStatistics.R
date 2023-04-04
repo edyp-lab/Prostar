@@ -8,7 +8,7 @@ tabPanel("Descriptive statistics",
                       value = "DS_tabGeneral",
                       tagList(
                           br(),
-                          mod_staticDT_ui("overview_DS"),
+                          format_DT_ui("overview_DS"),
                           uiOutput("versionsUI")
                       )
              ),

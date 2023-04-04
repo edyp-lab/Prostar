@@ -1,1 +1,1 @@
-callModule(moduleInsertMarkdown, "links_MD", URL_links)
+mod_insert_md_server("links_MD", URL_links)

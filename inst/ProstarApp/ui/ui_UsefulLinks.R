@@ -2,5 +2,5 @@ tabPanel("Useful links",
     value = "usefulLinksTab",
     # htmlOutput("References2"),
     # includeMarkdown(URL_links)
-    moduleInsertMarkdownUI("links_MD")
+    mod_insert_md_ui("links_MD")
 )

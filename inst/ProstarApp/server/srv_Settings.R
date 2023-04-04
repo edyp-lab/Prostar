@@ -1,12 +1,11 @@
-callModule(modulePopover, "modulePopover_numPrecision",
-    data = reactive(
-        list(
+popover_for_help_server("modulePopover_numPrecision",
+    data = list(
             title = "Numerical precisions",
             content = "Set the number of decimals to display for
             numerical values."
         )
     )
-)
+
 
 observe({
     shinyjs::toggle("defineColorsUI", condition = !is.null(rv$current.obj))

@@ -3,5 +3,5 @@ tabPanel("FAQ",
     # htmlOutput("FAQ_output")
     # includeMarkdown("server/FAQ.md")
     # uiOutput("test")
-    moduleInsertMarkdownUI("FAQ_MD")
+    mod_insert_md_ui("FAQ_MD")
 )

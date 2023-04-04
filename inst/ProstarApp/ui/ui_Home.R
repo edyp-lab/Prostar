@@ -21,6 +21,6 @@ tabPanel(
 
         # uiOutput("descriptionText")
         # includeMarkdown(URL_ProstarPresentation)
-        moduleInsertMarkdownUI("ProstarPresentation_MD")
+        mod_insert_md_ui("ProstarPresentation_MD")
     )
 )

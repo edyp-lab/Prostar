@@ -1,6 +1,3 @@
-# mod_staticDT_server("overview_Aggregation",
-#                     data = reactive({GetDatasetOverview()}),
-#                     filename = 'Aggregation_overview')
 
 callModule(moduleProcess, "moduleProcess_Aggregation",
            isDone = reactive({rvModProcess$moduleAggregationDone}),
@@ -12,8 +9,8 @@ callModule(moduleProcess, "moduleProcess_Aggregation",
 
 
 
-callModule(modulePopover, "modulePopover_includeShared",
-           data = reactive(list(
+popover_for_help_server("modulePopover_includeShared",
+           data = list(
                title = "Include shared peptides",
                content = HTML(
                    paste0(
@@ -29,7 +26,7 @@ callModule(modulePopover, "modulePopover_includeShared",
                        "</ul>"
                    )
                )
-           ))
+           )
 )
 
 
@@ -124,7 +121,7 @@ output$screenAggregation1 <- renderUI({
             ),
             div(
                 style = "display:inline-block; vertical-align: top;",
-                modulePopoverUI("modulePopover_includeShared"),
+                popover_for_help_ui("modulePopover_includeShared"),
                 radioButtons("radioBtn_includeShared", NULL,
                              choices = c("No" = "No",
                                          "Yes (as protein specific)" = "Yes1",
@@ -612,14 +609,14 @@ output$aggregationPlotUnique <- renderPlot({
 
 
 
-callModule(modulePopover, "modulePopover_colsForAggreg",
-           data = reactive(list(
+popover_for_help_server("modulePopover_colsForAggreg",
+           data = list(
                title = "Columns of the meta-data",
                content = "Select the columns of the meta-data
              (related to proteins) that have to be recorded in the new
     protein dataset (e.g. the columns which contains the protein ID if
     you wish to perform a GO analysis.)"
-           ))
+           )
 )
 
 
@@ -642,7 +639,7 @@ output$Aggregation_Step2 <- renderUI({
             div(
                 style = "display:inline-block; vertical-align: middle;
         padding-right: 20px;",
-                modulePopoverUI("modulePopover_colsForAggreg")
+                popover_for_help_ui("modulePopover_colsForAggreg")
             ),
             div(
                 style = "display:inline-block; vertical-align: middle;",

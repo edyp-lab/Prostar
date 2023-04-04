@@ -773,27 +773,27 @@ moduleFilterStringbasedOptions <- function(input, output, session) {
 
 
 
-moduleInsertMarkdown <- function(input, output, session, url) {
-    ns <- session$ns
-    output$insertMD <- renderUI({
-        #print(url)
-        tryCatch(
-            {
-                includeMarkdown(url)
-            },
-            warning = function(w) {
-                # conditionMessage(w)
-                tags$p("URL not found. Please check your internet connection.")
-            },
-            error = function(e) {
-                shinyjs::info(paste("Error :", "in moduleInsertMarkdown", ":",
-                    conditionMessage(e),
-                    sep = " "
-                ))
-            },
-            finally = {
-                # cleanup-code
-            }
-        )
-    })
-}
+# moduleInsertMarkdown <- function(input, output, session, url) {
+#     ns <- session$ns
+#     output$insertMD <- renderUI({
+#         #print(url)
+#         tryCatch(
+#             {
+#                 includeMarkdown(url)
+#             },
+#             warning = function(w) {
+#                 # conditionMessage(w)
+#                 tags$p("URL not found. Please check your internet connection.")
+#             },
+#             error = function(e) {
+#                 shinyjs::info(paste("Error :", "in moduleInsertMarkdown", ":",
+#                     conditionMessage(e),
+#                     sep = " "
+#                 ))
+#             },
+#             finally = {
+#                 # cleanup-code
+#             }
+#         )
+#     })
+# }

@@ -245,31 +245,31 @@ output$screenGO4 <- renderUI({
 
 
 
-callModule(modulePopover, "modulePopover_GOlevel",
-    data = reactive(list(
+popover_for_help_server("modulePopover_GOlevel",
+    data = list(
         title = "Level",
         content = "Level"
-    ))
+    )
 )
 
 
-callModule(modulePopover, "modulePopover_GOuniverse",
-    data = reactive(list(
+popover_for_help_server("modulePopover_GOuniverse",
+    data = list(
         title = "Universe",
         content = "universe"
-    ))
+    )
 )
-callModule(modulePopover, "modulePopover_GOfdr",
-    data = reactive(list(
+popover_for_help_server("modulePopover_GOfdr",
+    data = list(
         title = "FDR",
-        content = "BH Adjusted P-value cutoff"
-    ))
+        ontent = "BH Adjusted P-value cutoff"
+    )
 )
 
 
 
-callModule(modulePopover, "modulePopover_GenomeWide",
-    data = reactive(list(
+popover_for_help_server("modulePopover_GenomeWide",
+    data = list(
         title = "Genome Wide Annotation",
         content = paste0(
             tags$p("If the expected annotation database is not proposed in the
@@ -282,7 +282,7 @@ callModule(modulePopover, "modulePopover_GenomeWide",
         installed by the administrator of the ProStaR server) and restart
         ProStaR.")
         )
-    ))
+    )
 )
 
 

@@ -5,11 +5,11 @@ tabPanel("Release notes",
         open = "Current release",
         multiple = TRUE,
         shinyBS::bsCollapsePanel("Current release",
-            moduleInsertMarkdownUI("versionNotes_MD"),
+                                 mod_insert_md_ui("versionNotes_MD"),
             style = "info"
         ),
         shinyBS::bsCollapsePanel("Former releases",
-            moduleInsertMarkdownUI("formerReleases_MD"),
+                                 mod_insert_md_ui("formerReleases_MD"),
             style = "info"
         )
     ),

@@ -1,8 +1,5 @@
 
-callModule(
-    moduleInsertMarkdown, "ProstarPresentation_MD",
-    URL_ProstarPresentation
-)
+mod_insert_md_server("ProstarPresentation_MD", URL_ProstarPresentation)
 
 output$citationText <- renderUI({
     tagList(

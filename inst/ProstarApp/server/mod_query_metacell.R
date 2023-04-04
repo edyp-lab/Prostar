@@ -80,8 +80,8 @@ mod_query_metacell_server <- function(id,
     moduleServer(id, function(input, output, session) {
             ns <- session$ns
 
-            callModule(modulePopover, "filterScope_help",
-                data = reactive(list(
+            popover_for_help_server("filterScope_help",
+                data = list(
                     title = "Scope",
                     content = HTML(
                         paste0("To filter the missing values, the choice of
@@ -104,7 +104,7 @@ mod_query_metacell_server <- function(id,
                             deleted.</li>"),
                         ("</ul>")
                     )
-                ))
+                )
             )
 
 
@@ -222,7 +222,7 @@ mod_query_metacell_server <- function(id,
             output$choose_metacellFilters_ui <- renderUI({
                 req(rv.widgets$MetacellTag)
                 selectInput(ns("ChooseMetacellFilters"),
-                            modulePopoverUI(ns("filterScope_help")),
+                            popover_for_help_ui(ns("filterScope_help")),
                             choices = c("None" = "None", GetFiltersScope()),
                             selected = rv.widgets$MetacellFilters,
                             width = "200px"
@@ -250,18 +250,18 @@ mod_query_metacell_server <- function(id,
                 req(rv.widgets$MetacellTag)
                 req(!(rv.widgets$MetacellFilters %in% c("None", "WholeLine")))
 
-                callModule(modulePopover, "choose_val_vs_percent_help",
-                    data = reactive(list(
+                popover_for_help_server("choose_val_vs_percent_help",
+                    data = list(
                         title = paste("#/% of values to ", rv.widgets$KeepRemove),
                         content = "Define xxx"
-                    ))
+                    )
                 )
 
                 tagList(
                     fluidRow(
                         column(4,
                             radioButtons(ns("choose_val_vs_percent"),
-                                         modulePopoverUI(ns("choose_val_vs_percent_help")),
+                                         popover_for_help_ui(ns("choose_val_vs_percent_help")),
                                          choices = setNames(nm = c("Count", "Percentage")),
                                          selected = rv.widgets$val_vs_percent
                                          )
@@ -284,7 +284,7 @@ mod_query_metacell_server <- function(id,
                 req(rv.widgets$val_vs_percent == "Count")
                 req(!(rv.widgets$MetacellFilters %in% c("None", "WholeLine")))
 
-                callModule(modulePopover, "metacell_value_th_help",
+                popover_for_help_server("metacell_value_th_help",
                     data = reactive(list(
                         title = "Count threshold",
                         content = "Define xxx"
@@ -292,9 +292,9 @@ mod_query_metacell_server <- function(id,
                 )
 
                 tagList(
-                    modulePopoverUI(ns("modulePopover_keepVal")),
+                    popover_for_help_ui(ns("modulePopover_keepVal")),
                     selectInput(ns("choose_metacell_value_th"),
-                        modulePopoverUI(ns("metacell_value_th_help")),
+                                popover_for_help_ui(ns("metacell_value_th_help")),
                         choices = getListNbValuesInLines(obj(), type = rv.widgets$MetacellFilters),
                         selected = rv.widgets$metacell_value_th,
                         width = "150px"
@@ -308,16 +308,16 @@ mod_query_metacell_server <- function(id,
                 req(rv.widgets$val_vs_percent == "Percentage")
                 req(!(rv.widgets$MetacellFilters %in% c("None", "WholeLine")))
 
-                callModule(modulePopover, "metacell_percent_th_help",
-                    data = reactive(list(
+                popover_for_help_server("metacell_percent_th_help",
+                    data = list(
                         title = "Percentage threshold",
                         content = "Define xxx"
-                    ))
+                    )
                 )
                 tagList(
-                    modulePopoverUI(ns("modulePopover_keepVal_percent")),
+                    popover_for_help_ui(ns("modulePopover_keepVal_percent")),
                     sliderInput(ns("choose_metacell_percent_th"),
-                        modulePopoverUI(ns("metacell_percent_th_help")),
+                                popover_for_help_ui(ns("metacell_percent_th_help")),
                         min = 0,
                         max = 100,
                         step = 1,

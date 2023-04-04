@@ -1,48 +1,42 @@
 
 
-callModule(modulePopover, "modulePopover_convertChooseDatafile",
-    data = reactive(
+popover_for_help_server("modulePopover_convertChooseDatafile",
+    data = 
         list(
             title = "Data file",
             content = "Select one (.txt, .csv, .tsv, .xls, .xlsx) file."
         )
     )
-)
 
-callModule(modulePopover, "modulePopover_convertIdType",
-    data = reactive(
-        list(
+popover_for_help_server("modulePopover_convertIdType",
+    data = list(
             title = "ID definition",
             content = "If you choose the automatic ID, Prostar will build
           an index."
         )
     )
-)
 
 
 
-callModule(modulePopover, "modulePopover_convertProteinID",
-    data = reactive(list(
+
+popover_for_help_server("modulePopover_convertProteinID",
+    data = list(
         title = "Select protein IDs",
         content = "Select the column containing the parent protein IDs."
-    ))
+    )
 )
 
 
-callModule(modulePopover, "modulePopover_convertDataQuanti",
-    data = reactive(
-        list(
+popover_for_help_server("modulePopover_convertDataQuanti",
+    data = list(
             title = "Quantitative data",
             content = "Select the columns that are quantitation values
             by clicking in the field below."
         )
     )
-)
 
-mod_staticDT_server("overview_convertData",
-    data = reactive({
-        GetDatasetOverview()
-    })
+format_DT_server("overview_convertData",
+    data = reactive({GetDatasetOverview()})
 )
 
 
@@ -88,7 +82,7 @@ output$choose_file_to_import <- renderUI({
     fluidRow(
         column(
             width = 2,
-            modulePopoverUI("modulePopover_convertChooseDatafile")
+            popover_for_help_ui("modulePopover_convertChooseDatafile")
         ),
         column(
             width = 10,
@@ -244,7 +238,7 @@ output$id <- renderUI({
     names(.choices) <- c("Auto ID", colnames(rv$tab1))
 
     tagList(
-        modulePopoverUI("modulePopover_convertIdType"),
+        popover_for_help_ui("modulePopover_convertIdType"),
         selectInput("colnameForID", label = "", choices = .choices)
     )
 })
@@ -276,7 +270,7 @@ output$convertChooseProteinID_UI <- renderUI({
     .choices <- c("", colnames(rv$tab1))
     names(.choices) <- c("", colnames(rv$tab1))
     tagList(
-        modulePopoverUI("modulePopover_convertProteinID"),
+        popover_for_help_ui("modulePopover_convertProteinID"),
         selectInput("convert_proteinId",
             "",
             choices = .choices, selected = character(0)
@@ -448,7 +442,7 @@ output$eData <- renderUI({
     names(choices) <- colnames(rv$tab1)
 
     tagList(
-        modulePopoverUI("modulePopover_convertDataQuanti"),
+        popover_for_help_ui("modulePopover_convertDataQuanti"),
         selectInput("choose_quantitative_columns",
             label = "",
             choices = choices,
@@ -584,7 +578,7 @@ output$Convert_Convert <- renderUI({
     tagList(
         br(), br(),
         uiOutput("convertFinalStep"),
-        mod_staticDT_ui("overview_convertData"),
+        format_DT_ui("overview_convertData"),
         uiOutput("conversionDone"),
         p("Once the 'Load' button (above) clicked, you will be automatically
     redirected to Prostar home page. The dataset will be accessible within

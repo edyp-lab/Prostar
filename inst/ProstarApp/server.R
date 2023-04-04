@@ -1,4 +1,4 @@
- library(shiny)
+library(shiny)
 library(shinyjs)
 library(shinyBS)
 library(shinyWidgets)
@@ -17,9 +17,10 @@ enableJIT(3)
 source(file.path("ui", "ui_Configure.R"), local = TRUE)$value
 source(file.path("server", "mod_errorModal.R"), local = TRUE)$value
 source(file.path("server", "mod_metacell_tree.R"), local = TRUE)$value
-source(file.path("server", "mod_popover.R"), local = TRUE)$value
+source(file.path("server", "mod_insert_md.R"), local = TRUE)$value
+source(file.path("server", "mod_popover_for_help.R"), local = TRUE)$value
 
-# # initialize data with colnames
+# Initialize data with colnames
 df <- data.frame(matrix(c("0", "0"), 1, 2))
 colnames(df) <- c("Input1", "Input2")
 
@@ -30,9 +31,7 @@ onStart <- function() {
         cat("Doing application cleanup\n")
         graphics.off()
         unlink(sessionID, recursive = TRUE)
-        unlink(paste(tempdir(), sessionID, commandLogFile, sep = "/"),
-            recursive = TRUE
-        )
+        unlink(paste(tempdir(), sessionID, commandLogFile, sep = "/"), recursive = TRUE)
         unlink(paste(tempdir(), sep = "/"), recursive = TRUE)
         unlink(paste(tempdir(), "*", sep = "/"), recursive = TRUE)
         unlink(paste(tempdir(), "*html", sep = "/"))
@@ -77,8 +76,11 @@ shinyServer(
      # Hide the loading message when the rest of the server function has executed
     
          env <- environment()
-         source(file.path("server", "mod_staticDT.R"), local = TRUE)$value
-         source(file.path("server", "mod_popover.R"), local = TRUE)$value
+         source(file.path("server", "mod_format_DT.R"), local = TRUE)$value
+         
+         source(file.path("server", "mod_dl.R"), local = TRUE)$value
+         source(file.path("server", "mod_insert_md.R"), local = TRUE)$value
+         source(file.path("server", "mod_popover_for_help.R"), local = TRUE)$value
          source(file.path("server", "mod_download_btns.R"), local = TRUE)$value
          source(file.path("modules/Plots", "mod_MSnSetExplorer.R"), local = TRUE)$value
          source(file.path("server", "mod_LegendColoredExprs.R"), local = TRUE)$value
@@ -106,35 +108,26 @@ shinyServer(
          print(e)
          return(NULL)
      })
-
-#loadLibraries()
-         observeEvent(input$distance, {
-         rv$PlotParams$heatmap.distance <- input$distance
-     })
-     observeEvent(input$linkage, {
-             rv$PlotParams$heatmap.linkage <- input$linkage
-         })
+      
+      observeEvent(input$distance, {
+      rv$PlotParams$heatmap.distance <- input$distance
+      })
+      
+      
+     observeEvent(input$linkage, {rv$PlotParams$heatmap.linkage <- input$linkage})
 
 
 
      observe({
         req(input$navPage)
-        shinyjs::toggle("tete",
-            condition = !(input$navPage %in% c(
-                "graphTab", "bugReportTab",
-                "checkForUpdatesTab", "faqTab"
-            ))
-        )
+         cond <- !(input$navPage %in% c("graphTab", "bugReportTab", "checkForUpdatesTab", "faqTab"))
+        shinyjs::toggle("tete", condition = cond)
     
         tryCatch({
         switch(input$navPage,
             DescriptiveStatisticsTab = {
-                source(file.path("server", "mod_plots_metacell_histo.R"),
-                    local = TRUE
-                )$value
-                source(file.path("server", "srv_DescriptiveStats.R"),
-                    local = TRUE
-                )$value
+                source(file.path("server", "mod_plots_metacell_histo.R"), local = TRUE)$value
+                source(file.path("server", "srv_DescriptiveStats.R"), local = TRUE)$value
             },
             openMSnsetTab = {
                 source(file.path("server", "srv_OpenMSnset.R"),local = TRUE)$value
@@ -159,34 +152,20 @@ shinyServer(
                 source(file.path("server", "mod_filtering_example.R"),local = TRUE)$value
             },
             NormalizationTab = {
-                source(file.path("server", "mod_plots_tracking.R"),
-                    local = TRUE
-                )$value
-                source(file.path("server", "mod_plots_intensity.R"),
-                    local = TRUE
-                )$value
-                source(file.path("server", "srv_Normalization.R"),
-                    local = TRUE
-                )$value
+                source(file.path("server", "mod_plots_tracking.R"), local = TRUE)$value
+                source(file.path("server", "mod_plots_intensity.R"), local = TRUE)$value
+                source(file.path("server", "srv_Normalization.R"), local = TRUE)$value
             },
             imputationProteinLevelTabs = {
-                source(file.path("server", "srv_Imputation_ProteinLevel.R"),
-                    local = TRUE
-                )$value
+                source(file.path("server", "srv_Imputation_ProteinLevel.R"), local = TRUE)$value
             },
             imputationPeptideLevelTabs = {
-                source(file.path("server", "srv_Imputation_PeptideLevel.R"),
-                    local = TRUE
-                )$value
+                source(file.path("server", "srv_Imputation_PeptideLevel.R"), local = TRUE)$value
             },
             AggregationTab =
-                source(file.path("server", "srv_Aggregation.R"),
-                    local = TRUE
-                )$value,
+                source(file.path("server", "srv_Aggregation.R"), local = TRUE)$value,
             diffAnalysisTab = {
-                source(file.path("server", "srv_AnaDiff.R"),
-                    local = TRUE
-                )$value
+                source(file.path("server", "srv_AnaDiff.R"), local = TRUE)$value
             },
             graphTab = {
                 mod_cc_server("CC_Multi_Any",
@@ -195,9 +174,7 @@ shinyServer(
                 )
             },
             GoTab =
-                source(file.path("server", "srv_GO_enrichment.R"),
-                    local = TRUE
-                )$value,
+                source(file.path("server", "srv_GO_enrichment.R"), local = TRUE)$value,
 
             # updateDesignTab =
             #   source(file.path("server", "srv_UpdateDesign.R"),
@@ -206,23 +183,13 @@ shinyServer(
             faqTab =
                 source(file.path("server", "srv_FAQ.R"), local = TRUE)$value,
             checkForUpdatesTab =
-                source(file.path("server", "srv_CheckForUpdates.R"),
-                    local = TRUE
-                )$value,
+                source(file.path("server", "srv_CheckForUpdates.R"), local = TRUE)$value,
             usefulLinksTab =
-                source(file.path("server", "srv_UsefulLinks.R"),
-                    local = TRUE
-                )$value,
+                source(file.path("server", "srv_UsefulLinks.R"), local = TRUE)$value,
             ReleaseNotesTab =
-                source(file.path("server", "srv_ReleaseNotes.R"),
-                    local = TRUE
-                )$value,
-            bugReportTab = source(file.path("server", "srv_BugReport.R"),
-                local = TRUE
-            )$value,
-            testTab = source(file.path("server", "srv_HypothesisTest.R"),
-                local = TRUE
-            )$value
+                source(file.path("server", "srv_ReleaseNotes.R"), local = TRUE)$value,
+            bugReportTab = source(file.path("server", "srv_BugReport.R"), local = TRUE)$value,
+            testTab = source(file.path("server", "srv_HypothesisTest.R"), local = TRUE)$value
         )
         },
             error = function(e) {

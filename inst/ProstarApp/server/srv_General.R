@@ -120,9 +120,8 @@ data <- eventReactive(rv$current$obj,
 
 
 
-callModule(modulePopover, "modulePopover_dataset",
-           data = reactive(
-               list(
+popover_for_help_server("modulePopover_dataset",
+           data = list(
                    title = p(if (is.null(rv$current.obj.name)) {
                        "No dataset"
                    } else {
@@ -133,7 +132,6 @@ callModule(modulePopover, "modulePopover_dataset",
           any time.",
                    color = "white"
                )
-           )
 )
 
 
@@ -156,7 +154,7 @@ output$datasetAbsPanel <- renderUI({
     div(
         div(
             style = "display:inline-block; vertical-align: middle;",
-            modulePopoverUI("modulePopover_dataset")
+            popover_for_help_ui("modulePopover_dataset")
         ),
         div(
             style = "display:inline-block; vertical-align: middle;",

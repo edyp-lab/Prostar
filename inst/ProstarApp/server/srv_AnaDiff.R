@@ -1,7 +1,10 @@
-source(file.path("server", "mod_popover.R"), local = TRUE)$value
+source(file.path("server", "mod_popover_for_help.R"), local = TRUE)$value
+
+#source(file.path("server", "mod_popover.R"), local = TRUE)$value
 source(file.path("server", "mod_query_metacell.R"), local = TRUE)$value
 source(file.path("server", "mod_filtering_example.R"), local = TRUE)$value
-source(file.path("server", "mod_staticDT.R"), local = TRUE)$value
+source(file.path("server", "mod_format_DT.R"), local = TRUE)$value
+source(file.path("server", "mod_dl.R"), local = TRUE)$value
 
 
 convertAnaDiff2DF <- reactive({
@@ -26,7 +29,7 @@ callModule(moduleVolcanoplot, "volcano_Step2",
     tooltip = reactive({rv$widgets$anaDiff$tooltipInfo})
 )
 
-mod_staticDT_server("params_AnaDiff",
+format_DT_server("params_AnaDiff",
     data = reactive({convertAnaDiff2DF()}),
     filename = "AnaDiffParams"
 )
@@ -191,8 +194,8 @@ output$screenAnaDiff1 <- renderUI({
 output$pushpval_ui <- renderUI({
   req(rv$widgets$anaDiff$Comparison != "None")
   
-    callModule(modulePopover, "modulePopover_pushPVal",
-        data = reactive(
+    popover_for_help_server("modulePopover_pushPVal",
+        data = 
           list(
             title = h3("Push p-value"),
             content = "This functionality is useful in case of multiple pairwise comparisons 
@@ -214,11 +217,10 @@ output$pushpval_ui <- renderUI({
               the considered comparison are assumed meaningless due to too many
               missing values (before imputation)."
           )
-        )
     )
 
     wellPanel(
-        modulePopoverUI("modulePopover_pushPVal"),
+        popover_for_help_ui("modulePopover_pushPVal"),
         mod_query_metacell_ui("AnaDiff_query"))
        # shinyjs::disabled(actionButton("AnaDiff_performFilteringMV", "Push p-value", class = actionBtnClass))
 
@@ -401,7 +403,7 @@ output$volcanoTooltip_UI <- renderUI({
     rv$widgets$anaDiff$tooltipInfo
     isolate({
         tagList(
-            modulePopoverUI("modulePopover_volcanoTooltip"),
+            popover_for_help_ui("modulePopover_volcanoTooltip"),
             selectInput("tooltipInfo",
                 label = NULL,
                 choices = colnames(Biobase::fData(rv$current.obj)),
@@ -419,23 +421,18 @@ output$volcanoTooltip_UI <- renderUI({
 })
 
 
-
-
-
-
-callModule(modulePopover, "modulePopover_volcanoTooltip",
-    data = reactive(list(
+popover_for_help_server("modulePopover_volcanoTooltip",
+    data = list(
         title = "Tooltip",
         content = "Infos to be displayed in the tooltip of volcanoplot"
-    ))
+    )
 )
 
-
-callModule(modulePopover, "modulePopover_keepLines",
-    data = reactive(list(
+popover_for_help_server("modulePopover_keepLines",
+    data = list(
         title = "n values",
         content = "Keep the lines which have at least n intensity values."
-    ))
+    )
 )
 
 
@@ -869,7 +866,7 @@ output$screenAnaDiff3 <- renderUI({
                 tags$div(
                     style = "display:inline-block; vertical-align: center;
           padding-right: 2px;",
-                    modulePopoverUI("modulePopover_pValThreshold"),
+                    popover_for_help_ui("modulePopover_pValThreshold"),
                     textInput("seuilPVal", NULL,
                         value = rv$widgets$anaDiff$th_pval, width = "100px"
                     )
@@ -928,7 +925,7 @@ output$screenAnaDiff3 <- renderUI({
 output$screenAnaDiff4 <- renderUI({
     req(as.character(rv$widgets$anaDiff$Comparison) != "None")
     tagList(
-        mod_staticDT_ui("params_AnaDiff")
+        format_DT_ui("params_AnaDiff")
     )
 })
 
@@ -936,7 +933,7 @@ output$diffAna_Summary <- renderUI({
     req(as.character(rv$widgets$anaDiff$Comparison) != "None")
 
     tagList(
-        mod_staticDT_ui("params_AnaDiff")
+        format_DT_ui("params_AnaDiff")
     )
 })
 
@@ -983,11 +980,11 @@ observeEvent(input$downloadAnaDiff, {
     rv$widgets$anaDiff$downloadAnaDiff <- input$downloadAnaDiff
 })
 
-callModule(modulePopover, "modulePopover_pValThreshold",
-    data = reactive(list(
+popover_for_help_server("modulePopover_pValThreshold",
+    data = list(
         title = "p-val cutoff",
         content = "Define the -log10(p_value) threshold"
-    ))
+    )
 )
 
 

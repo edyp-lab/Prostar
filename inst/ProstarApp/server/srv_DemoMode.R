@@ -1,7 +1,5 @@
-mod_staticDT_server("overview_DemoMode",
-    data = reactive({
-        GetDatasetOverview()
-    }),
+format_DT_server("overview_DemoMode",
+    data = reactive({GetDatasetOverview()}),
     filename = "Demomode_Overview"
 )
 
@@ -12,7 +10,6 @@ output$chooseDataset <- renderUI({
     }
 
     if (!require("DAPARdata", lib.loc = DAPARdata.loc)) {
-        #print("Installing DAPARdata")
         BiocManager::install("DAPARdata")
     }
     if (!require(DAPARdata)) {
@@ -87,7 +84,7 @@ output$infoAboutDemoDataset <- renderUI({
             tags$div(
                 tags$div(
                     style = "display:inline-block; vertical-align: top;",
-                    mod_staticDT_ui("overview_DemoMode")
+                    format_DT_ui("overview_DemoMode")
                 )
             )
         )

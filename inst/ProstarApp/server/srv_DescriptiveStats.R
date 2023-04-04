@@ -9,12 +9,12 @@ callModule(moduleBoxplot, "boxPlot_DS",
            pal = reactive({ unique(rv$PlotParams$paletteForConditions)})
 )
 
-mod_staticDT_server("overview_DS",
+format_DT_server("overview_DS",
                     data = reactive({GetDatasetOverview()}),
                     filename = "DescriptiveStats_Overview"
 )
 
-mod_staticDT_server("PCAvarCoord",
+format_DT_server("PCAvarCoord",
                     data = reactive({
                         if (!is.null(rv$res.pca)) {
                             round(rv$res.pca$var$coord, digits = 7)
@@ -176,7 +176,7 @@ output$plotsPCA <- renderUI({
         ),
         fluidRow(
             column(width = 6, highchartOutput("pcaPlotEigen")),
-            column(width = 6, mod_staticDT_ui("PCAvarCoord"))
+            column(width = 6, format_DT_ui("PCAvarCoord"))
         )
     )
 })

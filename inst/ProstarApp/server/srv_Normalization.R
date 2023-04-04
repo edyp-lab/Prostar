@@ -7,28 +7,21 @@
 
 
 callModule(moduleDensityplot, "densityPlot_Norm",
-    data = reactive({
-        rv$current.obj
-    })
+           data = reactive({rv$current.obj})
+           )
+
+callModule(module_Not_a_numeric,"test_spanLOESS",
+    reactive({rv$widgets$normalization$spanLOESS})
 )
 
-callModule(
-    module_Not_a_numeric,
-    "test_spanLOESS",
-    reactive({
-        rv$widgets$normalization$spanLOESS
-    })
-)
-
-callModule(modulePopover, "modulePopover_normQuanti",
-    data = reactive(
-        list(
+popover_for_help_server("modulePopover_normQuanti",
+    data = list(
             title = "Normalization quantile",
             content = "lower limit/noise (quantile = 0.15),
             median (quantile = 0.5). Min value=0, max value=1"
         )
     )
-)
+
 
 
 callModule(moduleProcess, "moduleProcess_Normalization",
@@ -83,9 +76,8 @@ rv.norm$trackFromBoxplot <- callModule(mod_plots_intensity_server,
     keyId = reactive({rv$current.obj@experimentData@other$proteinId}),
     conds = reactive({Biobase::pData(rv$current.obj)$Condition}),
     pal = reactive({rv$PlotParams$paletteForConditions}),
-    params = reactive({
-        if (rv.norm$sync) {
-            rv.norm$selectProt()
+    params = reactive({if (rv.norm$sync) {
+        rv.norm$selectProt()
         } else {
             NULL
         }
@@ -115,9 +107,7 @@ observeEvent(input$spanLOESS, {
     rv$widgets$normalization$spanLOESS <- input$spanLOESS
 })
 
-observeEvent(input$SyncForNorm, {
-    rv.norm$sync <- input$SyncForNorm
-})
+observeEvent(input$SyncForNorm, {rv.norm$sync <- input$SyncForNorm})
 
 
 
@@ -126,33 +116,24 @@ output$screenNormalization1 <- renderUI({
     isolate({
         tagList(
             div(
-                div(
-                    style = "display:inline-block; vertical-align: middle;
-          padding-right: 20px;",
+                div(style = "display:inline-block; vertical-align: middle; padding-right: 20px;",
                     selectInput("normalization.method", "Normalization method",
                         choices = normMethods,
                         selected = rv$widgets$normalization$method,
                         width = "200px"
                     )
                 ),
-                div(
-                    style = "display:inline-block; vertical-align: middle;
-          padding-right: 20px;",
+                div(style = "display:inline-block; vertical-align: middle; padding-right: 20px;",
                     hidden(
                         selectInput("normalization.type",
                             "Normalization type",
-                            choices = setNames(nm = c(
-                                "overall",
-                                "within conditions"
-                            )),
+                            choices = setNames(nm = c("overall","within conditions")),
                             selected = rv$widgets$normalization$type,
                             width = "150px"
                         )
                     )
                 ),
-                div(
-                    style = "display:inline-block; vertical-align: middle;
-          padding-right: 20px;",
+                div(style = "display:inline-block; vertical-align: middle; padding-right: 20px;",
                     hidden(
                         textInput("spanLOESS", "Span",
                             value = rv$widgets$normalization$spanLOESS,
@@ -164,10 +145,8 @@ output$screenNormalization1 <- renderUI({
                     uiOutput("choose_normalizationScaling")
                 ),
                 hidden(
-                    div(
-                        id = "DivMasterProtSelection",
-                        style = "display:inline-block; vertical-align: middle;
-            padding-right: 20px;",
+                    div(id = "DivMasterProtSelection",
+                        style = "display:inline-block; vertical-align: middle; padding-right: 20px;",
                         mod_plots_tracking_ui("master_tracking"),
                         checkboxInput("SyncForNorm",
                             "Synchronise with selection above",
@@ -176,8 +155,7 @@ output$screenNormalization1 <- renderUI({
                     )
                 ),
                 div(
-                    style = "display:inline-block; vertical-align: middle;
-          padding-right: 20px;",
+                    style = "display:inline-block; vertical-align: middle; padding-right: 20px;",
                     hidden(
                         actionButton("perform.normalization",
                             "Perform normalization",
@@ -268,18 +246,15 @@ output$helpForNormalizationMethods <- renderUI({
 })
 
 
-callModule(
-    module_Not_a_numeric, "test_normQuant",
-    reactive({
-        rv$widgets$normalization$quantile
-    })
+callModule(module_Not_a_numeric, "test_normQuant",
+    reactive({rv$widgets$normalization$quantile})
 )
 
 output$choose_normalizationQuantile <- renderUI({
     req(rv$widgets$normalization$method == "QuantileCentering")
 
     tagList(
-        modulePopoverUI("modulePopover_normQuanti"),
+        popover_for_help_ui("modulePopover_normQuanti"),
         textInput("normalization.quantile", NULL,
             value = rv$widgets$normalization$quantile, width = "150px"
         ),
@@ -380,7 +355,7 @@ observeEvent(input$perform.normalization, {
     rv$dataset[[input$datasets]]
     # isolate({
 
-    .tmp <- NULL
+    #.tmp <- NULL
     .tmp <- try({
     switch(rv$widgets$normalization$method,
         G_noneStr = rv$dataset[[input$datasets]],
@@ -466,10 +441,9 @@ observeEvent(input$perform.normalization, {
       #   title = "Success",
       #   type = "success"
       # )
-    rvModProcess$moduleNormalizationDone[1] <- TRUE
-    shinyjs::toggle("valid.normalization",
-        condition = input$perform.normalization >= 1
-    )
+      rv$current.obj <- .tmp
+      rvModProcess$moduleNormalizationDone[1] <- TRUE
+    shinyjs::toggle("valid.normalization", condition = input$perform.normalization >= 1)
     }
 })
 

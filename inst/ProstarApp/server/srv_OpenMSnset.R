@@ -1,7 +1,5 @@
-mod_staticDT_server("overview_openMSnset",
-    data = reactive({
-        GetDatasetOverview()
-    }),
+format_DT_server("overview_openMSnset",
+    data = reactive({GetDatasetOverview()}),
     filename = "openMSnset_View"
 )
 
@@ -60,7 +58,7 @@ output$updateDesign <- renderUI({
 output$openMSnsetScreen <- renderUI({
     tagList(
         fileInput("file", "Open a MSnset file", multiple = FALSE),
-        mod_staticDT_ui("overview_openMSnset"),
+        format_DT_ui("overview_openMSnset"),
         uiOutput("infoAboutAggregationTool")
     )
 })

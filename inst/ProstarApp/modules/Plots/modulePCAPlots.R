@@ -11,7 +11,7 @@ pcaPlotsUI <- function(id) {
         ),
         fluidRow(
             column(width = 6, highchartOutput(ns("pcaPlotEigen"))),
-            column(width = 6, mod_staticDT_ui(ns("PCAvarCoord")))
+            column(width = 6, format_DT_ui(ns("PCAvarCoord")))
         )
     )
 }
@@ -29,7 +29,7 @@ pcaPlots <- function(input, output, session, data) {
         PCA_varScale = NULL
     )
 
-    mod_staticDT_server("PCAvarCoord",
+    format_DT_server("PCAvarCoord",
         data = reactive({
             if (!is.null(rv.pca$res.pca)) {
                 round(rv.pca$res.pca$var$coord, digits = 7)

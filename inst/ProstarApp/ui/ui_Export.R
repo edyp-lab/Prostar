@@ -16,7 +16,7 @@ tabPanel("Export",
         tabPanel(
             "Build report (Beta)",
             tagList(
-                mod_staticDT_ui("viewProstarVersions"),
+                format_DT_ui("viewProstarVersions"),
                 downloadButton("downloadReport",
                     "Build and download pdf report",
                     class = actionBtnClass
@@ -25,7 +25,7 @@ tabPanel("Export",
                 tags$div(
                     tags$div(
                         style = "display:inline-block; vertical-align: top;",
-                        mod_staticDT_ui("viewProcessingData")
+                        format_DT_ui("viewProcessingData")
                     ),
                     tags$div(
                         style = "display:inline-block; vertical-align: top;",
@@ -248,7 +248,7 @@ tabPanel("Export",
                 tags$div(
                     tags$div(
                         style = "display:inline-block; vertical-align: top;",
-                        mod_staticDT_ui("viewDataMining")
+                        format_DT_ui("viewDataMining")
                     ),
                     tags$div(
                         style = "display:inline-block; vertical-align: top;",

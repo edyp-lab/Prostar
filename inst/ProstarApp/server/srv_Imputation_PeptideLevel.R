@@ -19,9 +19,8 @@ callModule(
 )
 
 
-callModule(modulePopover, "modulePopover_HelpImputationPeptide",
-    data = reactive(
-        list(
+popover_for_help_server("modulePopover_HelpImputationPeptide",
+    data = list(
             title = "Algorithm",
             content = HTML(paste0("<ul><li><strong>imp4p [Ref. 7]</strong>
         a proteomic-specific multiple imputation method that operates on
@@ -37,7 +36,6 @@ callModule(modulePopover, "modulePopover_HelpImputationPeptide",
         intensity (see the norm R package).</li></ul></ul>"))
         )
     )
-)
 
 
 callModule(moduleProcess, "moduleProcess_PepImputation",
@@ -143,7 +141,7 @@ output$screenPepImputation1 <- renderUI({
                 tags$div(
                     style = "display:inline-block; vertical-align: top;
                  padding-right: 20px;",
-                    modulePopoverUI("modulePopover_HelpImputationPeptide"),
+                    popover_for_help_ui("modulePopover_HelpImputationPeptide"),
                     selectInput("peptideLevel_missing.value.algorithm",
                         NULL,
                         choices = imputationAlgorithms,
@@ -512,9 +510,8 @@ output$peptideLevel_warningImputationMethod <- renderText({
 ###################
 
 
-callModule(modulePopover, "modulePopover_helpForImputation",
-    data = reactive(
-        list(
+popover_for_help_server("modulePopover_helpForImputation",
+    data = list(
             title = p(if (is.null(rv$current.obj.name)) {
                 "No dataset"
             } else {
@@ -526,4 +523,4 @@ callModule(modulePopover, "modulePopover_helpForImputation",
             color = "white"
         )
     )
-)
+
