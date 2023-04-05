@@ -9,7 +9,6 @@ css <- "
 body {
     padding: 00px;
     font-family: helvetica, arial, sans-serif;
-    font-size: 10px;
 }
 
 ul {
@@ -53,8 +52,8 @@ ul {
     vertical-align: middle;
     padding: 0px 5px 0px 0px;
     color: #888;
-        text-decoration: none;
-    width: 100px;
+    text-decoration: none;
+    width: 150px;
 }"
 
 
@@ -162,7 +161,10 @@ mod_metacell_tree_server <- function(id,
              #tags$head(tags$style(".modal-footer{ display:none;")),
             
             shinyBS::bsModal("modalExample",
-                 title = p('title'),
+                 title = tagList(
+                     p('Cells metadata tags'),
+                     p('To get help about the organization of those tags, please refer to the FAQ')
+                 ),
                  trigger = ns("openModalBtn"),
                  size = "large",
                  popover_for_help_ui(ns("metacellTag_help")),
@@ -174,7 +176,7 @@ mod_metacell_tree_server <- function(id,
                                                   'Multiple selection' = 'multiple'),
                                       width = '150px')),
                      div(style = "align: center;display:inline-block; vertical-align: middle; margin: 5px; padding-right: 0px",
-                         actionButton(ns('cleartree2'), 'Clear')
+                         actionButton(ns('cleartree'), 'Clear')
                      )
                  ),
                  uiOutput(ns('tree'))
