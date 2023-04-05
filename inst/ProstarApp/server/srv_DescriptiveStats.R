@@ -10,8 +10,8 @@ callModule(moduleBoxplot, "boxPlot_DS",
 )
 
 format_DT_server("overview_DS",
-                    data = reactive({GetDatasetOverview()}),
-                    filename = "DescriptiveStats_Overview"
+                 data = reactive({GetDatasetOverview()}),
+                 filename = "DescriptiveStats_Overview"
 )
 
 format_DT_server("PCAvarCoord",

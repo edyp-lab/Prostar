@@ -7,7 +7,7 @@ css <- "
 }
 
 body {
-    padding: 50px;
+    padding: 00px;
     font-family: helvetica, arial, sans-serif;
     font-size: 10px;
 }
@@ -63,14 +63,15 @@ mod_metacell_tree_ui <- function(id) {
    
     tagList(
         shinyjs::useShinyjs(),
-        shinyjs::inlineCSS(css),
-        h4('Cells metadata tags'),
-        div(style="align: center;display:inline-block; vertical-align: top;",
-            actionButton(ns("openModalBtn"),
-                   tags$img(src = "images/metacelltree.png", height = "50px")),
-            uiOutput(ns('selectedNodes'))
+        #h4('Cells metadata tags'),
+        #div(style="align: center;display:inline-block; vertical-align: top;",
+        fluidRow(
+            column(width=6, actionButton(ns("openModalBtn"),
+                   tags$img(src = "images/metacelltree.png", height = "50px"))),
+            column(width=6, uiOutput(ns('selectedNodes'))
+            )
             ),
-        #actionButton(ns("openModalBtn"), 'show',class = "btn-success"),
+        br(),
         uiOutput(ns('modaltree'))
         )
 
@@ -152,32 +153,34 @@ mod_metacell_tree_server <- function(id,
         
         output$modaltree <- renderUI({
             tagList(
+                shinyjs::inlineCSS(css),
                 tags$script(paste0('$( document ).ready(function() {
                 $("#modalExample").on("hidden.bs.modal", function (event) {
                 x = new Date().toLocaleString();
                 Shiny.onInputChange("', ns('lastModalClose'), '",x);});})')),
-            tags$head(tags$style(paste0(".modal-dialog { width: fit-content !important; }"))),
-            tags$head(tags$style(".modal-dialog {z-index: 1000;}")),
-            #tags$head(tags$style(".modal-footer{ display:none;")),
+            tags$head(tags$style(paste0(".modal-dialog { width: fit-content !important; z-index: 1000;}"))),
+             #tags$head(tags$style(".modal-footer{ display:none;")),
             
-            #tags$head(tags$style("#test .modal-dialog {width: fit-content !important;}")),
-
             shinyBS::bsModal("modalExample",
-                 title = "Data Table",
+                 title = p('title'),
                  trigger = ns("openModalBtn"),
                  size = "large",
-                 h3(popover_for_help_ui(ns("metacellTag_help"))),
-                 div(style='display: inline-block;',
-                     radioButtons(ns('checkbox_mode'),
-                                  p(style='font-size: 16px;','Multiple selection'),
-                                  choices = c('Single selection' = 'single',
-                                              'Complete subtree' = 'subtree',
-                                              'Multiple selection' = 'multiple')),
-                     actionButton(ns('cleartree'), 'Clear selection', class=actionBtnClass)
+                 popover_for_help_ui(ns("metacellTag_help")),
+                 div(
+                     div(style = "align: center;display:inline-block; vertical-align: middle; margin: 5px; padding-right: 0px",
+                         radioButtons(ns('checkbox_mode'), '',
+                                      choices = c('Single selection' = 'single',
+                                                  'Complete subtree' = 'subtree',
+                                                  'Multiple selection' = 'multiple'),
+                                      width = '150px')),
+                     div(style = "align: center;display:inline-block; vertical-align: middle; margin: 5px; padding-right: 0px",
+                         actionButton(ns('cleartree2'), 'Clear')
+                     )
                  ),
                  uiOutput(ns('tree'))
                  )
             )
+
             })
 
         

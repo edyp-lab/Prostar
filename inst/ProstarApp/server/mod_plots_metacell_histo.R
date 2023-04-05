@@ -2,7 +2,8 @@ mod_plotsMetacellHistos_ui <- function(id) {
     ns <- NS(id)
     tagList(
         shinyjs::useShinyjs(),
-        uiOutput(ns('info')),
+
+        p('Select one or several tag(s) to display statistics about'),
         uiOutput(ns('chooseTagUI')),
         fluidRow(
             column(width = 4,
@@ -33,56 +34,44 @@ mod_plotsMetacellHistos_server <- function(id,
             )
             
             
-            # observeEvent(id, {
-            #     rv$showSelect <- !is.null(pattern())
-            # })
+            tmp.tags <- mod_metacell_tree_server('tree', obj = reactive({obj()}))
             
-            # output$info <- renderUI({
-            #     req(is.null(rv$chooseTag))
-            #     print(rv$chooseTag)
-            #     p("Info: no data to view. 'Pattern' is NULL")
-            #     })
+            observeEvent(tmp.tags()$trigger, ignoreNULL = FALSE, {
+                rv$chooseTag <- tmp.tags()$values
+            })
             
-
+            
             output$chooseTagUI <- renderUI({
-                req(showSelect())
-                req(obj())
-                meta <- DAPAR::metacell.def(GetTypeofData(obj()))$node
-                .ch <- 
-                    selectInput(ns('chooseTag'), 
-                                'Select at least one tag to display statistics about', 
-                                choices = meta[-which(meta == 'Any')],
-                                width = '200px',
-                                multiple = TRUE,
-                                selected = rv$chooseTag)
+                req(showSelect(), obj())
+                mod_metacell_tree_ui(ns('tree'))
+                # meta <- DAPAR::metacell.def(GetTypeofData(obj()))$node
+                # .ch <- 
+                #     selectInput(ns('chooseTag'), 
+                #                 'Select at least one tag to display statistics about', 
+                #                 choices = meta[-which(meta == 'Any')],
+                #                 width = '200px',
+                #                 multiple = TRUE,
+                #                 selected = rv$chooseTag)
 
             })
             
-            observeEvent(input$chooseTag, ignoreInit = TRUE,{
-                rv$chooseTag <- input$chooseTag
-            })
+            # observeEvent(input$chooseTag, ignoreInit = TRUE,{
+            #     rv$chooseTag <- input$chooseTag
+            # })
 
             output$histo_Metacell <- renderHighchart({
-               #req(rv$chooseTag)
-                #obj()
-
-                tmp <- NULL
-                # isolate({
-                tmp <- metacellHisto_HC(obj = obj(),
+               tmp <- NULL
+               tmp <- metacellHisto_HC(obj = obj(),
                                         pattern = rv$chooseTag,
                                         pal = pal()
                                         )
-                # future(createPNGFromWidget(tmp,pattern))
-                #  })
                 tmp
             })
 
 
 
             output$histo_Metacell_per_lines <- renderHighchart({
-               # req(rv$chooseTag)
-                #obj()
-                tmp <- NULL
+               tmp <- NULL
                 # isolate({
                 # pattern <- paste0(GetCurrentObjName(),".MVplot2")
                 tmp <-
@@ -98,9 +87,7 @@ mod_plotsMetacellHistos_server <- function(id,
 
 
             output$histo_Metacell_per_lines_per_conditions <- renderHighchart({
-               # req(rv$chooseTag)
-                #obj()
-                tmp <- NULL
+               tmp <- NULL
                 # isolate({
                 # pattern <- paste0(GetCurrentObjName(),".MVplot2")
                 tmp <- metacellPerLinesHistoPerCondition_HC(obj = obj(),
