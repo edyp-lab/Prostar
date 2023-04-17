@@ -65,8 +65,14 @@ mod_metacell_tree_ui <- function(id) {
         #h4('Cells metadata tags'),
         #div(style="align: center;display:inline-block; vertical-align: top;",
         fluidRow(
-            column(width=6, actionButton(ns("openModalBtn"),
-                   tags$img(src = "images/metacelltree.png", height = "50px"))),
+            column(width=6, 
+                   actionButton(ns("openModalBtn"),
+                   tagList(
+                       p('Select tags'),
+                       tags$img(src = "images/metacelltree.png", height = "50px"))
+                   ),
+                   bsTooltip(ns("openModalBtn"), "Click to open tags selection tool",
+                             "right", options = list(container = "body"))),
             column(width=6, uiOutput(ns('selectedNodes'))
             )
             ),
@@ -111,9 +117,7 @@ mod_metacell_tree_server <- function(id,
         ll <- ll[-.ind]
         colors <- setNames(meta$color[-.ind], nm = convertWidgetName(ll))
         widgets.names <- setNames(ll, nm = convertWidgetName(ll))
-        return(list(names = widgets.names,
-                    colors = colors)
-        )
+        return(list(names = widgets.names, colors = colors))
     }
     
     reverse.mapping <- function(mapping, target){
@@ -158,18 +162,20 @@ mod_metacell_tree_server <- function(id,
                 x = new Date().toLocaleString();
                 Shiny.onInputChange("', ns('lastModalClose'), '",x);});})')),
             tags$head(tags$style(paste0(".modal-dialog { width: fit-content !important; z-index: 1000;}"))),
-             #tags$head(tags$style(".modal-footer{ display:none;")),
+            #tags$head(tags$style("#modalExample{ display:none;")),
             
             shinyBS::bsModal("modalExample",
-                 title = tagList(
-                     p('Cells metadata tags'),
-                     p('To get help about the organization of those tags, please refer to the FAQ')
-                 ),
+                 title = '',
+                 # tagList(
+                 #     p('Cells metadata tags'),
+                 #     p('To get help about the organization of those tags, please refer to the FAQ')
+                 # ),
                  trigger = ns("openModalBtn"),
                  size = "large",
-                 popover_for_help_ui(ns("metacellTag_help")),
+                 #popover_for_help_ui(ns("metacellTag_help")),
                  div(
                      div(style = "align: center;display:inline-block; vertical-align: middle; margin: 5px; padding-right: 0px",
+                         p('To get help about the organization of those tags, please refer to the FAQ'),
                          radioButtons(ns('checkbox_mode'), '',
                                       choices = c('Single selection' = 'single',
                                                   'Complete subtree' = 'subtree',
@@ -246,7 +252,7 @@ observeEvent(input$lastModalClose,  ignoreInit = FALSE, ignoreNULL = TRUE, {
 
 
 
-observeEvent(id, {
+observeEvent(id, ignoreInit = FALSE, {
     print('------------ observeEvent(id ---------------')
     
     if (!is.null(GetTypeofData(obj())))

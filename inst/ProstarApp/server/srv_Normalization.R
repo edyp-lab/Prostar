@@ -15,12 +15,10 @@ callModule(module_Not_a_numeric,"test_spanLOESS",
 )
 
 popover_for_help_server("modulePopover_normQuanti",
-    data = list(
-            title = "Normalization quantile",
+    title = "Normalization quantile",
             content = "lower limit/noise (quantile = 0.15),
             median (quantile = 0.5). Min value=0, max value=1"
         )
-    )
 
 
 

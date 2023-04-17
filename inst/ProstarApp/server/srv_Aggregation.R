@@ -10,9 +10,8 @@ callModule(moduleProcess, "moduleProcess_Aggregation",
 
 
 popover_for_help_server("modulePopover_includeShared",
-           data = list(
-               title = "Include shared peptides",
-               content = HTML(
+           title = "Include shared peptides",
+           content = HTML(
                    paste0(
                        "<ul>",
                        "<li>", "<strong>No:</strong>",
@@ -26,7 +25,6 @@ popover_for_help_server("modulePopover_includeShared",
                        "</ul>"
                    )
                )
-           )
 )
 
 
@@ -610,13 +608,11 @@ output$aggregationPlotUnique <- renderPlot({
 
 
 popover_for_help_server("modulePopover_colsForAggreg",
-           data = list(
-               title = "Columns of the meta-data",
+           title = "Columns of the meta-data",
                content = "Select the columns of the meta-data
              (related to proteins) that have to be recorded in the new
     protein dataset (e.g. the columns which contains the protein ID if
     you wish to perform a GO analysis.)"
-           )
 )
 
 

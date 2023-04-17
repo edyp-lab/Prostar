@@ -58,13 +58,13 @@ popover_for_help_ui <- function(id) {
 #' @param id xxx
 #' @param data xxx
 #'
-popover_for_help_server <- function(id, data) {
+popover_for_help_server <- function(id, title, content) {
     moduleServer(id, function(input, output, session) {
         ns <- session$ns
         
         output$write_title_ui <- renderUI({
-            req(data)
-            data$title
+            req(title)
+            title
         })
         
         output$dot <- renderUI({
@@ -72,7 +72,7 @@ popover_for_help_server <- function(id, data) {
         })
         
         output$show_Pop <- renderUI({
-            shinyBS::bsTooltip(ns("dot"), data$content, trigger = "hover")
+            shinyBS::bsTooltip(ns("dot"), HTML(content), trigger = "hover")
         })
     })
 }
@@ -136,10 +136,8 @@ ui <- fluidPage(
 server <- function(input, output) {
     popover_for_help_server(
         id = "Title",
-        data = list(
-            title = "Test",
-            content = "Test"
-        )
+        title = "Test",
+        content = HTML("Test:<br> <ul><li>number one</li><li>number two</li></ul>")
     )
 }
 shinyApp(ui, server)

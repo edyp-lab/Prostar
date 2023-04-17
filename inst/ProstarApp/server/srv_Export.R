@@ -153,29 +153,26 @@ output$exportOptions <- renderUI({
 
 
 popover_for_help_server("modulePopover_exportMetaData",
-    data = list(
-        title = "Metadata",
+    title = "Metadata",
         content = "Select the columns you want to keep as metadata. By default,
     if any column is specified, all metadata in your dataset
     will be exported."
     )
-)
+
 
 popover_for_help_server("modulePopover_exportFileFormat",
-    data = list(
-        title = "File format",
+    title = "File format",
         content = "File format"
     )
-)
+
 
 
 
 popover_for_help_server("modulePopover_exportFilename",
-    data = list(
-        title = "Filename",
+    title = "Filename",
         content = "Enter the name of the files to be created"
     )
-)
+
 
 
 

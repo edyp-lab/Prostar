@@ -99,12 +99,12 @@ rv$indices <- mod_query_metacell_server(id = "query",
 
 
 
-observeEvent(rv$indices()$indices, {
+observeEvent(rv$indices()$indices, ignoreInit = TRUE, {
     # shinyjs::toggleState("performMetacellFiltering",
     #     condition = length(rv$indices()$indices) > 0
     # )
-    
-    
+    print(paste0('------', length(rv$indices()$indices)))
+    #browser()
     nbDeleted <- 0
     # rv$widgets$filtering$MetacellTag <- rv$indices()$params$MetacellTag
     # rv$widgets$filtering$KeepRemove <- rv$indices()$params$KeepRemove
@@ -168,6 +168,7 @@ observeEvent(rv$indices()$indices, {
         )
         
         rvModProcess$moduleFilteringDone[1] <- TRUE
+        #rv.filtering$reset <- rv.filtering$reset + 1
     }
 
 })
@@ -928,6 +929,7 @@ observeEvent(input$ValidateFilters, ignoreInit = TRUE, {
         }
         dataOut <- rv$current.obj
         rvModProcess$moduleFilteringDone[5] <- TRUE
+        
     })
 })
 

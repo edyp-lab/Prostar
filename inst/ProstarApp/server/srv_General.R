@@ -120,19 +120,8 @@ data <- eventReactive(rv$current$obj,
 
 
 
-popover_for_help_server("modulePopover_dataset",
-           data = list(
-                   title = p(if (is.null(rv$current.obj.name)) {
-                       "No dataset"
-                   } else {
-                       paste0(rv$current.obj.name)
-                   }),
-                   content = "Before each processing step, a backup of the current
-            dataset is stored. It is possible to reload one of them at
-          any time.",
-                   color = "white"
-               )
-)
+
+
 
 
 observeEvent(input$navbar, {
@@ -149,22 +138,7 @@ getDatasetName <- reactive({
 
 
 
-output$datasetAbsPanel <- renderUI({
-    req(rv$current.obj.name)
-    div(
-        div(
-            style = "display:inline-block; vertical-align: middle;",
-            popover_for_help_ui("modulePopover_dataset")
-        ),
-        div(
-            style = "display:inline-block; vertical-align: middle;",
-            selectInput("datasets", "",
-                        choices = list("None" = "None"),
-                        width = "200px"
-            )
-        )
-    )
-})
+
 
 ### -------------------------------------------------------------------
 onStop(function() cat("Session stopped.\n"))

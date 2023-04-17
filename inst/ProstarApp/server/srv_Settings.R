@@ -1,10 +1,9 @@
 popover_for_help_server("modulePopover_numPrecision",
-    data = list(
-            title = "Numerical precisions",
+    title = "Numerical precisions",
             content = "Set the number of decimals to display for
             numerical values."
         )
-    )
+
 
 
 observe({

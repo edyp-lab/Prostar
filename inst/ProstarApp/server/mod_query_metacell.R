@@ -6,20 +6,17 @@ options(shiny.reactlog=TRUE)
 mod_query_metacell_ui <- function(id) {
     ns <- NS(id)
     tagList(
-        div(
-            fluidRow(
+        fluidRow(
                 column(2, mod_metacell_tree_ui(ns('tree'))),
                 column(2, uiOutput(ns("Choose_keepOrRemove_ui"))),
                 column(2, uiOutput(ns("choose_metacellFilters_ui"))),
-                column(6, tagList(
-                    uiOutput(ns("show_example_ui")),
-                    uiOutput(ns("MetacellFilters_widgets_set2_ui"))
-                ))
+                column(6, uiOutput(ns("MetacellFilters_widgets_set2_ui")))
             ),
-            actionButton(ns('buildQueryBtn'), 'Apply', class = actionBtnClass),
-            div(style = "display:inline-block; vertical-align: middle; align: center;",
-                uiOutput(ns("metacellFilter_request_ui"))
-            )
+        fluidRow(
+            column(6, uiOutput(ns("metacellFilter_request_ui"))),
+            column(3, uiOutput(ns("show_example_ui"))),
+            column(3, uiOutput(ns('showApplyBtn'))),
+            column(6, uiOutput(ns("MetacellFilters_widgets_set2_ui")))
         )
     )
 }
@@ -81,34 +78,31 @@ mod_query_metacell_server <- function(id,
             ns <- session$ns
 
             popover_for_help_server("filterScope_help",
-                data = list(
-                    title = "Scope",
-                    content = HTML(
-                        paste0("To filter the missing values, the choice of
-                        the lines to be kept is made by different options:"),
-                        ("<ul>"),
-                        ("<li><strong>None</strong>: No filtering, the
-                        quantitative data is left unchanged.</li>"),
-                        ("<li><strong>(Remove) Empty lines</strong>: All the
+                title = "Scope",
+                    content = HTML("To filter the missing values, the choice of
+                        the lines to be kept is made by different options:
+                               <ul>
+                               <li><strong>None</strong>: No filtering, the
+                        quantitative data is left unchanged.</li>
+                        <li><strong>(Remove) Empty lines</strong>: All the
                         lines with 100% of missing values are filtered
-                            out.</li>"),
-                        ("<li><strong>Whole Matrix</strong>: The lines
+                            out.</li>
+                            <li><strong>Whole Matrix</strong>: The lines
                         (across all conditions) which contain less quantitative
-                        value than a user-defined threshold are kept;</li>"),
-                        ("<li><strong>For every condition</strong>: The lines
+                        value than a user-defined threshold are kept;</li>
+                        <li><strong>For every condition</strong>: The lines
                         for which each condition contain less quantitative
-                        value than a user-defined threshold are deleted;</li>"),
-                        ("<li><strong>At least one condition</strong>: The
+                        value than a user-defined threshold are deleted;</li>
+                        <li><strong>At least one condition</strong>: The
                         lines for which at least one condition contain less
                         quantitative value than a user-defined threshold are
-                            deleted.</li>"),
-                        ("</ul>")
-                    )
-                )
+                            deleted.</li>
+                               </ul>")
             )
 
 
             init_rv_widgets <- function(){
+                print('marqueur 2')
                 rv.widgets$MetacellTag <- NULL
                 rv.widgets$MetacellFilters <- "None"
                 rv.widgets$KeepRemove <- "delete"
@@ -127,7 +121,8 @@ mod_query_metacell_server <- function(id,
             #         rv$op_names <- op_names
             # })
             
-            observeEvent(req(reset()), {
+            observeEvent(reset(), {
+                print("rororororororo")
                 init_rv_widgets()
                 rv$reset_tree <- as.numeric(Sys.time()) 
                 rv$tags <- NULL
@@ -140,6 +135,7 @@ mod_query_metacell_server <- function(id,
             
             
             observeEvent(id, {
+                print('marqueur 1')
                 if(is.null(obj())){
                     dataOut$trigger <- as.numeric(Sys.time())
                     dataOut$params<- list(
@@ -172,7 +168,8 @@ mod_query_metacell_server <- function(id,
                                                  reset = reactive({rv$reset_tree})
                                                  )
             
-            observeEvent(tmp.tags()$trigger, ignoreNULL = FALSE, {
+            observeEvent(tmp.tags()$values, ignoreNULL = FALSE, ignoreInit = TRUE, {
+                print('marqueur 3')
                 rv.widgets$MetacellTag <- tmp.tags()$values
             }, priority = 900)
             
@@ -231,6 +228,13 @@ mod_query_metacell_server <- function(id,
 
 
 
+            output$showApplyBtn <- renderUI({
+                req(rv.widgets$MetacellTag)
+                req(rv.widgets$MetacellFilters != "None")
+                
+                actionButton(ns('buildQueryBtn'), 'Apply', class = actionBtnClass)
+            })
+            
             output$show_example_ui <- renderUI({
                 req(rv.widgets$MetacellTag)
                 req(rv.widgets$MetacellFilters != "None")
@@ -251,10 +255,8 @@ mod_query_metacell_server <- function(id,
                 req(!(rv.widgets$MetacellFilters %in% c("None", "WholeLine")))
 
                 popover_for_help_server("choose_val_vs_percent_help",
-                    data = list(
-                        title = paste("#/% of values to ", rv.widgets$KeepRemove),
+                    title = paste("#/% of values to ", rv.widgets$KeepRemove),
                         content = "Define xxx"
-                    )
                 )
 
                 tagList(
@@ -285,11 +287,9 @@ mod_query_metacell_server <- function(id,
                 req(!(rv.widgets$MetacellFilters %in% c("None", "WholeLine")))
 
                 popover_for_help_server("metacell_value_th_help",
-                    data = reactive(list(
-                        title = "Count threshold",
-                        content = "Define xxx"
-                    ))
-                )
+                    title = "Count threshold",
+                    content = "Define xxx"
+                    )
 
                 tagList(
                     popover_for_help_ui(ns("modulePopover_keepVal")),
@@ -309,11 +309,10 @@ mod_query_metacell_server <- function(id,
                 req(!(rv.widgets$MetacellFilters %in% c("None", "WholeLine")))
 
                 popover_for_help_server("metacell_percent_th_help",
-                    data = list(
-                        title = "Percentage threshold",
+                    title = "Percentage threshold",
                         content = "Define xxx"
-                    )
                 )
+                
                 tagList(
                     popover_for_help_ui(ns("modulePopover_keepVal_percent")),
                     sliderInput(ns("choose_metacell_percent_th"),
@@ -427,7 +426,8 @@ mod_query_metacell_server <- function(id,
 
 
             
-            observeEvent(input$buildQueryBtn, ignoreInit = FALSE, ignoreNULL = FALSE, {
+            observeEvent(input$buildQueryBtn, ignoreInit = TRUE, ignoreNULL = TRUE, {
+                
                 dataOut$trigger <- as.numeric(Sys.time())
                 dataOut$params<- list(
                     MetacellTag = rv.widgets$MetacellTag,

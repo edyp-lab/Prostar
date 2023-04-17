@@ -76,7 +76,7 @@ shinyServer(
      # Hide the loading message when the rest of the server function has executed
     
          env <- environment()
-         source(file.path("server", "mod_format_DT.R"), local = TRUE)$value
+          source(file.path("server", "mod_format_DT.R"), local = TRUE)$value
          
          source(file.path("server", "mod_dl.R"), local = TRUE)$value
          source(file.path("server", "mod_insert_md.R"), local = TRUE)$value
@@ -116,7 +116,36 @@ shinyServer(
       
      observeEvent(input$linkage, {rv$PlotParams$heatmap.linkage <- input$linkage})
 
+     output$datasetAbsPanel <- renderUI({
+         req(rv$current.obj.name)
+         
+         if (is.null(rv$current.obj.name))
+             .title <- "No dataset"
+         else
+             .title <- rv$current.obj.name
 
+         popover_for_help_server("modulePopover_dataset",
+                                 title = .title,
+                                 content = "Before each processing step, a backup of the current
+                                 dataset is stored. It is possible to reload one of them at any time."
+         )
+         
+         div(
+             div(
+                 style = "display:inline-block; vertical-align: middle;",
+                 popover_for_help_ui("modulePopover_dataset")
+             ),
+             div(
+                 style = "display:inline-block; vertical-align: middle; z-index: 1000;",
+                 selectInput("datasets", "",
+                             choices = list("None" = "None"),
+                             width = "200px"
+                 )
+             )
+         )
+         
+         
+     })
 
      observe({
         req(input$navPage)

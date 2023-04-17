@@ -20,9 +20,8 @@ callModule(
 
 
 popover_for_help_server("modulePopover_HelpImputationPeptide",
-    data = list(
-            title = "Algorithm",
-            content = HTML(paste0("<ul><li><strong>imp4p [Ref. 7]</strong>
+    title = "Algorithm",
+    content = HTML(paste0("<ul><li><strong>imp4p [Ref. 7]</strong>
         a proteomic-specific multiple imputation method that operates on
         peptide-level datasets and which proposes to impute each missing
         value according to its nature (left-censored  or random). To tune
@@ -35,7 +34,7 @@ popover_for_help_server("modulePopover_HelpImputationPeptide",
         Imputation with the maximum likelihood estimate of the expected
         intensity (see the norm R package).</li></ul></ul>"))
         )
-    )
+
 
 
 callModule(moduleProcess, "moduleProcess_PepImputation",
@@ -511,16 +510,15 @@ output$peptideLevel_warningImputationMethod <- renderText({
 
 
 popover_for_help_server("modulePopover_helpForImputation",
-    data = list(
-            title = p(if (is.null(rv$current.obj.name)) {
+    title = p(if (is.null(rv$current.obj.name)) {
                 "No dataset"
             } else {
                 paste0(rv$current.obj.name)
             }),
-            content = "Before each processing step, a backup of the
+     content = "Before each processing step, a backup of the
             current dataset is stored. It is possible to reload one of them
           at any time.",
             color = "white"
         )
-    )
+
 

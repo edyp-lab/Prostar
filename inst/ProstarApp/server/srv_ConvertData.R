@@ -1,39 +1,30 @@
 
 
 popover_for_help_server("modulePopover_convertChooseDatafile",
-    data = 
-        list(
-            title = "Data file",
-            content = "Select one (.txt, .csv, .tsv, .xls, .xlsx) file."
+    title = "Data file",
+    content = "Select one (.txt, .csv, .tsv, .xls, .xlsx) file."
         )
-    )
 
 popover_for_help_server("modulePopover_convertIdType",
-    data = list(
-            title = "ID definition",
-            content = "If you choose the automatic ID, Prostar will build
-          an index."
+    title = "ID definition",
+    content = "If you choose the automatic ID, Prostar will build an index."
         )
-    )
+
 
 
 
 
 popover_for_help_server("modulePopover_convertProteinID",
-    data = list(
-        title = "Select protein IDs",
+    title = "Select protein IDs",
         content = "Select the column containing the parent protein IDs."
     )
-)
 
 
 popover_for_help_server("modulePopover_convertDataQuanti",
-    data = list(
-            title = "Quantitative data",
+    title = "Quantitative data",
             content = "Select the columns that are quantitation values
             by clicking in the field below."
         )
-    )
 
 format_DT_server("overview_convertData",
     data = reactive({GetDatasetOverview()})

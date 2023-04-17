@@ -195,9 +195,7 @@ output$pushpval_ui <- renderUI({
   req(rv$widgets$anaDiff$Comparison != "None")
   
     popover_for_help_server("modulePopover_pushPVal",
-        data = 
-          list(
-            title = h3("Push p-value"),
+        title = h3("Push p-value"),
             content = "This functionality is useful in case of multiple pairwise comparisons 
               (more than 2 conditions): At the filtering step, a given analyte X
               (either peptide or protein) may have been kept because it contains
@@ -217,7 +215,6 @@ output$pushpval_ui <- renderUI({
               the considered comparison are assumed meaningless due to too many
               missing values (before imputation)."
           )
-    )
 
     wellPanel(
         popover_for_help_ui("modulePopover_pushPVal"),
@@ -422,18 +419,16 @@ output$volcanoTooltip_UI <- renderUI({
 
 
 popover_for_help_server("modulePopover_volcanoTooltip",
-    data = list(
-        title = "Tooltip",
+    title = "Tooltip",
         content = "Infos to be displayed in the tooltip of volcanoplot"
     )
-)
+
 
 popover_for_help_server("modulePopover_keepLines",
-    data = list(
-        title = "n values",
+    title = "n values",
         content = "Keep the lines which have at least n intensity values."
     )
-)
+
 
 
 GetBackToCurrentResAnaDiff <- reactive({
@@ -981,11 +976,10 @@ observeEvent(input$downloadAnaDiff, {
 })
 
 popover_for_help_server("modulePopover_pValThreshold",
-    data = list(
-        title = "p-val cutoff",
+    title = "p-val cutoff",
         content = "Define the -log10(p_value) threshold"
     )
-)
+
 
 
 output$anaDiff_selectedItems <- DT::renderDT({

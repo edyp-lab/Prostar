@@ -7,10 +7,7 @@ mod_filtering_example_ui <- function(id) {
     ns <- NS(id)
 
     tagList(
-        actionButton(ns("show_filtering_example"),
-            "Preview filtering",
-            class = actionBtnClass
-        ),
+        actionLink(ns("show_filtering_example"), "Preview filtering"),
         shinyBS::bsModal(ns("example_modal"),
             title = "Example preview of the filtering result.",
             size = "large",

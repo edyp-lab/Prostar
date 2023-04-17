@@ -176,8 +176,7 @@ output$screenGO2 <- renderUI({
                 )
             ),
             tags$div(
-                style = "display:inline-block; vertical-align: middle;
-      padding-right: 20px;",
+                style = "display:inline-block; vertical-align: middle; padding-right: 20px;",
                 actionButton("group.GO.perform.button", "Perform GO grouping",
                     class = actionBtnClass
                 )
@@ -201,8 +200,7 @@ output$screenGO3 <- renderUI({
     tagList(
         tags$div(
             tags$div(
-                style = "display:inline-block; vertical-align: middle;
-        padding-right: 20px;",
+                style = "display:inline-block; vertical-align: middle; padding-right: 20px;",
                 modulePopoverUI("modulePopover_GOuniverse"),
                 radioButtons("universe", NULL,
                     choices = G_universe_Choices,
@@ -210,13 +208,11 @@ output$screenGO3 <- renderUI({
                 )
             ),
             tags$div(
-                style = "display:inline-block; vertical-align: middle;
-        padding-right: 20px;",
+                style = "display:inline-block; vertical-align: middle; padding-right: 20px;",
                 uiOutput("resettableUniverseFile")
             ),
             tags$div(
-                style = "display:inline-block; vertical-align: middle;
-    padding-right: 20px;",
+                style = "display:inline-block; vertical-align: middle; padding-right: 20px;",
                 modulePopoverUI("modulePopover_GOfdr"),
                 numericInput("pvalueCutoff", NULL,
                     min = 0, max = 1, step = 0.01,
@@ -246,32 +242,28 @@ output$screenGO4 <- renderUI({
 
 
 popover_for_help_server("modulePopover_GOlevel",
-    data = list(
-        title = "Level",
-        content = "Level"
+    title = "Level",
+    content = "Level"
     )
-)
+
 
 
 popover_for_help_server("modulePopover_GOuniverse",
-    data = list(
-        title = "Universe",
-        content = "universe"
+    title = "Universe",
+    content = "universe"
     )
-)
+
 popover_for_help_server("modulePopover_GOfdr",
-    data = list(
-        title = "FDR",
-        ontent = "BH Adjusted P-value cutoff"
+    title = "FDR",
+    content = "BH Adjusted P-value cutoff"
     )
-)
+
 
 
 
 popover_for_help_server("modulePopover_GenomeWide",
-    data = list(
-        title = "Genome Wide Annotation",
-        content = paste0(
+    title = "Genome Wide Annotation",
+    content = paste0(
             tags$p("If the expected annotation database is not proposed in the
         dropdown menu, please find "),
             tags$a("here",
@@ -283,7 +275,7 @@ popover_for_help_server("modulePopover_GenomeWide",
         ProStaR.")
         )
     )
-)
+
 
 
 
