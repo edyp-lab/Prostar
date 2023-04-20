@@ -2,7 +2,7 @@
 library(shiny)
 library(shinyjs)
 library(shinyBS)
-library(rclipboard)
+#library(rclipboard)
 library(sass)
 source(file.path("ui", "ui_Configure.R"), local = TRUE)$value
 source(file.path(".", "modules/Plots/modulePlots.R"), local = TRUE)$value
@@ -20,6 +20,10 @@ jsResetCode <- "shinyjs.resetProstar = function() {history.go(0)}"
 
 shinyUI(
     fluidPage(
+        if (!requireNamespace("rclipboard", quietly = TRUE)) {
+            stop("Please install rclipboard: BiocManager::install('rclipboard')")
+        },
+        
         rclipboard::rclipboardSetup(),
         
         #tags$head(includeHTML(("www/google-analytics.html"))),
