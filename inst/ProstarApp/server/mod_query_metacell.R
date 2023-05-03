@@ -15,8 +15,7 @@ mod_query_metacell_ui <- function(id) {
         fluidRow(
             column(6, uiOutput(ns("metacellFilter_request_ui"))),
             column(3, uiOutput(ns("show_example_ui"))),
-            column(3, uiOutput(ns('showApplyBtn'))),
-            column(6, uiOutput(ns("MetacellFilters_widgets_set2_ui")))
+            column(3, uiOutput(ns('showApplyBtn')))
         )
     )
 }

@@ -1,0 +1,644 @@
+
+
+mod_DescriptiveStatistics_ui <- function(id) {
+    ns <- NS(id)
+    
+   # tagList(
+        tabPanel("Descriptive statistics",
+             value = "DescriptiveStatisticsTab",
+             tabsetPanel(
+                 id = "DS_tabSetPanel",
+                 tabPanel("Overview",
+                          value = "DS_tabGeneral",
+                          tagList(
+                              br(),
+                              format_DT_ui(ns("overview_DS")),
+                              uiOutput(ns("versionsUI"))
+                          )
+                 ),
+                 tabPanel("Quantification type",
+                          value = "DS_tabOverviewMV",
+                          mod_plotsMetacellHistos_ui(ns("MVPlots_DS"))
+                 ),
+                 tabPanel(
+                     title = "Data explorer",
+                     value = "DS_DataExplorer",
+                     mod_MSnSetExplorer_ui(ns("test"))
+                 ),
+                 tabPanel("Corr. matrix",
+                          value = "DS_tabCorrMatrix",
+                          checkboxInput("showDataLabels", "Show labels", value = FALSE),
+                          uiOutput(ns("plotsCorM"))
+                 ),
+                 tabPanel("Heatmap",
+                          value = "DS_tabHeatmap",
+                          uiOutput(ns("plotsHeatmap"))
+                 ),
+                 tabPanel("PCA",
+                          value = "DS_PCA",
+                          uiOutput(ns("plotsPCA"))
+                 ),
+                 tabPanel("Intensity distr.",
+                          value = "DS_tabDensityplot",
+                          uiOutput(ns("IntensityStatsPlots"))
+                 ),
+                 tabPanel("CV distr.",
+                          value = "DS_tabDistVar",
+                          uiOutput(ns("plotsDistCV"))
+                 )
+             )
+    )
+   # )
+
+}
+
+mod_DescriptiveStatistics_server <- function(id, 
+                                     obj = reactive({NULL})) {
+    moduleServer(id, function(input, output, session) {
+            ns <- session$ns
+    
+    
+            plotWidth <- "800px"
+            plotHeight <- "600px"
+            
+            
+    rv_ds <- reactiveValues(
+        res.pca = NULL,
+        PCA_varScale = NULL,
+        PCA_axes = NULL
+    )
+    
+    
+    GetDatasetOverview <- reactive({
+        req(obj())
+        
+        columns <- c(
+            "Number of samples", "Number of conditions",
+            "Number of lines", "Number of missing values", "% of missing values",
+            "Number of empty lines"
+        )
+        
+        do <- data.frame(
+            Definition = columns,
+            Value = rep(0, length(columns))
+        )
+        
+        m <- match.metacell(DAPAR::GetMetacell(obj()),
+                            pattern = c("Missing", "Missing POV", "Missing MEC"),
+                            level = DAPAR::GetTypeofData(obj())
+        )
+        NA.count <- length(which(m))
+        .ncol <- ncol(obj())
+        .nrow <- nrow(obj())
+        pourcentage <- round(NA.count / (.ncol * .nrow),
+                             digits = 4
+        )
+        pourcentage <- 100 * pourcentage
+        nb.empty.lines <- sum(apply(m, 1, all))
+        
+        
+        val <- c(
+            ncol((Biobase::exprs(obj()))),
+            length(unique(Biobase::pData(obj())$Condition)),
+            nrow((Biobase::exprs(obj()))),
+            NA.count,
+            pourcentage,
+            nb.empty.lines
+        )
+        do$Value <- val
+        
+        do
+    })
+    
+    
+    
+    module_Densityplot_server("densityPlot_DS", obj = reactive({obj()}))
+    
+    mod_Boxplot_server("boxPlot_DS", obj = reactive({obj()}), pal = reactive({ NULL}))
+    
+    format_DT_server("overview_DS",
+                     data = reactive({GetDatasetOverview()}),
+                     filename = "DescriptiveStats_Overview"
+    )
+    
+    format_DT_server("PCAvarCoord",
+                     data = reactive({
+                         if (!is.null(rv_ds$res.pca)) {
+                             round(rv_ds$res.pca$var$coord, digits = 7)
+                         }
+                     }),
+                     filename = "PCA_Var_Coords"
+    )
+    
+    
+    output$versionsUI <- renderUI({
+        req(obj())
+        
+        Prostar_msnset_version <- obj()@experimentData@other$Prostar_Version
+        DAPAR_msnset_version <- obj()@experimentData@other$DAPAR_Version
+        
+        tagList(
+            br(),
+            h3('This dataset was created with:'),
+            p(paste0('Prostar version:', Prostar_msnset_version)),
+            p(paste0('DAPAR version:', DAPAR_msnset_version))
+        )
+    })
+    
+    observeEvent(c(input$pca.axe1, input$pca.axe2), {
+        rv_ds$PCA_axes <- c(input$pca.axe1, input$pca.axe2)
+    })
+    
+    observeEvent(input$varScale_PCA, {
+        rv_ds$PCA_varScale <- input$varScale_PCA
+        rv_ds$res.pca <- wrapper.pca(obj(), rv_ds$PCA_varScale,
+                                  ncp = Compute_PCA_nbDimensions()
+        )
+    })
+    
+    observeEvent(obj(), {
+        rv_ds$res.pca <- wrapper.pca(obj(),
+                                  rv_ds$PCA_varScale,
+                                  ncp = Compute_PCA_nbDimensions()
+        )
+    })
+    
+    
+    
+    output$plotsCorM <- renderUI({
+        tagList(
+            tags$br(), tags$br(),
+            tags$div(
+                tags$div(
+                    style = "display:inline-block; vertical-align: middle;",
+                    tags$p("Plot options")
+                ),
+                tags$div(
+                    style = "display:inline-block; vertical-align: middle;",
+                    tags$div(
+                        tags$div(
+                            style = "display:inline-block; vertical-align: top;",
+                            shinyWidgets::dropdownButton(
+                                tags$div(
+                                    tags$div(
+                                        style = "display:inline-block; vertical-align: bottom;",
+                                        sliderInput(ns("expGradientRate"),
+                                                    "Tune to modify the color gradient",
+                                                    min = 0, max = 1, value = defaultGradientRate, step = 0.01
+                                        ),
+                                        tooltip = "Plots parameters",
+                                        icon = icon("gear"), status = optionsBtnClass
+                                    )
+                                ),
+                                tooltip = "Plots parameters",
+                                icon = icon("gear"), status = optionsBtnClass
+                            )
+                        )
+                    )
+                )
+            ),
+            withProgress(message = "", detail = "", value = 1, {
+                highchartOutput(ns("corrMatrix"), width = plotWidth, height = plotHeight)
+            })
+        )
+    })
+    
+    
+    
+    output$IntensityStatsPlots <- renderUI({
+        tagList(
+            tags$br(), tags$br(),
+            tags$div(
+                tags$div(
+                    style = "display:inline-block; vertical-align: middle;",
+                    tags$p("Plot options")
+                )
+                
+            ),
+            fluidRow(
+                column(width = 6, module_Densityplot_ui(ns("densityPlot_DS"))),
+                column(width = 6, mod_Boxplot_ui(ns("boxPlot_DS")))
+            )
+        )
+    })
+    
+
+     mod_plotsMetacellHistos_server(id = "MVPlots_DS",
+                                    obj = reactive({obj()}),
+                                    pal = reactive({NULL}),
+                                    pattern = reactive({NULL}),
+                                    showSelect = reactive({TRUE})
+     )
+    
+    output$plotsDistCV <- renderUI({
+        tagList(
+            helpText("Display the condition-wise distributions of the log-intensity
+    CV (Coefficient of Variation) of the protein/peptides."),
+            helpText("For better visualization, it is possible to zoom in by
+      click-and-drag."),
+            withProgress(message = "", detail = "", value = 1, {
+                highchartOutput(ns("viewDistCV"), width = plotWidth, height = plotHeight)
+            })
+        )
+    })
+    
+    
+    output$plotsHeatmap <- renderUI({
+        tagList(
+            div(
+                div(
+                    style = "display:inline-block; vertical-align: middle;
+        padding-right: 20px;",
+                    selectInput(ns("distance"), "Distance",
+                                choices = G_heatmapDistance_Choices,
+                                selected = rv_ds$PlotParams$heatmap.distance,
+                                width = "150px"
+                    )
+                ),
+                div(
+                    style = "display:inline-block; vertical-align: middle;",
+                    selectInput(ns("linkage"), "Linkage",
+                                choices = G_heatmapLinkage_Choices,
+                                selected = rv_ds$PlotParams$heatmap.linkage,
+                                width = "150px"
+                    )
+                ),
+                tags$hr(),
+                uiOutput(ns("DS_PlotHeatmap"))
+            )
+        )
+    })
+    
+    
+    output$plotsPCA <- renderUI({
+        tagList(
+            uiOutput("WarningNA_PCA"),
+            uiOutput("pcaOptions"),
+            fluidRow(
+                column(width = 6, imageOutput(ns("pcaPlotVar"))),
+                column(width = 6, imageOutput(ns("pcaPlotInd")))
+            ),
+            fluidRow(
+                column(width = 6, highchartOutput(ns("pcaPlotEigen"))),
+                column(width = 6, format_DT_ui(ns("PCAvarCoord")))
+            )
+        )
+    })
+    
+    
+    
+    
+    output$pcaPlotInd <- renderImage(
+        {
+            # req(rv_ds$PCA_axes)
+            # req(rv_ds$res.pca)
+            
+            outfile <- tempfile(fileext = ".png")
+            # Generate a png
+            png(outfile)
+            image <- DAPAR::plotPCA_Ind(rv_ds$res.pca, rv_ds$PCA_axes)
+            print(image)
+            dev.off()
+            
+            # Return a list
+            list(
+                src = outfile,
+                alt = "This is alternate text"
+            )
+        },
+        deleteFile = FALSE
+    )
+    
+    
+    output$pcaPlotVar <- renderImage(
+        {
+            req(rv_ds$PCA_axes)
+            req(rv_ds$res.pca)
+            
+            outfile <- tempfile(fileext = ".png")
+            # Generate a png
+            png(outfile)
+            image <- DAPAR::plotPCA_Var(rv_ds$res.pca, rv_ds$PCA_axes)
+            print(image)
+            dev.off()
+            
+            # Return a list
+            list(
+                src = outfile,
+                alt = "This is alternate text"
+            )
+        },
+        deleteFile = FALSE
+    )
+    
+    
+    
+    output$pcaPlotEigen <- renderHighchart({
+        req(rv_ds$res.pca)
+        plotPCA_Eigen_hc(rv_ds$res.pca)
+    })
+    
+    output$pcaOptions <- renderUI({
+        req(obj())
+        m <- match.metacell(DAPAR::GetMetacell(obj()),
+                            pattern = c("Missing", "Missing POV", "Missing MEC"),
+                            level = DAPAR::GetTypeofData(obj())
+        )
+        
+        tagList(
+            if (length(which(m)) > 0) {
+                tags$p("Warning: As your dataset contains missing values, the PCA cannot be computed.
+             Please impute them first")
+            } else {
+                tags$div(
+                    tags$div(
+                        style = "display:inline-block; vertical-align: middle; padding-right: 20px;",
+                        numericInput(ns("pca.axe1"), "Dimension 1",
+                                     min = 1,
+                                     max = Compute_PCA_nbDimensions(), value = 1, width = "100px"
+                        )
+                    ),
+                    tags$div(
+                        style = "display:inline-block; vertical-align: middle;",
+                        numericInput(ns("pca.axe2"), "Dimension 2",
+                                     min = 1,
+                                     max = Compute_PCA_nbDimensions(), value = 2, width = "100px"
+                        )
+                    ),
+                    tags$div(
+                        style = "display:inline-block; vertical-align: middle; padding-right: 20px;",
+                        checkboxInput(ns("varScale_PCA"), "Variance scaling",
+                                      value = rv_ds$PCA_varScale
+                        )
+                    )
+                )
+            }
+        )
+    })
+    
+    
+    
+    #######################################
+    
+    
+    output$DS_sidebarPanel_tab <- renderUI({
+        req(GetTypeofData(obj()))
+        
+        .choices <- NULL
+        switch(GetTypeofData(obj()),
+               protein = {
+                   .choices <- list("Quantitative data" = "tabExprs",
+                                    "Proteins metadata" = "tabfData",
+                                    "Experimental design" = "tabpData")
+               },
+               peptide = {
+                   .choices <- list("Quantitative data" = "tabExprs",
+                                    "Peptides metadata" = "tabfData",
+                                    "Experimental design" = "tabpData")
+               },
+               {
+                   .choices <- list("Quantitative data" = "tabExprs",
+                                    "Analyte metadata" = "tabfData",
+                                    "Experimental design" = "tabpData")
+               }
+        )
+        
+        tagList(
+            tags$div(
+                tags$div(
+                    style = "display:inline-block; vertical-align: middle;
+        padding-right: 40px;",
+                    radioButtons(ns("DS_TabsChoice"), "Table to display",
+                                 choices = .choices,
+                                 inline = TRUE,
+                                 selected = character(0)
+                    )
+                ),
+                tags$div(
+                    style = "display:inline-block; vertical-align: middle;",
+                    uiOutput(ns("legendForExprsData"))
+                )
+            )
+        )
+    })
+    
+    
+    
+    
+    
+    output$DS_sidebarPanel_heatmap <- renderUI({
+        req(obj())
+        tagList(
+            h3("Clustering Options"),
+            selectInput(ns("distance"), "Distance",
+                        choices = G_heatmapDistance_Choices,
+                        selected = rv_ds$PlotParams$heatmap.distance,
+                        width = "150px"
+            ),
+            br(),
+            selectInput(ns("linkage"), "Linkage",
+                        choices = G_heatmapLinkage_Choices,
+                        selected = rv_ds$PlotParams$heatmap.linkage,
+                        width = "150px"
+            )
+        )
+    })
+    
+    
+    mod_MSnSetExplorer_server(
+        id = "test",
+        data = reactive({obj()}),
+        digits = reactive({rv_ds$settings_nDigits}),
+        palette.conds = reactive({rv_ds$PlotParams$paletteForConditions})
+    )
+    
+    
+    
+    
+    
+    
+    
+    viewDistCV <- reactive({
+        req(obj())
+        rv_ds$PlotParams$paletteForConditions
+        
+        isolate({
+            rv_ds$tempplot$varDist <- wrapper.CVDistD_HC(obj())
+        })
+        rv_ds$tempplot$varDist
+    })
+    
+    
+    
+    corrMatrix <- reactive({
+        req(obj())
+        input$expGradientRate
+        input$showDataLabels
+        
+        gradient <- NULL
+        if (is.null(input$expGradientRate)) {
+            gradient <- defaultGradientRate
+        } else {
+            gradient <- input$expGradientRate
+        }
+        
+        isolate({
+            rv_ds$tempplot$corrMatrix <- wrapper.corrMatrixD_HC(obj(),
+                                                             gradient,
+                                                             showValues = input$showDataLabels
+            )
+            rv_ds$tempplot$corrMatrix
+        })
+    })
+    
+    
+    observeEvent(input$distance, {
+        rv_ds$PlotParams$heatmap.distance <- input$distance
+    })
+    observeEvent(input$linkage, {
+        rv_ds$PlotParams$heatmap.linkage <- input$linkage
+    })
+    
+    heatmap <- reactive({
+        req(obj())
+        input$linkage
+        input$distance
+        
+        isolate({
+            wrapper.heatmapD(
+                obj(),
+                input$distance,
+                input$linkage,
+                TRUE
+            )
+        })
+    })
+    
+    
+    
+    
+    
+    
+    
+    
+    output$DS_PlotHeatmap <- renderUI({
+        req(obj())
+        if (nrow(obj()) > limitHeatmap) {
+            tags$p("The dataset is too big to compute the heatmap in a reasonable time.")
+        } else {
+            tagList(
+                withProgress(message = "Building plot", detail = "", value = 1, {
+                    plotOutput(ns("heatmap"), width = "900px", height = "600px")
+                })
+            )
+        }
+    })
+    
+    
+    
+    
+    
+    # options for boxplot
+    # #------------------------------------------------------
+    output$ChooseLegendForSamples <- renderUI({
+        req(obj())
+        
+        .names <- colnames(Biobase::pData(obj()))
+        
+        
+        checkboxGroupInput(ns("legendForSamples"),
+                           label = "Choose data to show in legend",
+                           choices = .names,
+                           selected = .names[2]
+        )
+    })
+    
+    observeEvent(input$legendForSamples, {
+        rv_ds$PlotParams$legendForSamples <- as.vector(
+            apply(
+                as.data.frame(Biobase::pData(obj())[, input$legendForSamples]), 1,
+                function(x) paste(x, collapse = "_")
+            )
+        )
+    })
+    
+    
+    shinyBS::addPopover(session, "histo_missvalues_per_lines_per_conditions", "Info",
+                        content = paste0("<p>Test", "test</p><p>Explanation .</p>"), 
+                        trigger = "click")
+    
+    
+    
+    
+    ##' Draw a heatmap of current data
+    ##'
+    ##' @author Samuel Wieczorek
+    output$heatmap <- renderImage(
+        {
+            # A temp file to save the output. It will be deleted after renderImage
+            # sends it, because deleteFile=TRUE.
+            outfile <- tempfile(fileext = ".png")
+            
+            # Generate a png
+            tryCatch({
+                png(outfile, width = 900, height = 600)
+                heatmap()
+                dev.off()
+            },
+            error = function(e) {
+                #if(showErrLog)
+                shinyjs::info(conditionMessage(e))
+                return(NULL)
+                #     mod_errorModal_server("test_error",
+                #         reactive({readLines(logfilename)})
+                # )
+                # return(NULL)
+            })
+            
+            # Return a list
+            list(
+                src = outfile,
+                alt = "This is alternate text"
+            )
+        },
+        deleteFile = TRUE
+    )
+    
+    
+    ##' distribution of the variance in current.obj
+    ##'
+    ##' @author Samuel Wieczorek
+    output$viewDistCV <- renderHighchart({
+        viewDistCV()
+    })
+    
+    
+    
+    ##' Draw a correlation matrix of intensities in current.obj
+    ##'
+    ##' @author Samuel Wieczorek
+    output$corrMatrix <- renderHighchart({
+        corrMatrix()
+    })
+    
+        })
+}
+
+
+
+# Example
+#
+ui <- fluidPage(
+    mod_DescriptiveStatistics_ui('tree')
+)
+
+server <- function(input, output) {
+
+    utils::data('Exp1_R25_prot')
+    mod_DescriptiveStatistics_server('tree', 
+                                     obj = reactive({Exp1_R25_prot}))
+
+}
+
+shinyApp(ui = ui, server = server)
+
