@@ -81,7 +81,7 @@ output$screenFiltering1 <- renderUI({
             ),
         hr(),
         ################## Plots section #############################
-        mod_plotsMetacellHistos_ui("MVPlots_filtering")
+        uiOutput('mvplotsUI')
     )
 })
 
@@ -174,13 +174,15 @@ observeEvent(rv$indices()$indices, ignoreInit = TRUE, {
 })
 
 
-observe({
+output$mvplotsUI <- renderUI({
     mod_plotsMetacellHistos_server(id = "MVPlots_filtering",
                                obj = reactive({rv$current.obj}),
                                pal = reactive({rv$PlotParams$paletteForConditions}),
                                pattern = reactive({rv$indices()$params$MetacellTag}),
                                showSelect = reactive({FALSE})
 )
+    
+    mod_plotsMetacellHistos_ui("MVPlots_filtering")
 })
 
 

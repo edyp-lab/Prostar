@@ -159,8 +159,8 @@ mod_metacell_tree_server <- function(id,
                 shinyjs::inlineCSS(css),
                 tags$script(paste0('$( document ).ready(function() {
                 $("#', 
-                                   ns('modalExample'), 
-                                   '").on("hidden.bs.modal", function (event) {
+                ns('modalExample'), 
+                '").on("hidden.bs.modal", function (event) {
                 x = new Date().toLocaleString();
                 Shiny.onInputChange("', ns('lastModalClose'), '",x);});})')),
             tags$head(tags$style(paste0(".modal-dialog { width: fit-content !important; z-index: 1000;}"))),
