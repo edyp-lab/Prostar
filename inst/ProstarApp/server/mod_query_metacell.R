@@ -101,7 +101,7 @@ mod_query_metacell_server <- function(id,
 
 
             init_rv_widgets <- function(){
-                print('marqueur 2')
+                #print('marqueur 2')
                 rv.widgets$MetacellTag <- NULL
                 rv.widgets$MetacellFilters <- "None"
                 rv.widgets$KeepRemove <- "delete"
@@ -121,7 +121,7 @@ mod_query_metacell_server <- function(id,
             # })
             
             observeEvent(reset(), {
-                print("rororororororo")
+                #print("rororororororo")
                 init_rv_widgets()
                 rv$reset_tree <- as.numeric(Sys.time()) 
                 rv$tags <- NULL
@@ -134,7 +134,7 @@ mod_query_metacell_server <- function(id,
             
             
             observeEvent(id, {
-                print('marqueur 1')
+                #print('marqueur 1')
                 if(is.null(obj())){
                     dataOut$trigger <- as.numeric(Sys.time())
                     dataOut$params<- list(
@@ -168,7 +168,7 @@ mod_query_metacell_server <- function(id,
                                                  )
             
             observeEvent(tmp.tags()$values, ignoreNULL = FALSE, ignoreInit = TRUE, {
-                print('marqueur 3')
+                #print('marqueur 3')
                 rv.widgets$MetacellTag <- tmp.tags()$values
             }, priority = 900)
             
@@ -484,7 +484,7 @@ server <- function(input, output) {
                                      )
  
     observeEvent(tmp()$trigger, {
-        print(tmp()$indices)
+        #print(tmp()$indices)
         shinyjs::toggleState("perform",
                              condition = length(tmp()$indices) > 0
         )

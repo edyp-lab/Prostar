@@ -127,7 +127,7 @@ output$ConvertOptions <- renderUI({
 
 
 ############ Read text file to be imported ######################
-observeEvent(c(input$file1, input$XLSsheets), {
+observeEvent(req(input$file1, input$XLSsheets), {
     input$XLSsheets
     if (((GetExtension(input$file1$name) %in% c("xls", "xlsx"))) &&
         is.null(input$XLSsheets)) {
@@ -140,44 +140,48 @@ observeEvent(c(input$file1, input$XLSsheets), {
         shinyjs::info("Warning : this file is not a text nor an Excel file !
      Please choose another one.")
     } else {
-        # result = tryCatch(
-        #   {
+        tryCatch({
         ClearUI()
         ClearMemory()
         ext <- GetExtension(input$file1$name)
         shinyjs::disable("file1")
         switch(ext,
             txt = {
-                rv$tab1 <- read.csv(input$file1$datapath,
-                    header = TRUE, sep = "\t", as.is = T
+                rv$tab1 <- read.csv(input$file1$datapath, header = TRUE, sep = "\t", as.is = T
                 )
             },
             csv = {
-                rv$tab1 <- read.csv(input$file1$datapath,
-                    header = TRUE, sep = ";", as.is = T
+                rv$tab1 <- read.csv(input$file1$datapath, header = TRUE, sep = ";", as.is = T
                 )
             },
             tsv = {
-                rv$tab1 <- read.csv(input$file1$datapath,
-                    header = TRUE, sep = "\t", as.is = T
+                rv$tab1 <- read.csv(input$file1$datapath, header = TRUE, sep = "\t", as.is = T
                 )
             },
             xls = {
-                rv$tab1 <- readExcel(input$file1$datapath,
-                    ext,
-                    sheet = input$XLSsheets
+                rv$tab1 <- readExcel(input$file1$datapath, ext, sheet = input$XLSsheets
                 )
             },
             xlsx = {
-                rv$tab1 <- readExcel(input$file1$datapath,
-                    ext,
-                    sheet = input$XLSsheets
+                rv$tab1 <- readExcel(input$file1$datapath, ext, sheet = input$XLSsheets
                 )
             }
         )
 
         colnames(rv$tab1) <- gsub(".", "_", colnames(rv$tab1), fixed = TRUE)
         colnames(rv$tab1) <- gsub(" ", "_", colnames(rv$tab1), fixed = TRUE)
+           },
+        warning = function(w) {
+            shinyjs::info(conditionMessage(w))
+            return(NULL)
+        },
+        error = function(e) {
+            shinyjs::info(conditionMessage(e))
+            return(NULL)
+        },
+        finally = {
+            # cleanup-code
+        })
     }
 })
 
@@ -187,14 +191,24 @@ output$ManageXlsFiles <- renderUI({
     req(input$choose_software)
     req(input$file1)
 
-    .ext <- GetExtension(input$file1$name)
-    if ((.ext == "xls") || (.ext == "xlsx")) {
+    req(GetExtension(input$file1$name) %in% c("xls", "xlsx"))
+     
+    tryCatch({   
         sheets <- listSheets(input$file1$datapath)
-        selectInput("XLSsheets", "sheets",
-            choices = as.list(sheets),
-            width = "200px"
-        )
+        selectInput("XLSsheets", "sheets", choices = as.list(sheets), width = "200px")
+    },
+    warning = function(w) {
+        shinyjs::info(conditionMessage(w))
+        return(NULL)
+    },
+    error = function(e) {
+        shinyjs::info(conditionMessage(e))
+        return(NULL)
+    },
+    finally = {
+        # cleanup-code
     }
+    )
 })
 
 

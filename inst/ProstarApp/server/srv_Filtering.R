@@ -103,7 +103,7 @@ observeEvent(rv$indices()$indices, ignoreInit = TRUE, {
     # shinyjs::toggleState("performMetacellFiltering",
     #     condition = length(rv$indices()$indices) > 0
     # )
-    print(paste0('------', length(rv$indices()$indices)))
+    #print(paste0('------', length(rv$indices()$indices)))
     #browser()
     nbDeleted <- 0
     # rv$widgets$filtering$MetacellTag <- rv$indices()$params$MetacellTag

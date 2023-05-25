@@ -203,7 +203,7 @@ mod_metacell_tree_server <- function(id,
         
         init_tree <- function(){
             req(GetTypeofData(obj()))
-            print('------------ init_tree() ---------------')
+            #print('------------ init_tree() ---------------')
             rv$meta <- DAPAR::metacell.def(GetTypeofData(obj()))
             rv$mapping <- BuildMapping(rv$meta)$names
             rv$bg_colors <- BuildMapping(rv$meta)$colors
@@ -215,7 +215,7 @@ mod_metacell_tree_server <- function(id,
         
         
         observeEvent(req(reset()), ignoreInit = TRUE, {
-            print('------------ observeEvent(req(reset()) ---------------')
+            #print('------------ observeEvent(req(reset()) ---------------')
             # init_tree()
             # update_CB()
             # updateRadioButtons(session, 'checkbox_mode', selected = 'single')
@@ -231,7 +231,7 @@ mod_metacell_tree_server <- function(id,
         
         observeEvent(input$openModalBtn, ignoreInit = TRUE, ignoreNULL = TRUE, {
             
-            print('------------ observeEvent(input$openModalBtn ---------------')
+            #print('------------ observeEvent(input$openModalBtn ---------------')
             init_tree()
             update_CB()
             updateRadioButtons(session, 'checkbox_mode', selected = 'single')
@@ -245,7 +245,7 @@ mod_metacell_tree_server <- function(id,
 # remove the modal. If not show another modal, but this time with a failure
 # message.
 observeEvent(input$lastModalClose,  ignoreInit = FALSE, ignoreNULL = TRUE, {
-    print('------------ input$lastModalClose ---------------')
+    #print('------------ input$lastModalClose ---------------')
     dataOut$trigger <- as.numeric(Sys.time())
     dataOut$values <- names(rv$tags)[which(rv$tags == TRUE)]
     #browser()
@@ -255,7 +255,7 @@ observeEvent(input$lastModalClose,  ignoreInit = FALSE, ignoreNULL = TRUE, {
 
 
 observeEvent(id, ignoreInit = FALSE, {
-    print('------------ observeEvent(id ---------------')
+    #print('------------ observeEvent(id ---------------')
     
     if (!is.null(GetTypeofData(obj())))
         init_tree()
@@ -266,7 +266,7 @@ observeEvent(id, ignoreInit = FALSE, {
 
 
 observeEvent(req(input$cleartree), ignoreInit = TRUE, {
-    print('------------ req(input$cleartree) ---------------')
+    #print('------------ req(input$cleartree) ---------------')
     
     update_CB()
     updateRadioButtons(session, 'checkbox_mode', selected = 'single')
@@ -505,7 +505,7 @@ observeEvent(somethingChanged(), ignoreInit = TRUE, {
     
     # Deduce the new selected node
     newSelection <- names(rv$tags)[which(compare==FALSE)]
-    print(paste0('newSelection = ', paste0(newSelection, collapse = ', ')))
+    #print(paste0('newSelection = ', paste0(newSelection, collapse = ', ')))
     # Update rv$tags vector with this new selection
     if (length(newSelection) > 0) {
         for (i in newSelection)
