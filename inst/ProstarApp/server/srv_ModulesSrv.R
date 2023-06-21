@@ -102,7 +102,6 @@ moduleDesignExample <- function(input, output, session, n) {
 
 
 
-
 moduleDetQuantImpValues <- function(input, output, session, quant, factor) {
     output$detQuantValues_DT <- DT::renderDataTable(server = TRUE, {
         req(rv$current.obj, quant(), factor())

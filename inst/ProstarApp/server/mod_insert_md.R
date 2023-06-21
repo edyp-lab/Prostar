@@ -4,13 +4,12 @@
 #' @description  A shiny Module.
 #'
 #' @param id shiny id
-#' @param input internal
-#' @param output internal
-#' @param session internal
+#' @param url internal
 #'
 #' @rdname mod_insert_md
 #'
-#' @keywords internal
+
+
 #' @export 
 #' @importFrom shiny NS tagList 
 mod_insert_md_ui <- function(id){
@@ -22,8 +21,6 @@ mod_insert_md_ui <- function(id){
 
 #' @rdname mod_insert_md
 #' @export
-#' @keywords internal
-
 mod_insert_md_server <- function(id, url){
     
     

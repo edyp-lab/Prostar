@@ -133,7 +133,7 @@ mod_query_metacell_server <- function(id,
             
             
             
-            observeEvent(id, {
+            observeEvent(c(id, obj()), {
                 #print('marqueur 1')
                 if(is.null(obj())){
                     dataOut$trigger <- as.numeric(Sys.time())
@@ -411,7 +411,6 @@ mod_query_metacell_server <- function(id,
                     Count = as.integer(rv.widgets$metacell_value_th)
                 )
                 
-                
                 DAPAR::GetIndices_MetacellFiltering(
                     obj = obj(),
                     level = GetTypeofData(obj()),
@@ -424,7 +423,6 @@ mod_query_metacell_server <- function(id,
             })
 
 
-            
             observeEvent(input$buildQueryBtn, ignoreInit = TRUE, ignoreNULL = TRUE, {
                 
                 dataOut$trigger <- as.numeric(Sys.time())
@@ -441,9 +439,30 @@ mod_query_metacell_server <- function(id,
                 dataOut$query <- WriteQuery()
                 dataOut$indices <- CompileIndices()
                 # reset
-                #init_rv_widgets()
+                init_rv_widgets()
                 #rv$tags <- NULL
             })
+            
+            
+            # observeEvent(input$buildQueryBtn, ignoreInit = TRUE, ignoreNULL = TRUE, {
+            #     
+            #     dataOut$trigger <- as.numeric(Sys.time())
+            #     dataOut$params<- list(
+            #         MetacellTag = rv.widgets$MetacellTag,
+            #         KeepRemove = rv.widgets$KeepRemove,
+            #         MetacellFilters = rv.widgets$MetacellFilters,
+            #         metacell_percent_th = rv.widgets$metacell_percent_th,
+            #         metacell_value_th = rv.widgets$metacell_value_th,
+            #         val_vs_percent = rv.widgets$val_vs_percent,
+            #         metacellFilter_operator = rv.widgets$metacellFilter_operator
+            #     )
+            #     
+            #     dataOut$query <- WriteQuery()
+            #     dataOut$indices <- CompileIndices()
+            #     # reset
+            #     init_rv_widgets()
+            #     #rv$tags <- NULL
+            # })
 
             reactive({dataOut})
         }
@@ -466,7 +485,7 @@ library(shinyBS)
         actionButton('external_reset', 'Reset'),
         mod_query_metacell_ui('query'),
         uiOutput('res'),
-        shinyjs::disabled(actionButton('perform', 'Perform')),
+        actionButton('perform', 'Perform')
         
     )
 )
@@ -476,23 +495,28 @@ server <- function(input, output) {
     
     
     utils::data("Exp1_R25_prot")
+    rv <- reactiveValues(
+        current.obj = Exp1_R25_prot,
+        indices = NULL
+    )
     
-    tmp <- mod_query_metacell_server('query', 
-                                     obj = reactive({Exp1_R25_prot}),
-                                     reset = reactive({input$external_reset + input$perform}),
-                                     op_names = reactive({c('Push p-value', 'Keep original p-value')})
+    rv$indices <- mod_query_metacell_server('query', 
+                                     obj = reactive({rv$current.obj})
                                      )
  
-    observeEvent(tmp()$trigger, {
-        #print(tmp()$indices)
-        shinyjs::toggleState("perform",
-                             condition = length(tmp()$indices) > 0
-        )
+    observeEvent(rv$indices()$trigger, {
+        req(rv$indices()$indices)
+        
+        obj.tmp <- MetaCellFiltering(obj = rv$current.obj,
+                                     indices = rv$indices()$indices,
+                                     cmd = rv$indices()$params$KeepRemove)
+        
+        rv$current.obj <- obj.tmp$new
         
     })
     
-    output$res <- renderUI({
-        p(paste0(tmp()$params$MetacellTag, collapse='\n'))
+    observeEvent(input$perform, {
+        exprs(rv$current.obj) <- 10 * exprs(rv$current.obj)
     })
 }
 

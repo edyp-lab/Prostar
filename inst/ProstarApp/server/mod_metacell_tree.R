@@ -229,9 +229,9 @@ mod_metacell_tree_server <- function(id,
             dataOut$values <- NULL
             }) 
         
-        observeEvent(input$openModalBtn, ignoreInit = TRUE, ignoreNULL = TRUE, {
+        observeEvent(input$openModalBtn,{
             
-            #print('------------ observeEvent(input$openModalBtn ---------------')
+            print('------------ observeEvent(input$openModalBtn ---------------')
             init_tree()
             update_CB()
             updateRadioButtons(session, 'checkbox_mode', selected = 'single')
