@@ -14,7 +14,10 @@
 #' @importFrom shiny NS tagList 
 mod_insert_md_ui <- function(id){
     ns <- NS(id)
-    uiOutput(ns("insertMD"))
+    wellPanel(
+        uiOutput(ns("insertMD"))
+    )
+   
 }
 
 # Module Server
@@ -47,3 +50,18 @@ mod_insert_md_server <- function(id, url){
     })
     
 }
+
+
+
+
+ui <- mod_insert_md_ui('tree')
+  
+
+
+server <- function(input, output) {
+    
+    mod_insert_md_server('tree', 'http://www.prostar-proteomics.org/md/presentation.md')
+    
+}
+
+shinyApp(ui = ui, server = server)
