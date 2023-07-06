@@ -14,10 +14,7 @@
 #' @importFrom shiny NS tagList 
 mod_insert_md_ui <- function(id){
     ns <- NS(id)
-    wellPanel(
-        uiOutput(ns("insertMD"))
-    )
-   
+    htmlOutput(ns("insertMD"))
 }
 
 # Module Server
@@ -34,7 +31,7 @@ mod_insert_md_server <- function(id, url){
         output$insertMD <- renderUI({
             tryCatch(
                 {
-                    includeMarkdown(url)
+                    includeMarkdown(readLines(url))
                 }
                 , warning = function(w) {
                     tags$p("URL not found<br>",conditionMessage(w))
@@ -54,8 +51,9 @@ mod_insert_md_server <- function(id, url){
 
 
 
-ui <- mod_insert_md_ui('tree')
-  
+ui <- fluidPage(
+    mod_insert_md_ui('tree')
+)
 
 
 server <- function(input, output) {
