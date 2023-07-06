@@ -71,12 +71,10 @@ output$Convert_SelectFile <- renderUI({
 output$choose_file_to_import <- renderUI({
     req(input$choose_software)
     fluidRow(
-        column(
-            width = 2,
+        column(width = 2,
             popover_for_help_ui("modulePopover_convertChooseDatafile")
         ),
-        column(
-            width = 10,
+        column(width = 10,
             fileInput("file1", "",
                 multiple = FALSE,
                 accept = c(".txt", ".tsv", ".csv", ".xls", ".xlsx")
@@ -127,15 +125,14 @@ output$ConvertOptions <- renderUI({
 
 
 ############ Read text file to be imported ######################
-observeEvent(req(input$file1, input$XLSsheets), {
-    input$XLSsheets
-    if (((GetExtension(input$file1$name) %in% c("xls", "xlsx"))) &&
-        is.null(input$XLSsheets)) {
-        return(NULL)
-    }
+observeEvent(req(input$file1), {
+    #input$XLSsheets
+    #if (((GetExtension(input$file1$name) %in% c("xls", "xlsx"))) &&
+    #    is.null(input$XLSsheets)) {
+    #  return(NULL)
+    #}
 
     authorizedExts <- c("txt", "csv", "tsv", "xls", "xlsx")
-
     if (!fileExt.ok()) {
         shinyjs::info("Warning : this file is not a text nor an Excel file !
      Please choose another one.")
@@ -147,24 +144,19 @@ observeEvent(req(input$file1, input$XLSsheets), {
         shinyjs::disable("file1")
         switch(ext,
             txt = {
-                rv$tab1 <- read.csv(input$file1$datapath, header = TRUE, sep = "\t", as.is = T
-                )
+                rv$tab1 <- read.csv(input$file1$datapath, header = TRUE, sep = "\t", as.is = T)
             },
             csv = {
-                rv$tab1 <- read.csv(input$file1$datapath, header = TRUE, sep = ";", as.is = T
-                )
+                rv$tab1 <- read.csv(input$file1$datapath, header = TRUE, sep = ";", as.is = T)
             },
             tsv = {
-                rv$tab1 <- read.csv(input$file1$datapath, header = TRUE, sep = "\t", as.is = T
-                )
+                rv$tab1 <- read.csv(input$file1$datapath, header = TRUE, sep = "\t", as.is = T)
             },
             xls = {
-                rv$tab1 <- readExcel(input$file1$datapath, ext, sheet = input$XLSsheets
-                )
+                rv$tab1 <- readExcel(input$file1$datapath, ext, sheet = input$XLSsheets)
             },
             xlsx = {
-                rv$tab1 <- readExcel(input$file1$datapath, ext, sheet = input$XLSsheets
-                )
+                rv$tab1 <- readExcel(input$file1$datapath, ext, sheet = input$XLSsheets)
             }
         )
 
@@ -182,6 +174,8 @@ observeEvent(req(input$file1, input$XLSsheets), {
         finally = {
             # cleanup-code
         })
+        
+        
     }
 })
 
