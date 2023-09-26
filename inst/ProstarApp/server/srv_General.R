@@ -334,18 +334,15 @@ loadObjectInMemoryFromConverter <- function() {
         incProgress(0.5, detail = "Miscellaneous updates")
         colnames(Biobase::fData(rv$current.obj)) <- gsub(".", "_",
                                                          colnames(Biobase::fData(rv$current.obj)),
-                                                         fixed = TRUE
-        )
+                                                         fixed = TRUE)
         
         names(rv$current.obj@experimentData@other) <- gsub(".", "_",
                                                            names(rv$current.obj@experimentData@other),
-                                                           fixed = TRUE
-        )
+                                                           fixed = TRUE)
         
         Biobase::pData(rv$current.obj)$Sample.name <- gsub(".", "_",
                                                            Biobase::pData(rv$current.obj)$Sample.name,
-                                                           fixed = TRUE
-        )
+                                                           fixed = TRUE)
         
         # If there are already pVal values (differential analysis already done),
         # then do no compute them
@@ -377,10 +374,7 @@ loadObjectInMemoryFromConverter <- function() {
             if (is.null(DAPAR::GetMatAdj(rv$current.obj))) {
                 #print("Start computing adjacency matrix")
                 incProgress(0.6, detail = "Compute Adjacency Matrices")
-                rv$current.obj <- SetMatAdj(
-                    rv$current.obj,
-                    ComputeAdjacencyMatrices()
-                )
+                rv$current.obj <- SetMatAdj(rv$current.obj, ComputeAdjacencyMatrices())
             }
             
             

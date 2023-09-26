@@ -105,8 +105,8 @@ ui <- fluidPage(
 server <- function(input, output) {
     utils::data("Exp1_R25_prot", package='DAPARdata')
     
-    pattern <- c('Missing POV', 'Missing MEC')
-   # pattern <- NULL
+    #pattern <- c('Missing POV', 'Missing MEC')
+   pattern <- NULL
     observe({
         mod_plotsMetacellHistos_server('test',
                                    obj = reactive({Exp1_R25_prot}),
