@@ -226,10 +226,8 @@ output$pushpval_ui <- renderUI({
 #---------------------------
 
 # Extract conditions of the current dataset to represent the
-# selected comparison
-# It returns a subset of the current dataset that will be used to filter
-# the data
-# within the 'Push p-value' feature
+# selected comparison. It returns a subset of the current dataset that will 
+# be used to filter the data within the 'Push p-value' feature
 Get_Dataset_to_Analyze <- reactive({
     #req(rv$widgets$anaDiff$Comparison != "None")
     #req(rv$current.obj)
@@ -324,17 +322,13 @@ GetFiltersScope <- function()
           }
           
           #--------------------------------
-         # browser()
-          
-          
+
           if (!is.null(rv$AnaDiff_indices()$indices) && length(.ind$indices) < nrow(Get_Dataset_to_Analyze())) {
               
-              if (params$KeepRemove == 'delete')
+              if (rv$widgets$anaDiff$KeepRemove == 'delete')
                   indices_to_push <- .ind$indices
-              else if (params$KeepRemove == 'keep')
+              else if (rv$widgets$anaDiff$KeepRemove == 'keep')
                   indices_to_push <- seq_len(nrow(Get_Dataset_to_Analyze()))[-(.ind$indices)]
-              
-              
               
               rv$resAnaDiff$P_Value[indices_to_push] <- 1
               n <- length(rv$resAnaDiff$P_Value)
@@ -409,10 +403,7 @@ output$volcanoTooltip_UI <- renderUI({
                 selectize = FALSE,
                 width = "300px", size = 5
             ),
-            actionButton("validTooltipInfo", 
-              "Validate tooltip choice",
-              class = actionBtnClass
-            )
+            actionButton("validTooltipInfo",  "Validate tooltip choice", class = actionBtnClass)
         )
     })
 })

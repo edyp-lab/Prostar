@@ -33,31 +33,24 @@ mod_plotsMetacellHistos_server <- function(id,
                 showSelect = if(is.null(pattern())) TRUE else showSelect()
             )
             
+            # observe({
+            #     
+            #     print(pattern())
+            #     rv$chooseTag <- pattern()
+            #     rv$showSelect <- if(is.null(pattern())) TRUE else showSelect()
+            # })
             
             tmp.tags <- mod_metacell_tree_server('tree', obj = reactive({obj()}))
             
-            observeEvent(tmp.tags()$trigger, ignoreNULL = FALSE, {
+            observeEvent(tmp.tags()$values, ignoreNULL = FALSE, ignoreInit = TRUE,{
                 rv$chooseTag <- tmp.tags()$values
             })
             
             
             output$chooseTagUI <- renderUI({
-                req(showSelect(), obj())
+                req(obj())
                 mod_metacell_tree_ui(ns('tree'))
-                # meta <- DAPAR::metacell.def(GetTypeofData(obj()))$node
-                # .ch <- 
-                #     selectInput(ns('chooseTag'), 
-                #                 'Select at least one tag to display statistics about', 
-                #                 choices = meta[-which(meta == 'Any')],
-                #                 width = '200px',
-                #                 multiple = TRUE,
-                #                 selected = rv$chooseTag)
-
-            })
-            
-            # observeEvent(input$chooseTag, ignoreInit = TRUE,{
-            #     rv$chooseTag <- input$chooseTag
-            # })
+             })
 
             output$histo_Metacell <- renderHighchart({
                tmp <- NULL
@@ -72,8 +65,6 @@ mod_plotsMetacellHistos_server <- function(id,
 
             output$histo_Metacell_per_lines <- renderHighchart({
                tmp <- NULL
-                # isolate({
-                # pattern <- paste0(GetCurrentObjName(),".MVplot2")
                 tmp <-
                     metacellPerLinesHisto_HC(obj = obj(),
                                              pattern = rv$chooseTag,
@@ -114,14 +105,14 @@ ui <- fluidPage(
 server <- function(input, output) {
     utils::data("Exp1_R25_prot", package='DAPARdata')
     
-    pattern <- c('Missing POV', 'Missing MEC')
-    pattern <- NULL
+    #pattern <- c('Missing POV', 'Missing MEC')
+   pattern <- NULL
     observe({
         mod_plotsMetacellHistos_server('test',
                                    obj = reactive({Exp1_R25_prot}),
                                    pal = reactive({NULL}),
                                    pattern = reactive({pattern}),
-                                   showSelect = reactive({TRUE})
+                                   showSelect = reactive({is.null(pattern)})
                                    )
     })
 

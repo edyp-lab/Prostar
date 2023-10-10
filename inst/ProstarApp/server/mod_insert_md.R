@@ -4,26 +4,23 @@
 #' @description  A shiny Module.
 #'
 #' @param id shiny id
-#' @param input internal
-#' @param output internal
-#' @param session internal
+#' @param url internal
 #'
 #' @rdname mod_insert_md
 #'
-#' @keywords internal
+
+
 #' @export 
 #' @importFrom shiny NS tagList 
 mod_insert_md_ui <- function(id){
     ns <- NS(id)
-    uiOutput(ns("insertMD"))
+    htmlOutput(ns("insertMD"))
 }
 
 # Module Server
 
 #' @rdname mod_insert_md
 #' @export
-#' @keywords internal
-
 mod_insert_md_server <- function(id, url){
     
     
@@ -34,7 +31,7 @@ mod_insert_md_server <- function(id, url){
         output$insertMD <- renderUI({
             tryCatch(
                 {
-                    includeMarkdown(url)
+                    includeMarkdown(readLines(url))
                 }
                 , warning = function(w) {
                     tags$p("URL not found<br>",conditionMessage(w))
@@ -50,3 +47,19 @@ mod_insert_md_server <- function(id, url){
     })
     
 }
+
+
+
+
+ui <- fluidPage(
+    mod_insert_md_ui('tree')
+)
+
+
+server <- function(input, output) {
+    
+    mod_insert_md_server('tree', 'http://www.prostar-proteomics.org/md/presentation.md')
+    
+}
+
+shinyApp(ui = ui, server = server)
