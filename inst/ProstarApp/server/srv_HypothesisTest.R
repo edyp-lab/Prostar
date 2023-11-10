@@ -203,7 +203,32 @@ output$screenHypoTest1 <- renderUI({
 
 
     req(rv$current.obj)
+
+    
     isolate({
+        
+        anaDiffMethod_Choices <- NULL
+        if (length(unique(pData(rv$current.obj)$Condition)) > 26)
+            anaDiffMethod_Choices <- c(
+                "None" = "None",
+                 "t-tests" = "ttests"
+            )
+        else
+            anaDiffMethod_Choices <- c(
+                "None" = "None",
+                "Limma" = "Limma",
+                "t-tests" = "ttests"
+            )
+        
+        design_choices <- c("None" = "None", 
+                            "One vs One" = "OnevsOne",
+                            "One vs All" = "OnevsAll")
+        
+        
+        
+        
+        
+        
         m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
                             pattern = c("Missing", "Missing POV", "Missing MEC"),
                             level = DAPAR::GetTypeofData(rv$current.obj)
@@ -218,15 +243,13 @@ output$screenHypoTest1 <- renderUI({
             .widgets <- rv$widgets$hypothesisTest
             shinyjs::useShinyjs()
             tagList(
+                uiOutput("warning_conditions_ui"),
                 tags$div(
                     tags$div(
                         style = "display:inline-block; vertical-align: middle;
           padding-right: 20px;",
                         selectInput("anaDiff_Design", "Contrast",
-                            choices = c(
-                                "None" = "None", "One vs One" = "OnevsOne",
-                                "One vs All" = "OnevsAll"
-                            ),
+                            choices = design_choices,
                             selected = .widgets$design,
                             width = "150px"
                         )
@@ -294,6 +317,11 @@ output$screenHypoTest1 <- renderUI({
 })
 
 
+output$warning_conditions_ui <- renderUI({
+    req(length(unique(pData(rv$current.obj)$Condition)) > 26)
+    h3('tets')
+})
+
 output$perform_btn <- renderUI({
     rvModProcess$moduleHypothesisTestDone[1]
     if (rvModProcess$moduleHypothesisTestDone[1]) {
@@ -342,9 +370,8 @@ output$btn_valid <- renderUI({
 
 
 observeEvent(rv$widgets$hypothesisTest$method, {
-    toggle(
-        id = "ttest_options",
-        condition = (rv$widgets$hypothesisTest$method == "ttests")
+    toggle(id = "ttest_options",
+            condition = (rv$widgets$hypothesisTest$method == "ttests")
     )
 })
 

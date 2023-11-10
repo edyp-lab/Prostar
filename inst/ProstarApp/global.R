@@ -643,11 +643,7 @@ calibMethod_Choices <- c(
 )
 names(calibMethod_Choices) <- calibMethod_Choices
 
-anaDiffMethod_Choices <- c(
-    "None" = "None",
-    "Limma" = "Limma",
-    "t-tests" = "ttests"
-)
+
 
 
 G_noneStr <- "None"
