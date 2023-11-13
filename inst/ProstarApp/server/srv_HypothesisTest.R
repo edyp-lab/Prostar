@@ -208,7 +208,8 @@ output$screenHypoTest1 <- renderUI({
     isolate({
         
         anaDiffMethod_Choices <- NULL
-        if (length(unique(pData(rv$current.obj)$Condition)) > 26)
+        if (length(unique(pData(rv$current.obj)$Condition)) > 26 ||
+            DAPAR::getDesignLevel(pData(rv$current.obj)) > 1)
             anaDiffMethod_Choices <- c(
                 "None" = "None",
                  "t-tests" = "ttests"
@@ -319,7 +320,9 @@ output$screenHypoTest1 <- renderUI({
 
 output$warning_conditions_ui <- renderUI({
     req(length(unique(pData(rv$current.obj)$Condition)) > 26)
-    h3('tets')
+    req(getDesignLevel(pData(rv$current.obj)) > 1)
+    h3('Limma with this version of Prostar does not handle datasets with more than 26 conditions.
+       Such, the Limma option is desactivated for the current dataset')
 })
 
 output$perform_btn <- renderUI({
@@ -418,18 +421,18 @@ ComputeComparisons <- reactive({
     req(length(which(m)) == 0)
 
     df <- NULL
-
+    #browser() 
     df <- switch(rv$widgets$hypothesisTest$method,
         Limma = {
             DAPAR::limmaCompleteTest(Biobase::exprs(rv$current.obj),
-                                           Biobase::pData(rv$current.obj),
-                                           rv$widgets$hypothesisTest$design
-                                           )
+                                     Biobase::pData(rv$current.obj),
+                                     rv$widgets$hypothesisTest$design
+                                     )
             },
         ttests = {
             DAPAR::compute_t_tests(rv$current.obj,
                                          contrast = rv$widgets$hypothesisTest$design,
-                                         type = rv$widgets$hypothesisTest$ttest_options
+                                       type = rv$widgets$hypothesisTest$ttest_options
                                          )
         }
       )
