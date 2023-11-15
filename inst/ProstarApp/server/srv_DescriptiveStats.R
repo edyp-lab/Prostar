@@ -116,18 +116,15 @@ output$IntensityStatsPlots <- renderUI({
 })
 
 output$plotsMVHistograms <- renderUI({
-    plot('tets')
-    mod_plotsMetacellHistos_server(id = "MVPlots_DS",
-                                   obj = reactive({rv$current.obj}),
-                                   pal = reactive({rv$PlotParams$paletteForConditions}),
-                                   pattern = reactive({NULL}),
-                                   showSelect = reactive({TRUE})
-    )
-    
     mod_plotsMetacellHistos_ui("MVPlots_DS")
 })
 
-
+mod_plotsMetacellHistos_server(id = "MVPlots_DS",
+                               obj = reactive({rv$current.obj}),
+                               pal = reactive({rv$PlotParams$paletteForConditions}),
+                               pattern = reactive({NULL}),
+                               showSelect = reactive({TRUE})
+                               )
 
 output$plotsDistCV <- renderUI({
     tagList(

@@ -191,11 +191,26 @@ BuildNavbarPage <- reactive({
                         inputId = "navPage",
                         navbarMenu(
                             "Data processing (peptide)",
-                            source( file.path("ui", "ui_Filtering.R"), local = TRUE)$value,
-                            source(file.path("ui", "ui_Normalization.R"), local = TRUE)$value,
-                            source(file.path("ui", "ui_ImputationPeptideLevel.R"), local = TRUE)$value,
-                            source(file.path("ui", "ui_Aggregation.R"), local = TRUE)$value,
-                            source(file.path("ui", "ui_HypothesisTest.R"), local = TRUE)$value
+                            source(
+                                file.path("ui", "ui_Filtering.R"),
+                                local = TRUE
+                            )$value,
+                            source(
+                                file.path("ui", "ui_Normalization.R"),
+                                local = TRUE
+                            )$value,
+                            source(
+                                file.path("ui", "ui_ImputationPeptideLevel.R"),
+                                local = TRUE
+                            )$value,
+                            source(
+                                file.path("ui", "ui_Aggregation.R"),
+                                local = TRUE
+                            )$value,
+                            source(
+                                file.path("ui", "ui_HypothesisTest.R"),
+                                local = TRUE
+                            )$value
                         ),
                         target = "Data manager",
                         position = "after"
@@ -220,20 +235,6 @@ BuildNavbarPage <- reactive({
     .type <- rv$current.obj@experimentData@other$typeOfData
     prev.dataset.name <- paste0("prev.HypothesisTest.", .type)
 
-    
-    #h3("tutu")
-    #source(file.path("server", "mod_plots_metacell_histo.R"), local = TRUE)$value
-    #source(file.path("server", "srv_DescriptiveStats.R"), local = TRUE)$value
-    
-    #vData_ms1 <- convert2Viz(rv$current.obj)
-    #vData_ms2 <- convert2Viz(ms2)
-    #vData_ms <- vData_ms1
-    #vData_ms[['processed_1']] <- vData_ms2[[1]]
-    
-    
-    #view_dataset_server('view_dataset', obj = reactive({vData_ms}))
-    
-    print('INNNNN')
     .params <- rv$current.obj@experimentData@other$Params
     .currdesign <- .params[[dataset.name]][["HypothesisTest"]]$design
     .prevdesign <- .params[[prev.dataset.name]][["HypothesisTest"]]$design
@@ -244,16 +245,15 @@ BuildNavbarPage <- reactive({
                 inputId = "navPage",
                 navbarMenu(
                     "Data mining",
-                    #source(file.path("ui", "ui_DescriptiveStatistics.R"), local = TRUE)$value,
-                    tabPanel("Descriptive statistics",
-                             value = "DescriptiveStatisticsTab",
-                             tagList(
-                                 h3('test2')
-                                 #view_dataset_ui('view_dataset')
-                             )
-                    ),
+                    source(
+                        file.path("ui", "ui_DescriptiveStatistics.R"),
+                        local = TRUE
+                    )$value,
                     mod_cc_ui("CC_Multi_Any"),
-                    source( file.path("ui", "ui_GO_Enrich.R"), local = TRUE)$value
+                    source(
+                        file.path("ui", "ui_GO_Enrich.R"),
+                        local = TRUE
+                    )$value
                 ),
                 target = "Help",
                 position = "before"
@@ -263,15 +263,12 @@ BuildNavbarPage <- reactive({
                 inputId = "navPage",
                 navbarMenu(
                     "Data mining",
-                    #source(file.path("ui", "ui_DescriptiveStatistics.R"), local = TRUE)$value,
-                    tabPanel("Descriptive statistics",
-                             value = "DescriptiveStatisticsTab",
-                             tagList(
-                                 h3('test2')
-                                 #view_dataset_ui('view_dataset')
-                             )
-                    ),
-                    source(file.path("ui", "ui_GO_Enrich.R"), local = TRUE)$value
+                    source(file.path("ui", "ui_DescriptiveStatistics.R"),
+                        local = TRUE
+                    )$value,
+                    source(file.path("ui", "ui_GO_Enrich.R"),
+                        local = TRUE
+                    )$value
                 ),
                 target = "Help",
                 position = "before"
@@ -286,17 +283,18 @@ BuildNavbarPage <- reactive({
                 inputId = "navPage",
                 navbarMenu(
                     "Data mining",
-                    #source(file.path("ui", "ui_DescriptiveStatistics.R"), local = TRUE)$value,
-                    tabPanel("Descriptive statistics",
-                             value = "DescriptiveStatisticsTab",
-                             tagList(
-                                 h3('test2')
-                                 #view_dataset_ui('view_dataset')
-                             )
-                    ),
+                    source(file.path("ui", "ui_DescriptiveStatistics.R"),
+                        local = TRUE
+                    )$value,
                     mod_cc_ui("CC_Multi_Any"),
-                    source(file.path("ui", "ui_GO_Enrich.R"), local = TRUE)$value,
-                    source(file.path("ui", "ui_AnaDiff.R"), local = TRUE)$value
+                    source(
+                        file.path("ui", "ui_GO_Enrich.R"),
+                        local = TRUE
+                    )$value,
+                    source(
+                        file.path("ui", "ui_AnaDiff.R"),
+                        local = TRUE
+                    )$value
                 ),
                 target = "Help",
                 position = "before"
@@ -306,16 +304,17 @@ BuildNavbarPage <- reactive({
                 inputId = "navPage",
                 navbarMenu(
                     "Data mining",
-                    #source(file.path("ui", "ui_DescriptiveStatistics.R"), local = TRUE)$value,
-                    tabPanel("Descriptive statistics",
-                             value = "DescriptiveStatisticsTab",
-                             tagList(
-                                 h3('test')
-                                 #view_dataset_ui('view_dataset')
-                             )
-                    ),
-                    source(file.path("ui", "ui_GO_Enrich.R"), local = TRUE)$value,
-                    source(file.path("ui", "ui_AnaDiff.R"), local = TRUE)$value
+                    source(file.path("ui", "ui_DescriptiveStatistics.R"),
+                        local = TRUE
+                    )$value,
+                    source(
+                        file.path("ui", "ui_GO_Enrich.R"),
+                        local = TRUE
+                    )$value,
+                    source(
+                        file.path("ui", "ui_AnaDiff.R"),
+                        local = TRUE
+                    )$value
                 ),
                 target = "Help",
                 position = "before"

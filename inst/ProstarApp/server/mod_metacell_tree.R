@@ -158,13 +158,15 @@ mod_metacell_tree_server <- function(id,
             tagList(
                 shinyjs::inlineCSS(css),
                 tags$script(paste0('$( document ).ready(function() {
-                $("#modalExample").on("hidden.bs.modal", function (event) {
+                $("#', 
+                ns('modalExample'), 
+                '").on("hidden.bs.modal", function (event) {
                 x = new Date().toLocaleString();
                 Shiny.onInputChange("', ns('lastModalClose'), '",x);});})')),
             tags$head(tags$style(paste0(".modal-dialog { width: fit-content !important; z-index: 1000;}"))),
             #tags$head(tags$style("#modalExample{ display:none;")),
             
-            shinyBS::bsModal("modalExample",
+            shinyBS::bsModal(ns("modalExample"),
                  title = '',
                  # tagList(
                  #     p('Cells metadata tags'),
@@ -201,7 +203,7 @@ mod_metacell_tree_server <- function(id,
         
         init_tree <- function(){
             req(GetTypeofData(obj()))
-            print('------------ init_tree() ---------------')
+            #print('------------ init_tree() ---------------')
             rv$meta <- DAPAR::metacell.def(GetTypeofData(obj()))
             rv$mapping <- BuildMapping(rv$meta)$names
             rv$bg_colors <- BuildMapping(rv$meta)$colors
@@ -209,25 +211,11 @@ mod_metacell_tree_server <- function(id,
             tmp <- unname(rv$mapping[names(rv$mapping)])
             rv$tags <- setNames(rep(FALSE, length(tmp)), nm = gsub('_cb', '', tmp))
             rv$autoChanged <- TRUE
-            
-            
-            updateCheckboxInput(session, 'quantified_cb', value=FALSE)
-            updateCheckboxInput(session, 'quantbydirectid_cb', value=FALSE)
-            updateCheckboxInput(session, 'quantbyrecovery_cb', value=FALSE)
-            updateCheckboxInput(session, 'missing_cb', value=FALSE)
-            updateCheckboxInput(session, ns('missingpov_cb'), value=FALSE)
-            updateCheckboxInput(session, 'missingmec_cb', value=FALSE)
-            updateCheckboxInput(session, 'imputed_cb', value=FALSE)
-            updateCheckboxInput(session, 'imputedpov_cb', value=FALSE)
-            updateCheckboxInput(session, 'imputedmec_cb', value=FALSE)
-            updateCheckboxInput(session, 'combinedtags_cb', value=FALSE)
-            
-            
         }
         
         
         observeEvent(req(reset()), ignoreInit = TRUE, {
-            print('------------ observeEvent(req(reset()) ---------------')
+            #print('------------ observeEvent(req(reset()) ---------------')
             # init_tree()
             # update_CB()
             # updateRadioButtons(session, 'checkbox_mode', selected = 'single')
@@ -241,7 +229,7 @@ mod_metacell_tree_server <- function(id,
             dataOut$values <- NULL
             }) 
         
-        observeEvent(input$openModalBtn, ignoreInit = FALSE, ignoreNULL = TRUE, {
+        observeEvent(input$openModalBtn,{
             
             print('------------ observeEvent(input$openModalBtn ---------------')
             init_tree()
@@ -257,17 +245,17 @@ mod_metacell_tree_server <- function(id,
 # remove the modal. If not show another modal, but this time with a failure
 # message.
 observeEvent(input$lastModalClose,  ignoreInit = FALSE, ignoreNULL = TRUE, {
-    print('------------ input$lastModalClose ---------------')
+    #print('------------ input$lastModalClose ---------------')
     dataOut$trigger <- as.numeric(Sys.time())
     dataOut$values <- names(rv$tags)[which(rv$tags == TRUE)]
-
+    #browser()
 })
 
 
 
 
 observeEvent(id, ignoreInit = FALSE, {
-    print('------------ observeEvent(id ---------------')
+    #print('------------ observeEvent(id ---------------')
     
     if (!is.null(GetTypeofData(obj())))
         init_tree()
@@ -278,7 +266,7 @@ observeEvent(id, ignoreInit = FALSE, {
 
 
 observeEvent(req(input$cleartree), ignoreInit = TRUE, {
-    print('------------ req(input$cleartree) ---------------')
+    #print('------------ req(input$cleartree) ---------------')
     
     update_CB()
     updateRadioButtons(session, 'checkbox_mode', selected = 'single')
@@ -517,7 +505,7 @@ observeEvent(somethingChanged(), ignoreInit = TRUE, {
     
     # Deduce the new selected node
     newSelection <- names(rv$tags)[which(compare==FALSE)]
-    print(paste0('newSelection = ', paste0(newSelection, collapse = ', ')))
+    #print(paste0('newSelection = ', paste0(newSelection, collapse = ', ')))
     # Update rv$tags vector with this new selection
     if (length(newSelection) > 0) {
         for (i in newSelection)
@@ -572,8 +560,7 @@ reactive({dataOut})
 #
 ui <- fluidPage(
     tagList(
-        mod_metacell_tree_ui('tree_test1'),
-        mod_metacell_tree_ui('tree_test2'),
+        mod_metacell_tree_ui('tree'),
         uiOutput('res')
     )
 )
@@ -581,8 +568,7 @@ ui <- fluidPage(
 server <- function(input, output) {
     
     utils::data('Exp1_R25_prot')
-    tags1 <- mod_metacell_tree_server('tree_test1', obj = reactive({Exp1_R25_prot}))
-    tags2 <- mod_metacell_tree_server('tree_test2', obj = reactive({Exp1_R25_prot}))
+    tags <- mod_metacell_tree_server('tree', obj = reactive({Exp1_R25_prot}))
 
 }
 

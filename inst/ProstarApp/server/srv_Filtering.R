@@ -81,86 +81,48 @@ output$screenFiltering1 <- renderUI({
             ),
         hr(),
         ################## Plots section #############################
-        mod_plotsMetacellHistos_ui("MVPlots_filtering")
-        #uiOutput('MVPlots_filtering_ui')
+        uiOutput('mvplotsUI')
     )
-    
-   
-    
 })
 
 rv.filtering <- reactiveValues(
     reset = NULL
 )
 
+#observe({
 
-rv$indices <- mod_query_metacell_server(id = "query",
+    rv$indices <- mod_query_metacell_server(id = "query",
                                         obj = reactive({rv$current.obj}),
                                         reset = reactive({rv.filtering$reset})
-)
-
-
-observeEvent(rv$indices()$trigger, {
-
-mod_plotsMetacellHistos_server(id = "MVPlots_filtering",
-                               obj = reactive({rv$current.obj}),
-                               pal = reactive({rv$PlotParams$paletteForConditions}),
-                               pattern = reactive({rv$indices()$params$MetacellTag}),
-                               showSelect = reactive({TRUE})
-)
-})
+                                        )
+#})
 
 
 
 
-
-output$MVPlots_filtering_ui <- renderUI({
-    
-    tagList(
-        h3('toto')
-    
-    )
-    
-    
-    
-})
-
-observe({
-   
-})
-
-observeEvent(rv$indices()$indices, ignoreInit = TRUE, {
-    # shinyjs::toggleState("performMetacellFiltering",
-    #     condition = length(rv$indices()$indices) > 0
-    # )
-    print(paste0('------', length(rv$indices()$indices)))
-    #browser()
+observeEvent(rv$indices()$trigger, ignoreInit = FALSE, {
+    req(rv$indices()$indices)
     nbDeleted <- 0
-    # rv$widgets$filtering$MetacellTag <- rv$indices()$params$MetacellTag
-    # rv$widgets$filtering$KeepRemove <- rv$indices()$params$KeepRemove
-    # rv$widgets$filtering$MetacellFilters <- rv$indices()$params$MetacellFilters
-    # rv$widgets$filtering$metacell_percent_th <- rv$indices()$params$metacell_percent_th
-    # rv$widgets$filtering$metacell_value_th <- rv$indices()$params$metacell_value_th
-    # rv$widgets$filtering$val_vs_percent <- rv$indices()$params$val_vs_percent
-    # rv$widgets$filtering$metacellFilter_operator <- rv$indices()$params$metacellFilter_operator
     
+    #browser()
+    #isolate({
+    # rv$widgets$filtering$MetacellTag <- NULL
+    # rv$widgets$filtering$MetacellFilters <- "None"
+    # rv$widgets$filtering$KeepRemove <- "delete"
+    # rv$widgets$filtering$metacell_value_th <- 0
+    # rv$widgets$filtering$choose_metacell_percent_th <- 0
+    # rv$widgets$filtering$metacell_value_percent <- 0
+    # rv$widgets$filtering$val_vs_percent <- "Value"
+    # rv$widgets$filtering$metacellFilter_operator <- "<="
+
     
-    rv$widgets$filtering$MetacellTag <- NULL
-    rv$widgets$filtering$MetacellFilters <- "None"
-    rv$widgets$filtering$KeepRemove <- "delete"
-    rv$widgets$filtering$metacell_value_th <- 0
-    rv$widgets$filtering$choose_metacell_percent_th <- 0
-    rv$widgets$filtering$metacell_value_percent <- 0
-    rv$widgets$filtering$val_vs_percent <- "Value"
-    rv$widgets$filtering$metacellFilter_operator <- "<="
-    
-    
-    obj.tmp <- try({
+        obj.tmp <- try({
         MetaCellFiltering(obj = rv$current.obj,
                           indices = rv$indices()$indices,
                           cmd = rv$indices()$params$KeepRemove
         )
     })
+   # })
     
     if(inherits(obj.tmp, "try-error")) {
         # browser()
@@ -190,12 +152,10 @@ observeEvent(rv$indices()$indices, ignoreInit = TRUE, {
         
         df <- data.frame(query = rv$indices()$query,
                          nbDeleted = nbDeleted,
-                         Total = nrow(rv$current.obj)
-        )
+                         Total = nrow(rv$current.obj))
         
         rv$widgets$filtering$metacell_Filter_SummaryDT <- rbind(
-            rv$widgets$filtering$metacell_Filter_SummaryDT, df
-        )
+            rv$widgets$filtering$metacell_Filter_SummaryDT, df)
         
         rvModProcess$moduleFilteringDone[1] <- TRUE
         #rv.filtering$reset <- rv.filtering$reset + 1
@@ -204,10 +164,16 @@ observeEvent(rv$indices()$indices, ignoreInit = TRUE, {
 })
 
 
-#observe({
-#    req(rv$current.obj)
-
-#})
+output$mvplotsUI <- renderUI({
+    mod_plotsMetacellHistos_server(id = "MVPlots_filtering",
+                               obj = reactive({rv$current.obj}),
+                               pal = reactive({rv$PlotParams$paletteForConditions}),
+                               pattern = reactive({rv$indices()$params$MetacellTag}),
+                               showSelect = reactive({FALSE})
+)
+    
+    mod_plotsMetacellHistos_ui("MVPlots_filtering")
+})
 
 
 

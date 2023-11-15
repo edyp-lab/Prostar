@@ -1,16 +1,16 @@
 
 
 callModule(moduleProcess, "moduleProcess_HypothesisTest",
-    isDone = reactive({
-        rvModProcess$moduleHypothesisTestDone
-    }),
-    pages = reactive({
-        rvModProcess$moduleHypothesisTest
-    }),
-    rstFunc = resetModuleHypothesisTest,
-    forceReset = reactive({
-        rvModProcess$moduleHypothesisTestForceReset
-    })
+           isDone = reactive({
+               rvModProcess$moduleHypothesisTestDone
+           }),
+           pages = reactive({
+               rvModProcess$moduleHypothesisTest
+           }),
+           rstFunc = resetModuleHypothesisTest,
+           forceReset = reactive({
+               rvModProcess$moduleHypothesisTestForceReset
+           })
 )
 
 
@@ -20,34 +20,34 @@ rv.ht <- reactiveValues(
 )
 
 resetModuleHypothesisTest <- reactive({
-
+    
     ## update widgets values (reactive values)
     resetModuleProcess("HypothesisTest")
-
+    
     rv$widgets$hypothesisTest$design <- "None"
     rv$widgets$hypothesisTest$method <- "None"
     rv$widgets$hypothesisTest$ttest_options <- "Student"
     rv$widgets$hypothesisTest$th_logFC <- 0
     rv$widgets$hypothesisTest$listNomsComparaison <- NULL
-
-
+    
+    
     rv$res_AllPairwiseComparisons <- NULL
     rv$tempplot$logFCDistr <- NULL
     rvModProcess$moduleHypothesisTestDone <- rep(FALSE, 2)
-
+    
     # rv.ht$swap.history <- NULL
-
+    
     # Get back to previous dataset
     if (length(grep("HypothesisTest.", names(rv$dataset))) > 0) {
         i <- grep("HypothesisTest.", names(rv$dataset))
         rv$dataset <- rv$dataset[1:(i - 1)]
         updateSelectInput(session,
-            "datasets",
-            choices = names(rv$dataset),
-            selected = names(rv$dataset)[i - 1]
+                          "datasets",
+                          choices = names(rv$dataset),
+                          selected = names(rv$dataset)[i - 1]
         )
     }
-
+    
     rv$current.obj <- rv$dataset[[input$datasets]]
 })
 
@@ -71,39 +71,39 @@ observeEvent(input$PerformLogFCPlot, {
         rv$widgets$hypothesisTest$design <- input$anaDiff_Design
         rv$widgets$hypothesisTest$th_logFC <- as.numeric(input$seuilLogFC)
         rv$widgets$hypothesisTest$ttest_options <- input$ttest_options
-
+        
         rv$res_AllPairwiseComparisons <- ComputeComparisons()
         
         if(is.null(rv$res_AllPairwiseComparisons)){} 
-           else if(inherits(rv$res_AllPairwiseComparisons, "try-error")) {
-         # browser()
-         
-          
-          sendSweetAlert(
-            session = session,
-            title = "Error",
-            text = tags$div(style = "display:inline-block; vertical-align: top;",
-                            p(rv$res_AllPairwiseComparisons[[1]]),
-                            rclipButton(inputId = "clipbtn",
-                                        label = "",
-                                        clipText = rv$res_AllPairwiseComparisons[[1]], 
-                                        icon = icon("copy"),
-                                        class = actionBtnClass
-                            )
-            ),
-            type = "error"
-          )
+        else if(inherits(rv$res_AllPairwiseComparisons, "try-error")) {
+            # browser()
+            
+            
+            sendSweetAlert(
+                session = session,
+                title = "Error",
+                text = tags$div(style = "display:inline-block; vertical-align: top;",
+                                p(rv$res_AllPairwiseComparisons[[1]]),
+                                rclipButton(inputId = "clipbtn",
+                                            label = "",
+                                            clipText = rv$res_AllPairwiseComparisons[[1]], 
+                                            icon = icon("copy"),
+                                            class = actionBtnClass
+                                )
+                ),
+                type = "error"
+            )
         } else {
-          # sendSweetAlert(
-          #   session = session,
-          #   title = "Success",
-          #   type = "success"
-          # )
-          
-          rv.ht$n <- ncol(rv$res_AllPairwiseComparisons$logFC)
-          rv.ht$swap.history <- rep(0, rv.ht$n)
-          
-          rvModProcess$moduleHypothesisTestDone[1] <- TRUE
+            # sendSweetAlert(
+            #   session = session,
+            #   title = "Success",
+            #   type = "success"
+            # )
+            
+            rv.ht$n <- ncol(rv$res_AllPairwiseComparisons$logFC)
+            rv.ht$swap.history <- rep(0, rv.ht$n)
+            
+            rvModProcess$moduleHypothesisTestDone[1] <- TRUE
         }
         
         
@@ -127,8 +127,8 @@ output$showConds <- renderUI({
   vertical-align: middle;
   padding-right: 50px;
   padding-bottom: 50px;"
-
-
+    
+    
     input_list <- lapply(seq_len(rv.ht$n), function(i) {
         ll.conds <- unlist(
             strsplit(
@@ -136,17 +136,17 @@ output$showConds <- renderUI({
                 split = "_"
             )
         )
-
+        
         div(
             div(style = .style, p(gsub("[()]", "", ll.conds[1]))),
             div(style = .style, p(gsub("[()]", "", ll.conds[3]))),
             div(style = .style,
                 actionButton(paste0("compswap", i), "",
-                    icon("sync", lib = "font-awesome"),
-                    style = "border-width: 0px; padding: 0px",
-                    width = "30px",
-                    height = "30px",
-                    class = actionBtnClass
+                             icon("sync", lib = "font-awesome"),
+                             style = "border-width: 0px; padding: 0px",
+                             width = "30px",
+                             height = "30px",
+                             class = actionBtnClass
                 )
             )
         )
@@ -158,14 +158,14 @@ output$showConds <- renderUI({
 observeEvent(req(sum(GetSwapShinyValue()) > 0), {
     req(rv$res_AllPairwiseComparisons)
     swap <- GetSwapShinyValue()
-
+    
     isolate({
         ind.swap <- which(swap != rv.ht$swap.history)
         rv.ht$swap.history <- swap
         if (length(ind.swap) > 0) {
             for (i in ind.swap) {
                 current.comp <- colnames(rv$res_AllPairwiseComparisons$logFC)[i]
-
+                
                 # Swap comparisons names
                 ll <- unlist(strsplit(current.comp, split = "_"))
                 tmp.cond1 <- gsub("[( )]", "", ll[1])
@@ -174,7 +174,7 @@ observeEvent(req(sum(GetSwapShinyValue()) > 0), {
                 tmp.pval <- paste0( "(",  tmp.cond2, ")_vs_(", tmp.cond1, ")_pval" )
                 colnames(rv$res_AllPairwiseComparisons$logFC)[i] <- tmp.logFC
                 colnames(rv$res_AllPairwiseComparisons$P_Value)[i] <- tmp.pval
-
+                
                 # Swap logFC values
                 .logFC <- rv$res_AllPairwiseComparisons$logFC
                 rv$res_AllPairwiseComparisons$logFC[, i] <- -.logFC[, i]
@@ -200,10 +200,10 @@ output$screenHypoTest1 <- renderUI({
     if (!requireNamespace("shinyBS", quietly = TRUE)) {
         stop("Please install shinyBS: BiocManager::install('shinyBS')")
     }
-
-
+    
+    
     req(rv$current.obj)
-
+    
     
     isolate({
         
@@ -212,7 +212,7 @@ output$screenHypoTest1 <- renderUI({
             DAPAR::getDesignLevel(pData(rv$current.obj)) > 1)
             anaDiffMethod_Choices <- c(
                 "None" = "None",
-                 "t-tests" = "ttests"
+                "t-tests" = "ttests"
             )
         else
             anaDiffMethod_Choices <- c(
@@ -233,10 +233,10 @@ output$screenHypoTest1 <- renderUI({
         m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
                             pattern = c("Missing", "Missing POV", "Missing MEC"),
                             level = DAPAR::GetTypeofData(rv$current.obj)
-                            )
+        )
         NA.count <- length(which(m))
-
-
+        
+        
         if (NA.count > 0) {
             tags$p("Your dataset contains missing values. Before using the
       differential analysis, you must filter/impute them.")
@@ -250,18 +250,18 @@ output$screenHypoTest1 <- renderUI({
                         style = "display:inline-block; vertical-align: middle;
           padding-right: 20px;",
                         selectInput("anaDiff_Design", "Contrast",
-                            choices = design_choices,
-                            selected = .widgets$design,
-                            width = "150px"
+                                    choices = design_choices,
+                                    selected = .widgets$design,
+                                    width = "150px"
                         )
                     ),
                     tags$div(
                         style = "display:inline-block; vertical-align: middle;
           padding-right: 20px;",
                         selectInput("diffAnaMethod", "Statistical test",
-                            choices = anaDiffMethod_Choices,
-                            selected = .widgets$method,
-                            width = "150px"
+                                    choices = anaDiffMethod_Choices,
+                                    selected = .widgets$method,
+                                    width = "150px"
                         )
                     ),
                     tags$div(
@@ -269,9 +269,9 @@ output$screenHypoTest1 <- renderUI({
           padding-right: 20px;",
                         hidden(
                             radioButtons("ttest_options", "t-tests options",
-                                choices = c("Student", "Welch"),
-                                selected = .widgets$ttest_options,
-                                width = "150px"
+                                         choices = c("Student", "Welch"),
+                                         selected = .widgets$ttest_options,
+                                         width = "150px"
                             )
                         )
                     ),
@@ -279,9 +279,9 @@ output$screenHypoTest1 <- renderUI({
                         style = "display:inline-block; vertical-align: middle;
           padding-right: 20px;",
                         textInput("seuilLogFC",
-                            "log(FC) threshold",
-                            value = .widgets$th_logFC,
-                            width = "150px"
+                                  "log(FC) threshold",
+                                  value = .widgets$th_logFC,
+                                  width = "150px"
                         ),
                         module_Not_a_numericUI("test_seuillogFC")
                     ),
@@ -330,14 +330,14 @@ output$perform_btn <- renderUI({
     if (rvModProcess$moduleHypothesisTestDone[1]) {
         shinyjs::disabled(
             actionButton("PerformLogFCPlot",
-                "Perform log FC plot",
-                class = actionBtnClass
+                         "Perform log FC plot",
+                         class = actionBtnClass
             )
         )
     } else {
         actionButton("PerformLogFCPlot",
-            "Perform log FC plot",
-            class = actionBtnClass
+                     "Perform log FC plot",
+                     class = actionBtnClass
         )
     }
 })
@@ -367,14 +367,14 @@ output$correspondingRatio <- renderUI({
 output$btn_valid <- renderUI({
     req(rv$widgets$hypothesisTest$method != "None")
     req(rv$widgets$hypothesisTest$design != "None")
-
+    
     actionButton("ValidTest", "Save significance test", class = actionBtnClass)
 })
 
 
 observeEvent(rv$widgets$hypothesisTest$method, {
     toggle(id = "ttest_options",
-            condition = (rv$widgets$hypothesisTest$method == "ttests")
+           condition = (rv$widgets$hypothesisTest$method == "ttests")
     )
 })
 
@@ -387,11 +387,11 @@ output$FoldChangePlot <- renderHighchart({
     l1 <- length(as.data.frame(Biobase::fData(rv$current.obj)[, name]))
     l2 <- length(rv$res_AllPairwiseComparisons$logFC)
     req(l2 + l1 > 0)
-
+    
     withProgress(message = "Computing plot...", detail = "", value = 0.5, {
         if (l1 > 0) {
             tmp.df <- as.data.frame(Biobase::fData(rv$current.obj)[, name])
-
+            
             th <- .params$HypothesisTest$th_logFC
             rv$tempplot$logFCDistr <- hc_logFC_DensityPlot(tmp.df, th)
         } else if (l2 > 0) {
@@ -411,35 +411,35 @@ ComputeComparisons <- reactive({
     req(rv$widgets$hypothesisTest$method != "None")
     req(rv$widgets$hypothesisTest$design != "None")
     rv$widgets$hypothesisTest$ttest_options
-
-
+    
+    
     m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
                         pattern = "Missing",
                         level = DAPAR::GetTypeofData(rv$current.obj)
-                        )
+    )
     
     req(length(which(m)) == 0)
-
+    
     df <- NULL
     #browser() 
     df <- switch(rv$widgets$hypothesisTest$method,
-        Limma = {
-            DAPAR::limmaCompleteTest(Biobase::exprs(rv$current.obj),
-                                     Biobase::pData(rv$current.obj),
-                                     rv$widgets$hypothesisTest$design
-                                     )
-            },
-        ttests = {
-            DAPAR::compute_t_tests(rv$current.obj,
-                                         contrast = rv$widgets$hypothesisTest$design,
-                                       type = rv$widgets$hypothesisTest$ttest_options
-                                         )
-        }
-      )
-
+                 Limma = {
+                     DAPAR::limmaCompleteTest(Biobase::exprs(rv$current.obj),
+                                              Biobase::pData(rv$current.obj),
+                                              rv$widgets$hypothesisTest$design
+                     )
+                 },
+                 ttests = {
+                     DAPAR::compute_t_tests(rv$current.obj,
+                                            contrast = rv$widgets$hypothesisTest$design,
+                                            type = rv$widgets$hypothesisTest$ttest_options
+                     )
+                 }
+    )
+    
     rv$widgets$hypothesisTest$listNomsComparaison <- colnames(df$logFC)
     rvModProcess$moduleHypothesisTestDone[1] <- TRUE
-
+    
     
     df
 }) %>% bindCache(
@@ -453,12 +453,12 @@ ComputeComparisons <- reactive({
 
 observeEvent(input$ValidTest, {
     req(rv$res_AllPairwiseComparisons)
-
+    
     rv$current.obj <- DAPAR::diffAnaSave(
         obj = rv$current.obj,
         allComp = rv$res_AllPairwiseComparisons
     )
-
+    
     name <- paste("HypothesisTest.", rv$typeOfDataset, sep = "")
     rv$current.obj <- saveParameters(
         rv$current.obj,
@@ -466,7 +466,7 @@ observeEvent(input$ValidTest, {
         "HypothesisTest",
         build_ParamsList_HypothesisTest()
     )
-
+    
     BuildNavbarPage()
     rvModProcess$moduleHypothesisTestDone[2] <- TRUE
     UpdateDatasetWidget(rv$current.obj, name)

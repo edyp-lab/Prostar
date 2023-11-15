@@ -147,38 +147,16 @@ shinyServer(
          
      })
 
-     
-     observe({
-         req(rv$current.obj)
-         
-         vData_ms <- convert2Viz(rv$current.obj)
-         
-         view_dataset_server('view_dataset', obj = reactive({vData_ms}))
-         
-     })
-                
      observe({
         req(input$navPage)
-        cond <- !(input$navPage %in% c("graphTab", "bugReportTab", "checkForUpdatesTab", "faqTab"))
+         cond <- !(input$navPage %in% c("graphTab", "bugReportTab", "checkForUpdatesTab", "faqTab"))
         shinyjs::toggle("tete", condition = cond)
     
-        
-        
-        #browser()
         tryCatch({
         switch(input$navPage,
             DescriptiveStatisticsTab = {
-                #h3("tutu")
-                #source(file.path("server", "mod_plots_metacell_histo.R"), local = TRUE)$value
-                #source(file.path("server", "srv_DescriptiveStats.R"), local = TRUE)$value
-                
-                #vData_ms2 <- convert2Viz(ms2)
-                #vData_ms <- vData_ms1
-                #vData_ms[['processed_1']] <- vData_ms2[[1]]
-                
-                
-                #view_dataset_server('view_dataset', obj = reactive({vData_ms}))
-                print("fin")
+                source(file.path("server", "mod_plots_metacell_histo.R"), local = TRUE)$value
+                source(file.path("server", "srv_DescriptiveStats.R"), local = TRUE)$value
             },
             openMSnsetTab = {
                 source(file.path("server", "srv_OpenMSnset.R"),local = TRUE)$value
