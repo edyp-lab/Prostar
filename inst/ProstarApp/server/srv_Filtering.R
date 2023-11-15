@@ -82,22 +82,52 @@ output$screenFiltering1 <- renderUI({
         hr(),
         ################## Plots section #############################
         mod_plotsMetacellHistos_ui("MVPlots_filtering")
+        #uiOutput('MVPlots_filtering_ui')
     )
+    
+   
+    
 })
 
 rv.filtering <- reactiveValues(
     reset = NULL
 )
 
-observe({
+
 rv$indices <- mod_query_metacell_server(id = "query",
                                         obj = reactive({rv$current.obj}),
                                         reset = reactive({rv.filtering$reset})
-                                        )
+)
+
+
+observeEvent(rv$indices()$trigger, {
+
+mod_plotsMetacellHistos_server(id = "MVPlots_filtering",
+                               obj = reactive({rv$current.obj}),
+                               pal = reactive({rv$PlotParams$paletteForConditions}),
+                               pattern = reactive({rv$indices()$params$MetacellTag}),
+                               showSelect = reactive({TRUE})
+)
 })
 
 
 
+
+
+output$MVPlots_filtering_ui <- renderUI({
+    
+    tagList(
+        h3('toto')
+    
+    )
+    
+    
+    
+})
+
+observe({
+   
+})
 
 observeEvent(rv$indices()$indices, ignoreInit = TRUE, {
     # shinyjs::toggleState("performMetacellFiltering",
@@ -174,14 +204,10 @@ observeEvent(rv$indices()$indices, ignoreInit = TRUE, {
 })
 
 
-observe({
-    mod_plotsMetacellHistos_server(id = "MVPlots_filtering",
-                               obj = reactive({rv$current.obj}),
-                               pal = reactive({rv$PlotParams$paletteForConditions}),
-                               pattern = reactive({rv$indices()$params$MetacellTag}),
-                               showSelect = reactive({FALSE})
-)
-})
+#observe({
+#    req(rv$current.obj)
+
+#})
 
 
 

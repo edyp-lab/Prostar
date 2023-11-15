@@ -30,34 +30,26 @@ mod_plotsMetacellHistos_server <- function(id,
             
             rv <- reactiveValues(
                 chooseTag = pattern(),
-                showSelect = if(is.null(pattern())) TRUE else showSelect()
+                showSelect = if(is.null(pattern())) TRUE else showSelect(),
+                tmp.tags = reactive(NULL)
             )
             
             
-            tmp.tags <- mod_metacell_tree_server('tree', obj = reactive({obj()}))
             
-            observeEvent(tmp.tags()$trigger, ignoreNULL = FALSE, {
-                rv$chooseTag <- tmp.tags()$values
+            
+            observeEvent(rv$tmp.tags()$trigger, ignoreNULL = FALSE, {
+                req(showSelect())
+                rv$chooseTag <- rv$tmp.tags()$values
             })
             
             
             output$chooseTagUI <- renderUI({
                 req(showSelect(), obj())
-                mod_metacell_tree_ui(ns('tree'))
-                # meta <- DAPAR::metacell.def(GetTypeofData(obj()))$node
-                # .ch <- 
-                #     selectInput(ns('chooseTag'), 
-                #                 'Select at least one tag to display statistics about', 
-                #                 choices = meta[-which(meta == 'Any')],
-                #                 width = '200px',
-                #                 multiple = TRUE,
-                #                 selected = rv$chooseTag)
-
+                 rv$tmp.tags <- mod_metacell_tree_server('tree_plots_metacell', obj = reactive({obj()}))
+                 
+                mod_metacell_tree_ui(ns('tree_plots_metacell'))
             })
             
-            # observeEvent(input$chooseTag, ignoreInit = TRUE,{
-            #     rv$chooseTag <- input$chooseTag
-            # })
 
             output$histo_Metacell <- renderHighchart({
                tmp <- NULL
@@ -115,13 +107,13 @@ server <- function(input, output) {
     utils::data("Exp1_R25_prot", package='DAPARdata')
     
     pattern <- c('Missing POV', 'Missing MEC')
-    pattern <- NULL
+    #pattern <- NULL
     observe({
         mod_plotsMetacellHistos_server('test',
                                    obj = reactive({Exp1_R25_prot}),
                                    pal = reactive({NULL}),
                                    pattern = reactive({pattern}),
-                                   showSelect = reactive({TRUE})
+                                   showSelect = reactive({FALSE})
                                    )
     })
 

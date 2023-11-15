@@ -209,6 +209,20 @@ mod_metacell_tree_server <- function(id,
             tmp <- unname(rv$mapping[names(rv$mapping)])
             rv$tags <- setNames(rep(FALSE, length(tmp)), nm = gsub('_cb', '', tmp))
             rv$autoChanged <- TRUE
+            
+            
+            updateCheckboxInput(session, 'quantified_cb', value=FALSE)
+            updateCheckboxInput(session, 'quantbydirectid_cb', value=FALSE)
+            updateCheckboxInput(session, 'quantbyrecovery_cb', value=FALSE)
+            updateCheckboxInput(session, 'missing_cb', value=FALSE)
+            updateCheckboxInput(session, ns('missingpov_cb'), value=FALSE)
+            updateCheckboxInput(session, 'missingmec_cb', value=FALSE)
+            updateCheckboxInput(session, 'imputed_cb', value=FALSE)
+            updateCheckboxInput(session, 'imputedpov_cb', value=FALSE)
+            updateCheckboxInput(session, 'imputedmec_cb', value=FALSE)
+            updateCheckboxInput(session, 'combinedtags_cb', value=FALSE)
+            
+            
         }
         
         
@@ -227,7 +241,7 @@ mod_metacell_tree_server <- function(id,
             dataOut$values <- NULL
             }) 
         
-        observeEvent(input$openModalBtn, ignoreInit = TRUE, ignoreNULL = TRUE, {
+        observeEvent(input$openModalBtn, ignoreInit = FALSE, ignoreNULL = TRUE, {
             
             print('------------ observeEvent(input$openModalBtn ---------------')
             init_tree()
@@ -246,7 +260,7 @@ observeEvent(input$lastModalClose,  ignoreInit = FALSE, ignoreNULL = TRUE, {
     print('------------ input$lastModalClose ---------------')
     dataOut$trigger <- as.numeric(Sys.time())
     dataOut$values <- names(rv$tags)[which(rv$tags == TRUE)]
-    #browser()
+
 })
 
 
@@ -558,7 +572,8 @@ reactive({dataOut})
 #
 ui <- fluidPage(
     tagList(
-        mod_metacell_tree_ui('tree'),
+        mod_metacell_tree_ui('tree_test1'),
+        mod_metacell_tree_ui('tree_test2'),
         uiOutput('res')
     )
 )
@@ -566,7 +581,8 @@ ui <- fluidPage(
 server <- function(input, output) {
     
     utils::data('Exp1_R25_prot')
-    tags <- mod_metacell_tree_server('tree', obj = reactive({Exp1_R25_prot}))
+    tags1 <- mod_metacell_tree_server('tree_test1', obj = reactive({Exp1_R25_prot}))
+    tags2 <- mod_metacell_tree_server('tree_test2', obj = reactive({Exp1_R25_prot}))
 
 }
 

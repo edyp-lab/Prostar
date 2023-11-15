@@ -7,7 +7,7 @@ mod_query_metacell_ui <- function(id) {
     ns <- NS(id)
     tagList(
         fluidRow(
-                column(2, mod_metacell_tree_ui(ns('tree'))),
+                column(2, mod_metacell_tree_ui(ns('tree_query_metacell'))),
                 column(2, uiOutput(ns("Choose_keepOrRemove_ui"))),
                 column(2, uiOutput(ns("choose_metacellFilters_ui"))),
                 column(6, uiOutput(ns("MetacellFilters_widgets_set2_ui")))
@@ -163,7 +163,7 @@ mod_query_metacell_server <- function(id,
                 
             }, priority=1000)
 
-            tmp.tags <- mod_metacell_tree_server('tree',
+            tmp.tags <- mod_metacell_tree_server('tree_query_metacell',
                                                  obj = reactive({obj()}),
                                                  reset = reactive({rv$reset_tree})
                                                  )
@@ -171,6 +171,9 @@ mod_query_metacell_server <- function(id,
             observeEvent(tmp.tags()$values, ignoreNULL = FALSE, ignoreInit = TRUE, {
                 print('marqueur 3')
                 rv.widgets$MetacellTag <- tmp.tags()$values
+                dataOut$trigger <- as.numeric(Sys.time())
+                dataOut$params<- list(
+                    MetacellTag = rv.widgets$MetacellTag)
             }, priority = 900)
             
 
