@@ -170,7 +170,7 @@ output$mvplotsUI <- renderUI({
                                pal = reactive({rv$PlotParams$paletteForConditions}),
                                pattern = reactive({rv$indices()$params$MetacellTag}),
                                showSelect = reactive({FALSE})
-)
+                               )
     
     mod_plotsMetacellHistos_ui("MVPlots_filtering")
 })
