@@ -55,18 +55,36 @@ output$checkConvertPanel <- renderUI({
 ########### STEP 1 ############
 output$Convert_SelectFile <- renderUI({
     tagList(
-        br(), br(),
-        radioButtons("choose_software", "Software to import from",
+         br(), br(),
+        tags$div(style = "display:inline-block; vertical-align: top;",
+            radioButtons("choose_software", "Software to import from",
             choices = setNames(nm = DAPAR::GetSoftAvailables()),
             selected = character(0)
+            ),
+            uiOutput("choose_file_to_import")
         ),
-        uiOutput("choose_file_to_import"),
         uiOutput("ManageXlsFiles"),
-        uiOutput("ConvertOptions")
+        uiOutput("ConvertOptions"),
+        uiOutput('loadFile_btn_UI'),
+        uiOutput('info_file_loaded_UI')
     )
 })
 
 
+
+output$info_file_loaded_UI <- renderUI({
+    req(rv$tab1)
+    h4('The file has been loaded correctly')
+})
+
+output$loadFile_btn_UI <- renderUI({
+    req(input$file1$name)
+    .ext <- GetExtension(input$file1$name)
+    cond.csv <-.ext %in% c("txt", "csv", 'tsv')
+    cond.xl <- .ext %in% c("xls", "xlsx") && !is.null(input$XLSsheets)
+    req(cond.csv || cond.xl)
+    actionButton("loadFile", "Load file", class = actionBtnClass)
+})
 
 output$choose_file_to_import <- renderUI({
     req(input$choose_software)
@@ -125,12 +143,7 @@ output$ConvertOptions <- renderUI({
 
 
 ############ Read text file to be imported ######################
-observeEvent(req(input$file1), {
-    #input$XLSsheets
-    #if (((GetExtension(input$file1$name) %in% c("xls", "xlsx"))) &&
-    #    is.null(input$XLSsheets)) {
-    #  return(NULL)
-    #}
+observeEvent(input$loadFile, {
 
     authorizedExts <- c("txt", "csv", "tsv", "xls", "xlsx")
     if (!fileExt.ok()) {
@@ -142,27 +155,15 @@ observeEvent(req(input$file1), {
         ClearMemory()
         ext <- GetExtension(input$file1$name)
         shinyjs::disable("file1")
-        switch(ext,
-            txt = {
-                rv$tab1 <- read.csv(input$file1$datapath, header = TRUE, sep = "\t", as.is = T)
-            },
-            csv = {
-                rv$tab1 <- read.csv(input$file1$datapath, header = TRUE, sep = ";", as.is = T)
-            },
-            tsv = {
-                rv$tab1 <- read.csv(input$file1$datapath, header = TRUE, sep = "\t", as.is = T)
-            },
-            xls = {
-                rv$tab1 <- readExcel(input$file1$datapath, ext, sheet = input$XLSsheets)
-            },
-            xlsx = {
-                rv$tab1 <- readExcel(input$file1$datapath, ext, sheet = input$XLSsheets)
-            }
-        )
+        
+        if (ext %in% c('txt', 'csv', 'tsv'))
+            rv$tab1 <- read.csv(input$file1$datapath, header = TRUE, sep = "\t", as.is = T)
+        else if (ext %in% c('xls', 'xlsx'))
+            rv$tab1 <- DAPAR::readExcel(input$file1$datapath, sheet = input$XLSsheets)
 
         colnames(rv$tab1) <- gsub(".", "_", colnames(rv$tab1), fixed = TRUE)
         colnames(rv$tab1) <- gsub(" ", "_", colnames(rv$tab1), fixed = TRUE)
-           },
+        },
         warning = function(w) {
             shinyjs::info(conditionMessage(w))
             return(NULL)
