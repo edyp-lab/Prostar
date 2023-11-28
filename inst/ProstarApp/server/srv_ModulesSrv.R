@@ -532,7 +532,7 @@ moduleVolcanoplot <- function(input, output, session,
         # browser()
         isolate({
             withProgress(message = "Building plot...", detail = "", value = 0, {
-                m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
+               m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
                                     pattern = c("Missing", "Missing POV", "Missing MEC"),
                                     level = DAPAR::GetTypeofData(rv$current.obj)
                                     )
@@ -544,7 +544,8 @@ moduleVolcanoplot <- function(input, output, session,
                     y = -log10(data()$P_Value),
                     index = 1:nrow(Biobase::fData(rv$current.obj))
                 )
-                if (length(tooltip()) > 0 && !is.na(tooltip())) {
+                
+                if (length(tooltip()) > 0 && sum(is.na(tooltip())) == 0) {
                     df <- cbind(
                         df,
                       Biobase::fData(rv$current.obj)[tooltip()]
