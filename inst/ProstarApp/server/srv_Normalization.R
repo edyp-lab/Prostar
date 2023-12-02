@@ -10,7 +10,7 @@ callModule(moduleDensityplot, "densityPlot_Norm",
            data = reactive({rv$current.obj})
            )
 
-callModule(module_Not_a_numeric,"test_spanLOESS",
+mod_Not_a_numeric_server("test_spanLOESS",
     reactive({rv$widgets$normalization$spanLOESS})
 )
 
@@ -138,7 +138,7 @@ output$screenNormalization1 <- renderUI({
                             width = "100px"
                         )
                     ),
-                    module_Not_a_numericUI("test_spanLOESS"),
+                    mod_Not_a_numeric_ui("test_spanLOESS"),
                     uiOutput("choose_normalizationQuantile"),
                     uiOutput("choose_normalizationScaling")
                 ),
@@ -244,7 +244,7 @@ output$helpForNormalizationMethods <- renderUI({
 })
 
 
-callModule(module_Not_a_numeric, "test_normQuant",
+mod_Not_a_numeric_server("test_normQuant",
     reactive({rv$widgets$normalization$quantile})
 )
 
@@ -256,7 +256,7 @@ output$choose_normalizationQuantile <- renderUI({
         textInput("normalization.quantile", NULL,
             value = rv$widgets$normalization$quantile, width = "150px"
         ),
-        module_Not_a_numericUI("test_normQuant")
+        mod_Not_a_numeric_ui("test_normQuant")
     )
 })
 

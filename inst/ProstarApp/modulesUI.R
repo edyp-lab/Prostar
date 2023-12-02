@@ -5,22 +5,6 @@ NUM_PAGES_FILTERING <- 3
 
 
 
-
-
-
-
-module_Not_a_numericUI <- function(id) {
-    ns <- NS(id)
-    uiOutput(ns("msg_not_numeric"))
-}
-
-
-
-
-
-
-
-
 moduleVolcanoplotUI <- function(id) {
     ns <- NS(id)
     tagList(

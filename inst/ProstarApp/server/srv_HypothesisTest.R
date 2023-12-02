@@ -52,11 +52,8 @@ resetModuleHypothesisTest <- reactive({
 })
 
 
-callModule(
-    module_Not_a_numeric, "test_seuillogFC",
-    reactive({
-        rv$widgets$hypothesisTest$th_logFC
-    })
+mod_Not_a_numeric_server("test_seuillogFC",
+    reactive({rv$widgets$hypothesisTest$th_logFC})
 )
 
 
@@ -283,16 +280,14 @@ output$screenHypoTest1 <- renderUI({
                                   value = .widgets$th_logFC,
                                   width = "150px"
                         ),
-                        module_Not_a_numericUI("test_seuillogFC")
+                        mod_Not_a_numeric_ui("test_seuillogFC")
                     ),
                     tags$div(
-                        style = "display:inline-block; vertical-align: middle;
-          padding-right: 20px;",
+                        style = "display:inline-block; vertical-align: middle; padding-right: 20px;",
                         uiOutput("correspondingRatio")
                     ),
                     tags$div(
-                        style = "display:inline-block; vertical-align: middle;
-          padding-right: 20px;",
+                        style = "display:inline-block; vertical-align: middle; padding-right: 20px;",
                         uiOutput("perform_btn")
                     )
                 ),
@@ -415,13 +410,11 @@ ComputeComparisons <- reactive({
     
     m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
                         pattern = "Missing",
-                        level = DAPAR::GetTypeofData(rv$current.obj)
-    )
+                        level = DAPAR::GetTypeofData(rv$current.obj))
     
     req(length(which(m)) == 0)
     
     df <- NULL
-    #browser() 
     df <- switch(rv$widgets$hypothesisTest$method,
                  Limma = {
                      DAPAR::limmaCompleteTest(Biobase::exprs(rv$current.obj),
@@ -439,6 +432,7 @@ ComputeComparisons <- reactive({
     
     rv$widgets$hypothesisTest$listNomsComparaison <- colnames(df$logFC)
     rvModProcess$moduleHypothesisTestDone[1] <- TRUE
+    #browser() 
     
     
     df

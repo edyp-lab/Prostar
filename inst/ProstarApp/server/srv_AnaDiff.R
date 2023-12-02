@@ -34,11 +34,9 @@ format_DT_server("params_AnaDiff",
     filename = "AnaDiffParams"
 )
 
-callModule(
-    module_Not_a_numeric, "test_seuilPVal",
-    reactive({ rv$widgets$anaDiff$th_pval})
-)
 
+mod_Not_a_numeric_server("test_seuilPVal",
+                         reactive({input$seuilPVal}))
 
 callModule(moduleProcess, "moduleProcess_AnaDiff",
     isDone = reactive({rvModProcess$moduleAnaDiffDone}),
@@ -840,53 +838,45 @@ output$calibrationPlotAll <- renderImage(
 ###
 
 output$screenAnaDiff3 <- renderUI({
-    #print("in output$screenAnaDiff3")
+    req(as.character(rv$widgets$anaDiff$Comparison) != "None")
 
-    if (as.character(rv$widgets$anaDiff$Comparison) == "None") {
-        return(NULL)
-    }
 
     isolate({
         tagList(
             tags$div(
-                tags$div(
-                    style = "display:inline-block; vertical-align: center;
-          padding-right: 2px;",
-                    popover_for_help_ui("modulePopover_pValThreshold"),
-                    textInput("seuilPVal", NULL,
-                        value = rv$widgets$anaDiff$th_pval, width = "100px"
-                    )
+                tags$div(style = "display:inline-block; vertical-align: center; padding-right: 2px;",
+                         popover_for_help_ui("modulePopover_pValThreshold"),
+                        textInput("seuilPVal", NULL,
+                                  value = rv$widgets$anaDiff$th_pval, width = "100px"),
+                        radioButtons("type_pval", "Type of value",
+                                 choices = c('raw pval' = 'raw pval',
+                                             '-log10()' = '-log10()')),
+                    
+                        actionButton("valid_seuilPVal", "Validate value",
+                                     class = actionBtnClass)
                 ),
-                actionButton("valid_seuilPVal", "Validate value",
-                    class = actionBtnClass
-                ),
-                tags$div(
-                    style = "display:inline-block; vertical-align: top;",
-                    module_Not_a_numericUI("test_seuilPVal")
+                tags$div(style = "display:inline-block; vertical-align: top;",
+                    mod_Not_a_numeric_ui("test_seuilPVal")
                 )
             ),
             tags$hr(),
             tagList(
                 tags$div(
-                    tags$div(
-                        style = "display:inline-block; vertical-align: top;",
+                    tags$div(style = "display:inline-block; vertical-align: top;",
                         htmlOutput("showFDR"),
                         withProgress(message = "", detail = "", value = 1, {
                             moduleVolcanoplotUI("volcano_Step2")
                         })
                     ),
-                    tags$div(
-                        style = "display:inline-block; vertical-align: top;",
+                    tags$div(style = "display:inline-block; vertical-align: top;",
                         uiOutput("tooltipInfo"),
                         checkboxInput("showpvalTable", "Show p-value table",
                             value = FALSE
                         ),
-                        radioButtons("downloadAnaDiff",
-                            "Download as Excel file",
-                            choices = c(
-                                "All data" = "All",
-                                "only DA" = "onlyDA"
-                            ),
+                        shinyjs::hidden(checkboxInput('viewAdjPval', 'View adjusted p-value', value = FALSE)),
+                        radioButtons("downloadAnaDiff", "Download as Excel file",
+                            choices = c("All data" = "All",
+                                        "only DA" = "onlyDA"),
                             selected = rv$widgets$anaDiff$downloadAnaDiff
                         ),
                         downloadButton("downloadSelectedItems", "Download",
@@ -929,26 +919,22 @@ output$diffAna_Summary <- renderUI({
 ################################################################
 
 
-
-
-
-
-
 observeEvent(input$valid_seuilPVal, {
     req(input$seuilPVal)
     tmp <- gsub(",", ".", input$seuilPVal, fixed = TRUE)
 
-    rv$widgets$anaDiff$th_pval <- as.numeric(tmp)
+    if (input$type_pval == 'raw pval')
+        rv$widgets$anaDiff$th_pval <- -log10(as.numeric(tmp))
+    else if (input$type_pval == '-log10()')
+        rv$widgets$anaDiff$th_pval <- as.numeric(tmp)
 })
 
 
 
 observeEvent(input$showpvalTable, {
     #print("show : anaDiff_selectedItems")
-    shinyjs::toggle(
-        id = "anaDiff_selectedItems",
-        condition = isTRUE(input$showpvalTable)
-    )
+    shinyjs::toggle(id = "anaDiff_selectedItems", condition = isTRUE(input$showpvalTable) )
+    shinyjs::toggle(id = "viewAdjPval", condition = isTRUE(input$showpvalTable) )
 })
 
 
@@ -974,22 +960,37 @@ popover_for_help_server("modulePopover_pValThreshold",
 
 
 output$anaDiff_selectedItems <- DT::renderDT({
-    DT::datatable(GetSelectedItems(),
+    input$viewAdjPval
+    df <- GetSelectedItems()
+    
+    if (input$viewAdjPval){
+        df <- df[order(df$Adjusted_PValue, decreasing=FALSE), ]
+        .coldefs <- list(list(width = "200px", targets = "_all"))
+    } else {
+        name <- paste0("Adjusted_PValue (",
+                       as.character(rv$widgets$anaDiff$Comparison), ")")
+        .coldefs <- list(
+            list(width = "200px", targets = "_all"),
+            list(targets = (which(colnames(df)==name) - 1), visible = FALSE))
+    }
+    
+    
+    DT::datatable(df,
         escape = FALSE,
         rownames = FALSE,
-        options = list(
-            initComplete = initComplete(),
-            dom = "frtip",
-            server = TRUE,
-            columnDefs = list(list(width = "200px", targets = "_all")),
-            ordering = TRUE
-        )
-    ) %>%
-    DT::formatStyle(
-            paste0(
-                "isDifferential (",
-                as.character(rv$widgets$anaDiff$Comparison), ")"
-            ),
+        options = list(initComplete = initComplete(),
+                       dom = "frtip",
+                       pageLength = 100,
+                       scrollY = 500,
+                       scroller = TRUE,
+                       server = TRUE,
+                       columnDefs = .coldefs,
+                       ordering = !input$viewAdjPval
+                       )
+        ) %>%
+        DT::formatStyle(
+            paste0("isDifferential (",
+                   as.character(rv$widgets$anaDiff$Comparison), ")"),
             target = "row",
             backgroundColor = DT::styleEqual(c(0, 1), c("white", orangeProstar))
         )
@@ -998,45 +999,35 @@ output$anaDiff_selectedItems <- DT::renderDT({
 
 
 output$downloadSelectedItems <- downloadHandler(
-    filename = reactive({
-        rv_anaDiff$filename
-    }),
+    filename = reactive({rv_anaDiff$filename}),
     content = function(file) {
         DA_Style <- openxlsx::createStyle(fgFill = orangeProstar)
-        hs1 <- openxlsx::createStyle(
-            fgFill = "#DCE6F1",
-            halign = "CENTER",
-            textDecoration = "italic",
-            border = "Bottom"
-        )
+        hs1 <- openxlsx::createStyle(fgFill = "#DCE6F1",
+                                     halign = "CENTER",
+                                     textDecoration = "italic",
+                                     border = "Bottom")
+        
         wb <- openxlsx::createWorkbook() # Create wb in R
         openxlsx::addWorksheet(wb, sheetName = "DA result") # create sheet
         openxlsx::writeData(wb,
-            sheet = 1,
-            as.character(rv$widgets$anaDiff$Comparison),
-            colNames = TRUE,
-            headerStyle = hs1
-        )
+                            sheet = 1,
+                            as.character(rv$widgets$anaDiff$Comparison),
+                            colNames = TRUE,
+                            headerStyle = hs1
+                            )
         openxlsx::writeData(wb,
-            sheet = 1,
-            startRow = 3,
-            GetSelectedItems(),
-            colNames = TRUE
-        )
+                            sheet = 1,
+                            startRow = 3,
+                            GetSelectedItems(),
+                            )
 
-        .txt <- paste0(
-            "isDifferential (",
-            as.character(rv$widgets$anaDiff$Comparison),
-            ")"
-        )
+        .txt <- paste0("isDifferential (",
+                       as.character(rv$widgets$anaDiff$Comparison),
+                       ")")
 
         ll.DA.row <- which(GetSelectedItems()[, .txt] == 1)
-        ll.DA.col <- rep(
-            which(
-                colnames(GetSelectedItems()) == .txt
-            ),
-            length(ll.DA.row)
-        )
+        ll.DA.col <- rep(which(colnames(GetSelectedItems()) == .txt),
+            length(ll.DA.row) )
 
         openxlsx::addStyle(wb,
             sheet = 1, cols = ll.DA.col,
@@ -1051,40 +1042,56 @@ output$downloadSelectedItems <- downloadHandler(
 )
 
 
-
-
-
-
-
-Get_FDR <- reactive({
+Get_adjusted_pvalues <- reactive({
     req(rv$current.obj)
     rv$widgets$anaDiff$numValCalibMethod
     rv$widgets$anaDiff$calibMethod
     req(rv$resAnaDiff)
-
-    m <- NULL
+    
+    .calibMethod <- NULL
     if (rv$widgets$anaDiff$calibMethod == "Benjamini-Hochberg") {
-        m <- 1
+        .calibMethod <- 1
     } else if (rv$widgets$anaDiff$calibMethod == "numeric value") {
-        m <- as.numeric(rv$widgets$anaDiff$numValCalibMethod)
+        .calibMethod <- as.numeric(rv$widgets$anaDiff$numValCalibMethod)
     } else {
-        m <- rv$widgets$anaDiff$calibMethod
+        .calibMethod <- rv$widgets$anaDiff$calibMethod
     }
+    
+    
+    df <- data.frame(id = rownames(rv$current.obj),
+                     logFC = rv$resAnaDiff[["logFC"]],
+                     pval = rv$resAnaDiff[["P_Value"]])
+    
+    
+    threshold_LogFC <- rv$widgets$hypothesisTest$th_logFC
+    
+    upItems <- which(abs(rv$resAnaDiff[["logFC"]]) >= threshold_LogFC)
+    df <- df[upItems,]
+    
+    rv$widgets$anaDiff$adjusted_pvalues <- diffAnaComputeAdjustedPValues(
+        df$pval,
+        .calibMethod)
+    
+    rv$widgets$anaDiff$adjusted_pvalues
+})
 
-    rv$widgets$anaDiff$FDR <- diffAnaComputeFDR(
-        rv$resAnaDiff[["logFC"]],
-        rv$resAnaDiff[["P_Value"]],
-        rv$widgets$anaDiff$th_pval,
-        rv$widgets$hypothesisTest$th_logFC,
-        m
-    )
+Get_FDR <- reactive({
+    req(rv$current.obj)
+    rv$widgets$anaDiff$th_pval
+    Get_adjusted_pvalues()
+    
+    adj.pval <- Get_adjusted_pvalues()
+    upitems <- which(-log10(adj.pval) >= rv$widgets$anaDiff$th_pval)
+    
+    fdr <- max(adj.pval[upitems])
     rvModProcess$moduleAnaDiffDone[3] <- TRUE
-    as.numeric(rv$widgets$anaDiff$FDR)
+    as.numeric(fdr)
 })
 
 
 output$showFDR <- renderUI({
     req(rv$current.obj)
+    #browser()
     nb <- length(
         which(
             GetSelectedItems()[paste0(
@@ -1099,8 +1106,8 @@ output$showFDR <- renderUI({
 
     tagList(
         if (!is.infinite(Get_FDR())) {
-            tags$p(
-                style = "font-size: 25px;", "FDR = ",
+            tags$p(style = "font-size: 25px;", 
+                   "FDR = ",
                 round(100 * Get_FDR(), digits = 2), " % (p-value = ",
                 signif(10^(-(rv$widgets$anaDiff$th_pval)), digits = 3), ")"
             )
@@ -1143,8 +1150,6 @@ output$equivLog10 <- renderText({
 })
 
 
-
-
 GetSelectedItems <- reactive({
     req(rv$resAnaDiff)
     rv$widgets$anaDiff$downloadAnaDiff
@@ -1164,24 +1169,35 @@ GetSelectedItems <- reactive({
         selectedItems <- intersect(upItems1, upItems2)
         significant <- rep(1, length(selectedItems))
     }
+    
 
-    t <- data.frame(
+   # if (input$viewAdjPval){
+        t <- data.frame(
         id = rownames(Biobase::exprs(rv$current.obj))[selectedItems],
-        logFC = round(rv$resAnaDiff$logFC[selectedItems],
-            digits = rv$settings_nDigits
-        ),
+        logFC = round(rv$resAnaDiff$logFC[selectedItems], digits = rv$settings_nDigits),
         P_Value = rv$resAnaDiff$P_Value[selectedItems],
-        isDifferential = significant
-    )
+        Adjusted_PValue = Get_adjusted_pvalues()[selectedItems],
+        isDifferential = significant)
+    
+    # Sort data.frame wrt adjusted pvalues
+    #t <- t[order(t$Adjusted_PValue, decreasing=FALSE), ]
+    # 
+    # } else {
+    #     t <- data.frame(
+    #         id = rownames(Biobase::exprs(rv$current.obj))[selectedItems],
+    #         logFC = round(rv$resAnaDiff$logFC[selectedItems], digits = rv$settings_nDigits),
+    #         P_Value = rv$resAnaDiff$P_Value[selectedItems],
+    #         isDifferential = significant)
+    # }
+    # 
     tmp <- as.data.frame(
       Biobase::fData(rv$current.obj)[selectedItems, rv$widgets$anaDiff$tooltipInfo]
     )
     names(tmp) <- rv$widgets$anaDiff$tooltipInfo
     t <- cbind(t, tmp)
-    colnames(t)[2:4] <- paste0(
-        colnames(t)[2:4], " (",
-        as.character(rv$widgets$anaDiff$Comparison), ")"
-    )
+    
+    colnames(t)[2:5] <- paste0(colnames(t)[2:5], " (", as.character(rv$widgets$anaDiff$Comparison), ")")
+    
     t
 })
 
