@@ -859,6 +859,7 @@ resetModuleProcess <- function(moduleName) {
                    calibMethod = "None",
                    numValCalibMethod = 0,
                    th_pval = 0,
+                   type_pval <- '-log10()',
                    FDR = 0,
                    NbSelected = 0,
                    nBinsHistpval = 80,
@@ -904,6 +905,9 @@ resetModuleProcess <- function(moduleName) {
                )
                updateTextInput(session, "seuilPVal",
                                value = rv$widgets$anaDiff$th_pval
+               )
+               updateTextInput(session, "type_pval",
+                               value = rv$widgets$anaDiff$type_pval
                )
                updateRadioButtons(session, "downloadAnaDiff", selected = "All")
                updateRadioButtons(session, "tooltipInfo",
@@ -1260,6 +1264,7 @@ rv <- reactiveValues(
             calibMethod = "None",
             numValCalibMethod = 0,
             th_pval = 0,
+            type_pval = '-log10()',
             FDR = 0,
             NbSelected = 0,
             nBinsHistpval = 80,

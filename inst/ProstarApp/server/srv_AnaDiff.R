@@ -77,6 +77,7 @@ resetModuleAnaDiff <- reactive({
     rv$widgets$anaDiff$calibMethod <- "None"
     rv$widgets$anaDiff$numValCalibMethod <- 0
     rv$widgets$anaDiff$th_pval <- 0
+    rv$widgets$anaDiff$type_pval <- '-log10()'
     rv$widgets$anaDiff$FDR <- 0
     rv$widgets$anaDiff$NbSelected <- 0
     rv$widgets$anaDiff$nBinsHistpval <- 80
@@ -468,8 +469,7 @@ output$screenAnaDiff2 <- renderUI({
     tagList(
         tags$div(
             tags$div(
-                style = "display:inline-block; vertical-align: middle;
-        padding-right: 40px;",
+                style = "display:inline-block; vertical-align: middle; padding-right: 40px;",
                 selectInput("calibrationMethod", "Calibration method",
                     choices = c("None" = "None", calibMethod_Choices),
                     selected = rv$widgets$anaDiff$calibMethod,
@@ -481,8 +481,7 @@ output$screenAnaDiff2 <- renderUI({
                 uiOutput("numericalValForCalibrationPlot")
             ),
             tags$div(
-                style = "display:inline-block; vertical-align: middle;
-        padding-right: 40px;",
+                style = "display:inline-block; vertical-align: middle; padding-right: 40px;",
                 uiOutput("nBins_ui")
             ),
             tags$div(
@@ -843,50 +842,64 @@ output$screenAnaDiff3 <- renderUI({
 
     isolate({
         tagList(
-            tags$div(
-                tags$div(style = "display:inline-block; vertical-align: center; padding-right: 2px;",
-                         popover_for_help_ui("modulePopover_pValThreshold"),
+            fluidRow(
+                # column(width = 2,
+                #        radioButtons("type_pval", "Type of value",
+                #                     choices = c('raw pval' = 'raw pval',
+                #                                 '-log10()' = '-log10()'),
+                #                     selected = rv$widgets$anaDiff$type_pval)
+                # ),
+                column(width = 3,
+                       popover_for_help_ui("modulePopover_pValThreshold"),
                         textInput("seuilPVal", NULL,
                                   value = rv$widgets$anaDiff$th_pval, width = "100px"),
-                        radioButtons("type_pval", "Type of value",
-                                 choices = c('raw pval' = 'raw pval',
-                                             '-log10()' = '-log10()')),
-                    
-                        actionButton("valid_seuilPVal", "Validate value",
+                       mod_Not_a_numeric_ui("test_seuilPVal")
+                       
+                       ),
+                
+                column(width = 2,
+                       actionButton("valid_seuilPVal", "Validate value",
                                      class = actionBtnClass)
+                       ),
+                
+                column(width = 3,
+                       p("Hint: it is possible to copy/paste the corresponding value of
+                       the adjusted p-value. For that, simply copy/paste the value of the column
+                       '-log10()')")
                 ),
-                tags$div(style = "display:inline-block; vertical-align: top;",
-                    mod_Not_a_numeric_ui("test_seuilPVal")
-                )
+                column(width = 3,
+                       checkboxInput("showpvalTable", "Show p-value table", value = FALSE),
+                       shinyjs::hidden(checkboxInput('viewAdjPval', 'View adjusted p-value', value = FALSE))
+                       )
+            ),
+            fluidRow(
+                column(width = 5,
+                       htmlOutput("showFDR")
+                       ),
+                column(width = 5, 
+                       uiOutput("tooltipInfo")
+                       )
             ),
             tags$hr(),
-            tagList(
-                tags$div(
-                    tags$div(style = "display:inline-block; vertical-align: top;",
-                        htmlOutput("showFDR"),
-                        withProgress(message = "", detail = "", value = 1, {
-                            moduleVolcanoplotUI("volcano_Step2")
-                        })
-                    ),
-                    tags$div(style = "display:inline-block; vertical-align: top;",
-                        uiOutput("tooltipInfo"),
-                        checkboxInput("showpvalTable", "Show p-value table",
-                            value = FALSE
-                        ),
-                        shinyjs::hidden(checkboxInput('viewAdjPval', 'View adjusted p-value', value = FALSE)),
+            fluidRow(
+                    
+                    column(width = 4,
+                           
+                           
                         radioButtons("downloadAnaDiff", "Download as Excel file",
                             choices = c("All data" = "All",
                                         "only DA" = "onlyDA"),
                             selected = rv$widgets$anaDiff$downloadAnaDiff
                         ),
-                        downloadButton("downloadSelectedItems", "Download",
-                            class = actionBtnClass
-                        )
+                        downloadButton("downloadSelectedItems", "Download", class = actionBtnClass)
                     )
                 ),
+                withProgress(message = "", detail = "", value = 1, {
+                    moduleVolcanoplotUI("volcano_Step2")
+                }),
                 hidden(DT::DTOutput("anaDiff_selectedItems"))
             )
-        )
+        
     })
 })
 
@@ -923,9 +936,9 @@ observeEvent(input$valid_seuilPVal, {
     req(input$seuilPVal)
     tmp <- gsub(",", ".", input$seuilPVal, fixed = TRUE)
 
-    if (input$type_pval == 'raw pval')
-        rv$widgets$anaDiff$th_pval <- -log10(as.numeric(tmp))
-    else if (input$type_pval == '-log10()')
+    # if (input$type_pval == 'raw pval')
+    #     rv$widgets$anaDiff$th_pval <- -log10(as.numeric(tmp))
+    # else if (input$type_pval == '-log10()')
         rv$widgets$anaDiff$th_pval <- as.numeric(tmp)
 })
 
@@ -953,10 +966,9 @@ observeEvent(input$downloadAnaDiff, {
 })
 
 popover_for_help_server("modulePopover_pValThreshold",
-    title = "p-val cutoff",
-        content = "Define the -log10(p_value) threshold"
+    title = "-log10(p-value) cutoff",
+        content = "Set the -log10(p_value) threshold"
     )
-
 
 
 output$anaDiff_selectedItems <- DT::renderDT({
@@ -967,7 +979,7 @@ output$anaDiff_selectedItems <- DT::renderDT({
         df <- df[order(df$Adjusted_PValue, decreasing=FALSE), ]
         .coldefs <- list(list(width = "200px", targets = "_all"))
     } else {
-        name <- paste0("Adjusted_PValue (",
+        name <- paste0(c('Adjusted_PValue (','Logged_Adj_PValue ('), 
                        as.character(rv$widgets$anaDiff$Comparison), ")")
         .coldefs <- list(
             list(width = "200px", targets = "_all"),
@@ -1103,17 +1115,16 @@ output$showFDR <- renderUI({
     th <- Get_FDR() * nb
     #print(th)
 
-
+    txt <- "FDR = NA"
+    if (!is.infinite(Get_FDR())) {
+        txt <- paste0("FDR = ",
+                      round(100 * Get_FDR(), digits = 2), " % (p-value = ",
+                      signif(10^(-(rv$widgets$anaDiff$th_pval)), digits = 3), ")"
+        )
+    }
+    
     tagList(
-        if (!is.infinite(Get_FDR())) {
-            tags$p(style = "font-size: 25px;", 
-                   "FDR = ",
-                round(100 * Get_FDR(), digits = 2), " % (p-value = ",
-                signif(10^(-(rv$widgets$anaDiff$th_pval)), digits = 3), ")"
-            )
-        } else {
-            tags$p(style = "font-size: 25px;", "FDR = NA")
-        },
+        h4(txt),
         if (th < 1) {
             tags$p(style = "color: red", paste0(
                 "Warning: With such a dataset size (",
@@ -1171,32 +1182,29 @@ GetSelectedItems <- reactive({
     }
     
 
-   # if (input$viewAdjPval){
         t <- data.frame(
         id = rownames(Biobase::exprs(rv$current.obj))[selectedItems],
         logFC = round(rv$resAnaDiff$logFC[selectedItems], digits = rv$settings_nDigits),
         P_Value = rv$resAnaDiff$P_Value[selectedItems],
         Adjusted_PValue = Get_adjusted_pvalues()[selectedItems],
+        Logged_Adj_PValue = -log10(Get_adjusted_pvalues()[selectedItems]),
         isDifferential = significant)
     
-    # Sort data.frame wrt adjusted pvalues
-    #t <- t[order(t$Adjusted_PValue, decreasing=FALSE), ]
-    # 
-    # } else {
-    #     t <- data.frame(
-    #         id = rownames(Biobase::exprs(rv$current.obj))[selectedItems],
-    #         logFC = round(rv$resAnaDiff$logFC[selectedItems], digits = rv$settings_nDigits),
-    #         P_Value = rv$resAnaDiff$P_Value[selectedItems],
-    #         isDifferential = significant)
-    # }
-    # 
+        
+        t$logFC <- signif(t$logFC, digits=4)
+        t$P_Value <- signif(t$P_Value, digits=4)
+        t$Adjusted_PValue <- signif(t$Adjusted_PValue, digits=4)
+        t$Logged_Adj_PValue <- signif(t$Logged_Adj_PValue, digits=4)
+        
+        
+        
     tmp <- as.data.frame(
       Biobase::fData(rv$current.obj)[selectedItems, rv$widgets$anaDiff$tooltipInfo]
     )
     names(tmp) <- rv$widgets$anaDiff$tooltipInfo
     t <- cbind(t, tmp)
     
-    colnames(t)[2:5] <- paste0(colnames(t)[2:5], " (", as.character(rv$widgets$anaDiff$Comparison), ")")
+    colnames(t)[2:6] <- paste0(colnames(t)[2:6], " (", as.character(rv$widgets$anaDiff$Comparison), ")")
     
     t
 })
