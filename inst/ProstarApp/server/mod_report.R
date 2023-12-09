@@ -51,7 +51,7 @@ mod_report_ui <- function(id) {
                 ),
                 div(style = "display:inline-block; vertical-align: top;",
                     shinyBS::bsCollapse(
-                        id = ns("collapseDataProcessingExport"), open = "",
+                        id = ns("collapseDataProcessingReport"), open = "",
                         shinyBS::bsCollapsePanel(
                             "Plots for data processing tools",
                             div(
@@ -239,7 +239,7 @@ mod_report_ui <- function(id) {
                 ),
                 div(
                     style = "display:inline-block; vertical-align: top;",
-                    shinyBS::bsCollapse(id = ns("collapseDataProcessingExport"),
+                    shinyBS::bsCollapse(id = ns("collapseDataProcessingReport2"),
                         open = "",
                         shinyBS::bsCollapsePanel("Plots for data mining tools",
                                                  tagList(),

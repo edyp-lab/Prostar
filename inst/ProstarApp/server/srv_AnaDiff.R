@@ -5,6 +5,7 @@ source(file.path("server", "mod_query_metacell.R"), local = TRUE)$value
 source(file.path("server", "mod_filtering_example.R"), local = TRUE)$value
 source(file.path("server", "mod_format_DT.R"), local = TRUE)$value
 source(file.path("server", "mod_dl.R"), local = TRUE)$value
+source(file.path("server", "mod_Not_a_numeric.R"), local = TRUE)$value
 
 
 convertAnaDiff2DF <- reactive({
@@ -858,14 +859,17 @@ output$screenAnaDiff3 <- renderUI({
                        ),
                 
                 column(width = 2,
-                       actionButton("valid_seuilPVal", "Validate value",
+                       actionButton("valid_seuilPVal", "Apply threshold",
                                      class = actionBtnClass)
                        ),
                 
                 column(width = 3,
-                       p("Hint: it is possible to copy/paste the corresponding value of
-                       the adjusted p-value. For that, simply copy/paste the value of the column
-                       '-log10()')")
+                       p("To perform the selection using a FDR threshold of x% :
+                         1 - Display in the table below the adjusted p-values. The proteins
+                         are then automatically sorted by increasing adjusted p-values,
+                         2 - Spot the protein P which has the largest adjusted p-value below x%
+                         3 - Tune the p-value (or log p-value) threshold using a value between the p-value
+                         (or log p-value) of P and of the next protein below in the list.")
                 ),
                 column(width = 3,
                        checkboxInput("showpvalTable", "Show p-value table", value = FALSE),
@@ -966,36 +970,42 @@ observeEvent(input$downloadAnaDiff, {
 })
 
 popover_for_help_server("modulePopover_pValThreshold",
-    title = "-log10(p-value) cutoff",
-        content = "Set the -log10(p_value) threshold"
+    title = "Significant threshold",
+        content = "To perform the selection using a FDR threshold of x% :
+                   1 - Display in the table below the adjusted p-values. The proteins
+                       are then automatically sorted by increasing adjusted p-values,
+                   2 - Spot the protein P which has the largest adjusted p-value below x%
+                   3 - Tune the p-value (or log p-value) threshold using a value between the p-value
+                       (or log p-value) of P and of the next protein below in the list."
     )
 
 
 output$anaDiff_selectedItems <- DT::renderDT({
     input$viewAdjPval
-    df <- GetSelectedItems()
+    df <- Build_pval_table()
     
     if (input$viewAdjPval){
         df <- df[order(df$Adjusted_PValue, decreasing=FALSE), ]
         .coldefs <- list(list(width = "200px", targets = "_all"))
     } else {
-        name <- paste0(c('Adjusted_PValue (','Logged_Adj_PValue ('), 
+        name <- paste0(c('Log_PValue (', 'Adjusted_PValue ('), 
                        as.character(rv$widgets$anaDiff$Comparison), ")")
         .coldefs <- list(
             list(width = "200px", targets = "_all"),
-            list(targets = (which(colnames(df)==name) - 1), visible = FALSE))
+            list(targets = (match(name, colnames(df)) - 1), visible = FALSE))
     }
     
-    
+       
     DT::datatable(df,
         escape = FALSE,
         rownames = FALSE,
+        selection = 'none',
         options = list(initComplete = initComplete(),
                        dom = "frtip",
                        pageLength = 100,
                        scrollY = 500,
                        scroller = TRUE,
-                       server = TRUE,
+                       server = FALSE,
                        columnDefs = .coldefs,
                        ordering = !input$viewAdjPval
                        )
@@ -1030,15 +1040,15 @@ output$downloadSelectedItems <- downloadHandler(
         openxlsx::writeData(wb,
                             sheet = 1,
                             startRow = 3,
-                            GetSelectedItems(),
+                            Build_pval_table(),
                             )
 
         .txt <- paste0("isDifferential (",
                        as.character(rv$widgets$anaDiff$Comparison),
                        ")")
 
-        ll.DA.row <- which(GetSelectedItems()[, .txt] == 1)
-        ll.DA.col <- rep(which(colnames(GetSelectedItems()) == .txt),
+        ll.DA.row <- which(Build_pval_table()[, .txt] == 1)
+        ll.DA.col <- rep(which(colnames(Build_pval_table()) == .txt),
             length(ll.DA.row) )
 
         openxlsx::addStyle(wb,
@@ -1054,48 +1064,33 @@ output$downloadSelectedItems <- downloadHandler(
 )
 
 
-Get_adjusted_pvalues <- reactive({
-    req(rv$current.obj)
-    rv$widgets$anaDiff$numValCalibMethod
-    rv$widgets$anaDiff$calibMethod
-    req(rv$resAnaDiff)
+# Get_adjusted_pvalues <- reactive({
+#     req(rv$current.obj)
+#     rv$widgets$anaDiff$numValCalibMethod
+#     rv$widgets$anaDiff$calibMethod
+#     req(rv$resAnaDiff)
+#     
+#     
+#     
+#     rv$widgets$anaDiff$adjusted_pvalues
+# })
+
+Get_th_logFC <- reactive({
     
-    .calibMethod <- NULL
-    if (rv$widgets$anaDiff$calibMethod == "Benjamini-Hochberg") {
-        .calibMethod <- 1
-    } else if (rv$widgets$anaDiff$calibMethod == "numeric value") {
-        .calibMethod <- as.numeric(rv$widgets$anaDiff$numValCalibMethod)
-    } else {
-        .calibMethod <- rv$widgets$anaDiff$calibMethod
-    }
-    
-    
-    df <- data.frame(id = rownames(rv$current.obj),
-                     logFC = rv$resAnaDiff[["logFC"]],
-                     pval = rv$resAnaDiff[["P_Value"]])
-    
-    
-    threshold_LogFC <- rv$widgets$hypothesisTest$th_logFC
-    
-    upItems <- which(abs(rv$resAnaDiff[["logFC"]]) >= threshold_LogFC)
-    df <- df[upItems,]
-    
-    rv$widgets$anaDiff$adjusted_pvalues <- diffAnaComputeAdjustedPValues(
-        df$pval,
-        .calibMethod)
-    
-    rv$widgets$anaDiff$adjusted_pvalues
+    rv$widgets$hypothesisTest$th_logFC
 })
 
+
+
 Get_FDR <- reactive({
-    req(rv$current.obj)
     rv$widgets$anaDiff$th_pval
-    Get_adjusted_pvalues()
+    Build_pval_table()
     
-    adj.pval <- Get_adjusted_pvalues()
-    upitems <- which(-log10(adj.pval) >= rv$widgets$anaDiff$th_pval)
+    adj.pval <- Build_pval_table()$Adjusted_PValue
+    logpval <- Build_pval_table()$Log_PValue
+    upitems_logpval <- which(logpval >= rv$widgets$anaDiff$th_pval)
     
-    fdr <- max(adj.pval[upitems])
+    fdr <- max(adj.pval[upitems_logpval], na.rm = TRUE)
     rvModProcess$moduleAnaDiffDone[3] <- TRUE
     as.numeric(fdr)
 })
@@ -1106,7 +1101,7 @@ output$showFDR <- renderUI({
     #browser()
     nb <- length(
         which(
-            GetSelectedItems()[paste0(
+            Build_pval_table()[paste0(
                 "isDifferential (",
                 as.character(rv$widgets$anaDiff$Comparison), ")"
             )] == 1
@@ -1114,7 +1109,7 @@ output$showFDR <- renderUI({
     )
     th <- Get_FDR() * nb
     #print(th)
-
+#browser()
     txt <- "FDR = NA"
     if (!is.infinite(Get_FDR())) {
         txt <- paste0("FDR = ",
@@ -1161,52 +1156,126 @@ output$equivLog10 <- renderText({
 })
 
 
-GetSelectedItems <- reactive({
+# GetSelectedItems <- reactive({
+#     req(rv$resAnaDiff)
+#     rv$widgets$anaDiff$downloadAnaDiff
+# 
+# 
+#     t <- NULL
+#     thpval <- rv$widgets$anaDiff$th_pval
+#     thlogfc <- rv$widgets$hypothesisTest$th_logFC
+#     upItems_pval <- which(-log10(rv$resAnaDiff$P_Value) >= thpval)
+#     upItems_logFC <- which(abs(rv$resAnaDiff$logFC) >= thlogfc)
+# 
+#     # Determine significant proteins
+#     if (rv$widgets$anaDiff$downloadAnaDiff == "All") {
+#         selectedItems <- 1:nrow(rv$current.obj)
+#         significant <- rep(0, nrow(rv$current.obj))
+#         significant[intersect(upItems_pval, upItems_logFC)] <- 1
+#     } else {
+#         selectedItems <- intersect(upItems_pval, upItems_logFC)
+#         significant <- rep(1, length(selectedItems))
+#     }
+#     
+#     .pval <- rv$resAnaDiff[["P_Value"]]
+#     t <- data.frame(
+#         id = rownames(Biobase::exprs(rv$current.obj))[selectedItems],
+#         logFC = round(rv$resAnaDiff$logFC[selectedItems], digits = rv$settings_nDigits),
+#         P_Value = rv$resAnaDiff$P_Value[selectedItems],
+#         Log_PValue = -log10(.pval[selectedItems]),
+#         Adjusted_PValue = Get_adjusted_pvalues()[selectedItems],
+#         isDifferential = significant
+#         )
+#     
+#     # Set only significant values
+#     t$logFC <- signif(t$logFC, digits=4)
+#     t$P_Value <- signif(t$P_Value, digits=4)
+#     t$Adjusted_PValue <- signif(t$Adjusted_PValue, digits=4)
+#     t$Log_PValue <- signif(t$Log_PValue, digits=4)
+#         
+#         
+#         
+#     tmp <- as.data.frame(
+#       Biobase::fData(rv$current.obj)[selectedItems, rv$widgets$anaDiff$tooltipInfo]
+#     )
+#     names(tmp) <- rv$widgets$anaDiff$tooltipInfo
+#     t <- cbind(t, tmp)
+#     
+#     colnames(t)[2:6] <- paste0(colnames(t)[2:6], " (", as.character(rv$widgets$anaDiff$Comparison), ")")
+#     
+#     t
+# })
+
+GetCalibrationMethod <- reactive({
+    rv$widgets$anaDiff$numValCalibMethod
+    rv$widgets$anaDiff$calibMethod
+    .calibMethod <- NULL
+    if (rv$widgets$anaDiff$calibMethod == "Benjamini-Hochberg") {
+        .calibMethod <- 1
+    } else if (rv$widgets$anaDiff$calibMethod == "numeric value") {
+        .calibMethod <- as.numeric(rv$widgets$anaDiff$numValCalibMethod)
+    } else {
+        .calibMethod <- rv$widgets$anaDiff$calibMethod
+    }
+    .calibMethod
+    
+})
+
+
+Build_pval_table <- reactive({
     req(rv$resAnaDiff)
     rv$widgets$anaDiff$downloadAnaDiff
+    rv$widgets$hypothesisTest$th_logFC
+    rv$widgets$anaDiff$th_pval
+    
+    #browser()
 
-
-    t <- NULL
+    pval_table <- data.frame(
+        id = rownames(Biobase::exprs(rv$current.obj)),
+        logFC = round(rv$resAnaDiff$logFC, digits = rv$settings_nDigits),
+        P_Value = rv$resAnaDiff$P_Value,
+        Log_PValue = -log10(rv$resAnaDiff$P_Value),
+        Adjusted_PValue = rep(NA, length(rv$resAnaDiff$logFC)),
+        isDifferential = rep(0, length(rv$resAnaDiff$logFC))
+    )
+    
     thpval <- rv$widgets$anaDiff$th_pval
     thlogfc <- rv$widgets$hypothesisTest$th_logFC
-    upItems1 <- which(-log10(rv$resAnaDiff$P_Value) >= thpval)
-    upItems2 <- which(abs(rv$resAnaDiff$logFC) >= thlogfc)
-
-    if (rv$widgets$anaDiff$downloadAnaDiff == "All") {
-        selectedItems <- 1:nrow(rv$current.obj)
-        significant <- rep(0, nrow(rv$current.obj))
-        significant[intersect(upItems1, upItems2)] <- 1
-    } else {
-        selectedItems <- intersect(upItems1, upItems2)
-        significant <- rep(1, length(selectedItems))
-    }
     
-
-        t <- data.frame(
-        id = rownames(Biobase::exprs(rv$current.obj))[selectedItems],
-        logFC = round(rv$resAnaDiff$logFC[selectedItems], digits = rv$settings_nDigits),
-        P_Value = rv$resAnaDiff$P_Value[selectedItems],
-        Adjusted_PValue = Get_adjusted_pvalues()[selectedItems],
-        Logged_Adj_PValue = -log10(Get_adjusted_pvalues()[selectedItems]),
-        isDifferential = significant)
+    #
+    # Determine significant proteins
+    signifItems <- intersect(which(pval_table$Log_PValue >= thpval),
+                             which(abs(pval_table$logFC) >= thlogfc)
+                             )
+    pval_table[signifItems,'isDifferential'] <- 1
     
-        
-        t$logFC <- signif(t$logFC, digits=4)
-        t$P_Value <- signif(t$P_Value, digits=4)
-        t$Adjusted_PValue <- signif(t$Adjusted_PValue, digits=4)
-        t$Logged_Adj_PValue <- signif(t$Logged_Adj_PValue, digits=4)
-        
-        
-        
+    
+    upItems_pval <- which(-log10(rv$resAnaDiff$P_Value) >= thpval)
+    upItems_logFC <- which(abs(rv$resAnaDiff$logFC) >= thlogfc)
+    rv$widgets$anaDiff$adjusted_pvalues <- diffAnaComputeAdjustedPValues(
+        rv$resAnaDiff$P_Value[upItems_logFC],
+        GetCalibrationMethod())
+    pval_table[upItems_logFC, 'Adjusted_PValue'] <- rv$widgets$anaDiff$adjusted_pvalues
+    
+    
+    
+    # Set only significant values
+    pval_table$logFC <- signif(pval_table$logFC, digits = 4)
+    pval_table$P_Value <- signif(pval_table$P_Value, digits = 4)
+    pval_table$Adjusted_PValue <- signif(pval_table$Adjusted_PValue, digits = 4)
+    pval_table$Log_PValue <- signif(pval_table$Log_PValue, digits = 4)
+    
+    
+    
     tmp <- as.data.frame(
-      Biobase::fData(rv$current.obj)[selectedItems, rv$widgets$anaDiff$tooltipInfo]
+        Biobase::fData(rv$current.obj)[, rv$widgets$anaDiff$tooltipInfo]
     )
     names(tmp) <- rv$widgets$anaDiff$tooltipInfo
-    t <- cbind(t, tmp)
+    pval_table <- cbind(pval_table, tmp)
     
-    colnames(t)[2:6] <- paste0(colnames(t)[2:6], " (", as.character(rv$widgets$anaDiff$Comparison), ")")
+    colnames(pval_table)[2:6] <- paste0(colnames(pval_table)[2:6], " (", as.character(rv$widgets$anaDiff$Comparison), ")")
     
-    t
+    pval_table
 })
 
 

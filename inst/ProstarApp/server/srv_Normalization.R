@@ -4,6 +4,7 @@
 ##            NORMALIZATION FUNCTIONS                                    ##
 ###########################################################################
 ###########################################################################
+source(file.path("server", "mod_Not_a_numeric.R"), local = TRUE)$value
 
 
 callModule(moduleDensityplot, "densityPlot_Norm",

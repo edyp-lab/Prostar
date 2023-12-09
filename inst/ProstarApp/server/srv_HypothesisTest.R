@@ -1,16 +1,11 @@
+source(file.path("server", "mod_Not_a_numeric.R"), local = TRUE)$value
 
 
 callModule(moduleProcess, "moduleProcess_HypothesisTest",
-           isDone = reactive({
-               rvModProcess$moduleHypothesisTestDone
-           }),
-           pages = reactive({
-               rvModProcess$moduleHypothesisTest
-           }),
+           isDone = reactive({rvModProcess$moduleHypothesisTestDone}),
+           pages = reactive({rvModProcess$moduleHypothesisTest}),
            rstFunc = resetModuleHypothesisTest,
-           forceReset = reactive({
-               rvModProcess$moduleHypothesisTestForceReset
-           })
+           forceReset = reactive({rvModProcess$moduleHypothesisTestForceReset})
 )
 
 
@@ -447,7 +442,6 @@ ComputeComparisons <- reactive({
 
 observeEvent(input$ValidTest, {
     req(rv$res_AllPairwiseComparisons)
-    
     rv$current.obj <- DAPAR::diffAnaSave(
         obj = rv$current.obj,
         allComp = rv$res_AllPairwiseComparisons

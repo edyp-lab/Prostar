@@ -253,7 +253,7 @@ tabPanel("Export",
                     tags$div(
                         style = "display:inline-block; vertical-align: top;",
                         shinyBS::bsCollapse(
-                            id = "collapseDataProcessingExport",
+                            id = "collapseDataProcessingExport2",
                             open = "",
                             shinyBS::bsCollapsePanel("Plots for data mining tools",
                                 tagList(),
