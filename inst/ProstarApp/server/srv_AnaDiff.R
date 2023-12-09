@@ -1,5 +1,5 @@
 source(file.path("server", "mod_popover_for_help.R"), local = TRUE)$value
-
+source(file.path("server", "mod_set_pval_threshold.R"), local = TRUE)$value
 #source(file.path("server", "mod_popover.R"), local = TRUE)$value
 source(file.path("server", "mod_query_metacell.R"), local = TRUE)$value
 source(file.path("server", "mod_filtering_example.R"), local = TRUE)$value
@@ -37,7 +37,7 @@ format_DT_server("params_AnaDiff",
 
 
 mod_Not_a_numeric_server("test_seuilPVal",
-                         reactive({input$seuilPVal}))
+                         reactive({logpval()}))
 
 callModule(moduleProcess, "moduleProcess_AnaDiff",
     isDone = reactive({rvModProcess$moduleAnaDiffDone}),
@@ -844,42 +844,21 @@ output$screenAnaDiff3 <- renderUI({
     isolate({
         tagList(
             fluidRow(
-                # column(width = 2,
-                #        radioButtons("type_pval", "Type of value",
-                #                     choices = c('raw pval' = 'raw pval',
-                #                                 '-log10()' = '-log10()'),
-                #                     selected = rv$widgets$anaDiff$type_pval)
-                # ),
-                column(width = 3,
+                column(width = 6,
                        popover_for_help_ui("modulePopover_pValThreshold"),
-                        textInput("seuilPVal", NULL,
-                                  value = rv$widgets$anaDiff$th_pval, width = "100px"),
+                       mod_set_pval_threshold_ui("Title"),
                        mod_Not_a_numeric_ui("test_seuilPVal")
-                       
                        ),
                 
                 column(width = 2,
                        actionButton("valid_seuilPVal", "Apply threshold",
                                      class = actionBtnClass)
                        ),
-                
                 column(width = 3,
-                       p("To perform the selection using a FDR threshold of x% :
-                         1 - Display in the table below the adjusted p-values. The proteins
-                         are then automatically sorted by increasing adjusted p-values,
-                         2 - Spot the protein P which has the largest adjusted p-value below x%
-                         3 - Tune the p-value (or log p-value) threshold using a value between the p-value
-                         (or log p-value) of P and of the next protein below in the list.")
-                ),
-                column(width = 3,
-                       checkboxInput("showpvalTable", "Show p-value table", value = FALSE),
-                       shinyjs::hidden(checkboxInput('viewAdjPval', 'View adjusted p-value', value = FALSE))
-                       )
+                       htmlOutput("showFDR"))
             ),
             fluidRow(
-                column(width = 5,
-                       htmlOutput("showFDR")
-                       ),
+                
                 column(width = 5, 
                        uiOutput("tooltipInfo")
                        )
@@ -888,13 +867,12 @@ output$screenAnaDiff3 <- renderUI({
             fluidRow(
                     
                     column(width = 4,
-                           
-                           
-                        radioButtons("downloadAnaDiff", "Download as Excel file",
-                            choices = c("All data" = "All",
-                                        "only DA" = "onlyDA"),
-                            selected = rv$widgets$anaDiff$downloadAnaDiff
-                        ),
+                           checkboxInput('viewAdjPval', 'View adjusted p-value', value = FALSE),
+                           radioButtons("downloadAnaDiff", "Download as Excel file",
+                                        choices = c("All data" = "All",
+                                                    "only DA" = "onlyDA"),
+                                        selected = rv$widgets$anaDiff$downloadAnaDiff
+                                        ),
                         downloadButton("downloadSelectedItems", "Download", class = actionBtnClass)
                     )
                 ),
@@ -934,24 +912,17 @@ output$diffAna_Summary <- renderUI({
 #################################################################
 ###### Set code for widgets managment
 ################################################################
+logpval <- mod_set_pval_threshold_server(id = "Title")
 
-
-observeEvent(input$valid_seuilPVal, {
-    req(input$seuilPVal)
-    tmp <- gsub(",", ".", input$seuilPVal, fixed = TRUE)
-
-    # if (input$type_pval == 'raw pval')
-    #     rv$widgets$anaDiff$th_pval <- -log10(as.numeric(tmp))
-    # else if (input$type_pval == '-log10()')
-        rv$widgets$anaDiff$th_pval <- as.numeric(tmp)
+observe({
+    print(logpval())
 })
 
+observeEvent(input$valid_seuilPVal, {
+    req(logpval())
+    tmp <- gsub(",", ".", logpval(), fixed = TRUE)
 
-
-observeEvent(input$showpvalTable, {
-    #print("show : anaDiff_selectedItems")
-    shinyjs::toggle(id = "anaDiff_selectedItems", condition = isTRUE(input$showpvalTable) )
-    shinyjs::toggle(id = "viewAdjPval", condition = isTRUE(input$showpvalTable) )
+    rv$widgets$anaDiff$th_pval <- as.numeric(tmp)
 })
 
 
@@ -969,14 +940,18 @@ observeEvent(input$downloadAnaDiff, {
     rv$widgets$anaDiff$downloadAnaDiff <- input$downloadAnaDiff
 })
 
+.head <- "To perform the selection using a FDR threshold of x% : "
+.pt1 <- "Display in the table below the adjusted p-values. The proteins are then automatically sorted by increasing adjusted p-values"
+.pt2 <- "Spot the protein P which has the largest adjusted p-value below x%"
+.pt3 <- "Tune the p-value (or log p-value) threshold using a value between the p-value (or log p-value) of P and of the next protein below in the list."
 popover_for_help_server("modulePopover_pValThreshold",
     title = "Significant threshold",
-        content = "To perform the selection using a FDR threshold of x% :
-                   1 - Display in the table below the adjusted p-values. The proteins
-                       are then automatically sorted by increasing adjusted p-values,
-                   2 - Spot the protein P which has the largest adjusted p-value below x%
-                   3 - Tune the p-value (or log p-value) threshold using a value between the p-value
-                       (or log p-value) of P and of the next protein below in the list."
+        content = HTML(paste0(.head, "<br>", 
+                              "<ul>", 
+                              "<li>", .pt1, "</li>", 
+                              "<li>", .pt2, "</li>",
+                              "<li>", .pt3, "</li>",
+                              "</ul>"))
     )
 
 
@@ -1063,20 +1038,7 @@ output$downloadSelectedItems <- downloadHandler(
     }
 )
 
-
-# Get_adjusted_pvalues <- reactive({
-#     req(rv$current.obj)
-#     rv$widgets$anaDiff$numValCalibMethod
-#     rv$widgets$anaDiff$calibMethod
-#     req(rv$resAnaDiff)
-#     
-#     
-#     
-#     rv$widgets$anaDiff$adjusted_pvalues
-# })
-
 Get_th_logFC <- reactive({
-    
     rv$widgets$hypothesisTest$th_logFC
 })
 
@@ -1112,10 +1074,7 @@ output$showFDR <- renderUI({
 #browser()
     txt <- "FDR = NA"
     if (!is.infinite(Get_FDR())) {
-        txt <- paste0("FDR = ",
-                      round(100 * Get_FDR(), digits = 2), " % (p-value = ",
-                      signif(10^(-(rv$widgets$anaDiff$th_pval)), digits = 3), ")"
-        )
+        txt <- paste0("FDR = ", round(100 * Get_FDR(), digits = 2) )
     }
     
     tagList(

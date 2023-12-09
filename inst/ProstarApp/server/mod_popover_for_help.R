@@ -12,6 +12,7 @@ popover_for_help_ui <- function(id) {
     tagList(
         shinyjs::useShinyjs(),
         shinyjs::inlineCSS(pop_css),
+        
         div(style = "display:inline-block; vertical-align: middle; padding-bottom: 5px;",
             uiOutput(ns("write_title_ui"))
             ),
@@ -134,10 +135,14 @@ ui <- fluidPage(
     popover_for_help_ui("Title")
 )
 server <- function(input, output) {
+    txt <- "To perform the selection using a FDR threshold of x% :<br><ul><li>Display in the table below the adjusted p-values. The proteins are then automatically sorted by increasing adjusted p-values</li><li>number two</li></ul>"
+    
+    #"Test:<br> <ul><li>number one</li><li>number two</li></ul>"
+    
     popover_for_help_server(
         id = "Title",
         title = "Test",
-        content = HTML("Test:<br> <ul><li>number one</li><li>number two</li></ul>")
+        content = HTML(txt)
     )
 }
 shinyApp(ui, server)
