@@ -1,5 +1,9 @@
-source(file.path("server", "mod_popover_for_help.R"), local = TRUE)$value
-source(file.path("server", "mod_set_pval_threshold.R"), local = TRUE)$value
+source(system.file("ProstarApp/server", "mod_popover_for_help.R", package = 'Prostar'), local = TRUE)$value
+source(system.file("ProstarApp/server", "mod_set_pval_threshold.R", package = 'Prostar'), local = TRUE)$value
+source(system.file("ProstarApp/server", "mod_errorModal.R", package = 'Prostar'), local = TRUE)$value
+
+
+
 #source(file.path("server", "mod_popover.R"), local = TRUE)$value
 source(file.path("server", "mod_query_metacell.R"), local = TRUE)$value
 source(file.path("server", "mod_filtering_example.R"), local = TRUE)$value
@@ -845,15 +849,8 @@ output$screenAnaDiff3 <- renderUI({
         tagList(
             fluidRow(
                 column(width = 6,
-                       popover_for_help_ui("modulePopover_pValThreshold"),
-                       mod_set_pval_threshold_ui("Title"),
-                       mod_Not_a_numeric_ui("test_seuilPVal")
-                       ),
-                
-                column(width = 2,
-                       actionButton("valid_seuilPVal", "Apply threshold",
-                                     class = actionBtnClass)
-                       ),
+                       mod_set_pval_threshold_ui("Title")),
+
                 column(width = 3,
                        htmlOutput("showFDR"))
             ),
@@ -914,10 +911,6 @@ output$diffAna_Summary <- renderUI({
 ################################################################
 logpval <- mod_set_pval_threshold_server(id = "Title")
 
-observe({
-    print(logpval())
-})
-
 observeEvent(input$valid_seuilPVal, {
     req(logpval())
     tmp <- gsub(",", ".", logpval(), fixed = TRUE)
@@ -940,19 +933,6 @@ observeEvent(input$downloadAnaDiff, {
     rv$widgets$anaDiff$downloadAnaDiff <- input$downloadAnaDiff
 })
 
-.head <- "To perform the selection using a FDR threshold of x% : "
-.pt1 <- "Display in the table below the adjusted p-values. The proteins are then automatically sorted by increasing adjusted p-values"
-.pt2 <- "Spot the protein P which has the largest adjusted p-value below x%"
-.pt3 <- "Tune the p-value (or log p-value) threshold using a value between the p-value (or log p-value) of P and of the next protein below in the list."
-popover_for_help_server("modulePopover_pValThreshold",
-    title = "Significant threshold",
-        content = HTML(paste0(.head, "<br>", 
-                              "<ul>", 
-                              "<li>", .pt1, "</li>", 
-                              "<li>", .pt2, "</li>",
-                              "<li>", .pt3, "</li>",
-                              "</ul>"))
-    )
 
 
 output$anaDiff_selectedItems <- DT::renderDT({
