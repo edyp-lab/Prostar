@@ -2,7 +2,9 @@
 mod_errorModal_ui <- function(id) {}
 
 
-mod_errorModal_server <- function(id, text){
+mod_errorModal_server <- function(id, 
+                                  title = reactive({NULL}),
+                                  text = reactive({NULL})){
     
     if (!requireNamespace("shiny", quietly = TRUE)) {
         stop("Please install shiny: BiocManager::install('shiny')")
@@ -24,7 +26,7 @@ mod_errorModal_server <- function(id, text){
                         id = 'errModal',
                         tags$style("#errModal .modal-dialog{width: 600px;}"),
                         shiny::modalDialog(
-                            h3("Error log"),
+                            h3(title()),
                             tags$style("#tPanel {overflow-y:scroll; color: red;}"),
                             shiny::wellPanel(
                                 id = "tPanel",

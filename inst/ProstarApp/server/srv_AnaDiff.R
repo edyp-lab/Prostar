@@ -857,6 +857,11 @@ output$screenAnaDiff3 <- renderUI({
             fluidRow(
                 
                 column(width = 5, 
+                       withProgress(message = "", detail = "", value = 1, {
+                           moduleVolcanoplotUI("volcano_Step2")
+                       })
+                       ),
+                column(width = 5,
                        uiOutput("tooltipInfo")
                        )
             ),
@@ -873,10 +878,7 @@ output$screenAnaDiff3 <- renderUI({
                         downloadButton("downloadSelectedItems", "Download", class = actionBtnClass)
                     )
                 ),
-                withProgress(message = "", detail = "", value = 1, {
-                    moduleVolcanoplotUI("volcano_Step2")
-                }),
-                hidden(DT::DTOutput("anaDiff_selectedItems"))
+                DT::DTOutput("anaDiff_selectedItems")
             )
         
     })
@@ -1037,10 +1039,7 @@ Get_FDR <- reactive({
     as.numeric(fdr)
 })
 
-
-output$showFDR <- renderUI({
-    req(rv$current.obj)
-    #browser()
+Get_Nb_Significant <- reactive({
     nb <- length(
         which(
             Build_pval_table()[paste0(
@@ -1049,101 +1048,41 @@ output$showFDR <- renderUI({
             )] == 1
         )
     )
-    th <- Get_FDR() * nb
-    #print(th)
-#browser()
+    nb
+})
+output$showFDR <- renderUI({
+    req(rv$current.obj)
+    #browser()
+    
+    th <- Get_FDR() * Get_Nb_Significant()
+
     txt <- "FDR = NA"
     if (!is.infinite(Get_FDR())) {
-        txt <- paste0("FDR = ", round(100 * Get_FDR(), digits = 2) )
+        txt <- paste0("FDR = ", round(100 * Get_FDR(), digits = 2), ' %' )
     }
     
-    tagList(
-        h4(txt),
-        if (th < 1) {
-            tags$p(style = "color: red", paste0(
-                "Warning: With such a dataset size (",
-                nb, " selected discoveries), an FDR of ",
-                round(100 * Get_FDR(), digits = 2),
-                "% should be cautiously interpreted as strictly less than one
+
+    if (th < 1) {
+        warntxt <- paste0(
+            "Warning: With such a dataset size (",
+            Get_Nb_Significant(), " selected discoveries), an FDR of ",
+            round(100 * Get_FDR(), digits = 2),
+            "% should be cautiously interpreted as strictly less than one
         discovery (", round(th, digits = 2), ") is expected to be false"
-            ))
-        }
+        )
+        mod_errorModal_server('warn_FDR',
+                              title = reactive({'Warning'}),
+                              text = reactive({warntxt}))
+    }
+    
+    
+    tagList(
+        h4(txt)
     )
 })
 
 
 
-
-
-output$equivPVal <- renderUI({
-    req(rv$widgets$anaDiff$th_pval)
-
-    tags$p(paste0(
-        "(p-value = ",
-        signif(10^(-(rv$widgets$anaDiff$th_pval)), digits = 3), ")"
-    ))
-})
-
-
-output$equivLog10 <- renderText({
-    req(rv$widgets$anaDiff$th_pval)
-
-    tags$p(paste0(
-        "-log10 (p-value) = ",
-        signif(-log10(rv$widgets$anaDiff$th_pval / 100), digits = 1)
-    ))
-})
-
-
-# GetSelectedItems <- reactive({
-#     req(rv$resAnaDiff)
-#     rv$widgets$anaDiff$downloadAnaDiff
-# 
-# 
-#     t <- NULL
-#     thpval <- rv$widgets$anaDiff$th_pval
-#     thlogfc <- rv$widgets$hypothesisTest$th_logFC
-#     upItems_pval <- which(-log10(rv$resAnaDiff$P_Value) >= thpval)
-#     upItems_logFC <- which(abs(rv$resAnaDiff$logFC) >= thlogfc)
-# 
-#     # Determine significant proteins
-#     if (rv$widgets$anaDiff$downloadAnaDiff == "All") {
-#         selectedItems <- 1:nrow(rv$current.obj)
-#         significant <- rep(0, nrow(rv$current.obj))
-#         significant[intersect(upItems_pval, upItems_logFC)] <- 1
-#     } else {
-#         selectedItems <- intersect(upItems_pval, upItems_logFC)
-#         significant <- rep(1, length(selectedItems))
-#     }
-#     
-#     .pval <- rv$resAnaDiff[["P_Value"]]
-#     t <- data.frame(
-#         id = rownames(Biobase::exprs(rv$current.obj))[selectedItems],
-#         logFC = round(rv$resAnaDiff$logFC[selectedItems], digits = rv$settings_nDigits),
-#         P_Value = rv$resAnaDiff$P_Value[selectedItems],
-#         Log_PValue = -log10(.pval[selectedItems]),
-#         Adjusted_PValue = Get_adjusted_pvalues()[selectedItems],
-#         isDifferential = significant
-#         )
-#     
-#     # Set only significant values
-#     t$logFC <- signif(t$logFC, digits=4)
-#     t$P_Value <- signif(t$P_Value, digits=4)
-#     t$Adjusted_PValue <- signif(t$Adjusted_PValue, digits=4)
-#     t$Log_PValue <- signif(t$Log_PValue, digits=4)
-#         
-#         
-#         
-#     tmp <- as.data.frame(
-#       Biobase::fData(rv$current.obj)[selectedItems, rv$widgets$anaDiff$tooltipInfo]
-#     )
-#     names(tmp) <- rv$widgets$anaDiff$tooltipInfo
-#     t <- cbind(t, tmp)
-#     
-#     colnames(t)[2:6] <- paste0(colnames(t)[2:6], " (", as.character(rv$widgets$anaDiff$Comparison), ")")
-#     
-#     t
-# })
 
 GetCalibrationMethod <- reactive({
     rv$widgets$anaDiff$numValCalibMethod
