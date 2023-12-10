@@ -39,7 +39,8 @@ mod_set_pval_threshold_ui <- function(id) {
 #' @param id xxx
 #' @export
 #'
-mod_set_pval_threshold_server <- function(id) {
+mod_set_pval_threshold_server <- function(id,
+                                          pval_init = reactive({NULL})) {
     moduleServer(id, function(input, output, session) {
         ns <- session$ns
 
@@ -61,7 +62,10 @@ mod_set_pval_threshold_server <- function(id) {
     )
     
     
-    
+    observeEvent(pval_init(), ignoreInit = FALSE, {
+        browser()
+        updateTextInput(session, 'text1', value = as.numeric(pval_init()))
+    })
     
     observe({
         shinyjs::toggleState('text2', condition = input$toto == 'logpval')
@@ -98,7 +102,8 @@ ui <- fluidPage(
     mod_set_pval_threshold_ui("Title")
 )
 server <- function(input, output) {
-    logpval <- mod_set_pval_threshold_server(id = "Title")
+    logpval <- mod_set_pval_threshold_server(id = "Title",
+                                             pval_init = reactive({0.22}))
     
     observe({
         print(logpval())

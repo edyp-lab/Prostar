@@ -3,34 +3,23 @@ mod_errorModal_ui <- function(id) {}
 
 
 mod_errorModal_server <- function(id, 
-                                  title = reactive({NULL}),
-                                  text = reactive({NULL})){
+                                  title = NULL,
+                                  text = NULL){
     
-    if (!requireNamespace("shiny", quietly = TRUE)) {
-        stop("Please install shiny: BiocManager::install('shiny')")
-    }
-    
-    shiny::moduleServer(
-        id,
+
+    shiny::moduleServer(id,
         function(input, output, session) {
-            
-            
-            
             observeEvent(TRUE, ignoreInit = FALSE, {
-                # shiny::showModal(
-                #     shiny::modalDialog('test')
-                # )
-                
                 shiny::showModal(
                     div(
                         id = 'errModal',
                         tags$style("#errModal .modal-dialog{width: 600px;}"),
                         shiny::modalDialog(
-                            h3(title()),
+                            h3(title),
                             tags$style("#tPanel {overflow-y:scroll; color: red;}"),
                             shiny::wellPanel(
                                 id = "tPanel",
-                                HTML(paste('> ', text(), collapse = "<br/>"))
+                                HTML(paste('> ', text, collapse = "<br/>"))
                             )
                             ,easyClose = TRUE)
                     ))
@@ -42,4 +31,15 @@ mod_errorModal_server <- function(id,
 
 
 
+
+library(shiny)
+library(shinyBS)
+ui <- fluidPage(
+)
+server <- function(input, output) {
+    mod_errorModal_server('test',
+                          title = 'title',
+                          text = 'reactive')
+}
+shinyApp(ui, server)
 

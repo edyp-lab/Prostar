@@ -911,9 +911,12 @@ output$diffAna_Summary <- renderUI({
 #################################################################
 ###### Set code for widgets managment
 ################################################################
-logpval <- mod_set_pval_threshold_server(id = "Title")
 
-observeEvent(input$valid_seuilPVal, {
+    logpval <- mod_set_pval_threshold_server(id = "Title",
+                                         pval_init = reactive({rv$widgets$anaDiff$th_pval}))
+
+
+observeEvent(logpval(), {
     req(logpval())
     tmp <- gsub(",", ".", logpval(), fixed = TRUE)
 
@@ -1071,8 +1074,8 @@ output$showFDR <- renderUI({
         discovery (", round(th, digits = 2), ") is expected to be false"
         )
         mod_errorModal_server('warn_FDR',
-                              title = reactive({'Warning'}),
-                              text = reactive({warntxt}))
+                              title = 'Warning',
+                              text = warntxt)
     }
     
     
