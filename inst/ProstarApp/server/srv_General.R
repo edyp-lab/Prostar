@@ -878,7 +878,7 @@ resetModuleProcess <- function(moduleName) {
                        screenStep1 = uiOutput("screenAnaDiff1"),
                        screenStep2 = uiOutput("screenAnaDiff2"),
                        screenStep3 = uiOutput("screenAnaDiff3"),
-                       screenStep2 = uiOutput("screenAnaDiff4")
+                       screenStep4 = uiOutput("screenAnaDiff4")
                    )
                )
                ## update widgets in UI

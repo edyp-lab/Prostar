@@ -14,7 +14,7 @@ source(file.path("server", "mod_Not_a_numeric.R"), local = TRUE)$value
 
 convertAnaDiff2DF <- reactive({
     req(rv$widgets$anaDiff)
-    rv$widgets$anaDiff[sapply(rv$widgets$anaDiff, is.null)] <- NA
+     rv$widgets$anaDiff[sapply(rv$widgets$anaDiff, is.null)] <- NA
     df <- as.data.frame(tibble::enframe(rv$widgets$anaDiff))
     names(df) <- c("Parameter", "Value")
     rownames(df) <- NULL
@@ -852,7 +852,7 @@ output$screenAnaDiff3 <- renderUI({
                        mod_set_pval_threshold_ui("Title")
                        ),
                 column(width = 2,
-                       actionButton('validate_pval', "Validate threshold")
+                       actionButton('validate_pval', "Validate threshold", class = actionBtnClass)
                        )
                 ),
             withProgress(message = "", detail = "", value = 1, {
@@ -888,13 +888,13 @@ output$screenAnaDiff4 <- renderUI({
     )
 })
 
-output$diffAna_Summary <- renderUI({
-    req(as.character(rv$widgets$anaDiff$Comparison) != "None")
-
-    tagList(
-        format_DT_ui("params_AnaDiff")
-    )
-})
+# output$diffAna_Summary <- renderUI({
+#     req(as.character(rv$widgets$anaDiff$Comparison) != "None")
+# 
+#     tagList(
+#         format_DT_ui("params_AnaDiff")
+#     )
+# })
 
 
 #################################################################
@@ -1025,7 +1025,7 @@ Get_FDR <- reactive({
     upitems_logpval <- which(logpval >= rv$widgets$anaDiff$th_pval)
     
     fdr <- max(adj.pval[upitems_logpval], na.rm = TRUE)
-
+    rv$widgets$anaDiff$FDR <- as.numeric(fdr)
     as.numeric(fdr)
 })
 
@@ -1042,6 +1042,7 @@ Get_Nb_Significant <- reactive({
             )] == 1
         )
     )
+    rv$widgets$anaDiff$NbSelected <- nb
     nb
 })
 
