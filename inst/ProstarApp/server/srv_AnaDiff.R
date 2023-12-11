@@ -847,13 +847,7 @@ output$screenAnaDiff3 <- renderUI({
 
     isolate({
         tagList(
-            fluidRow(
-                column(width = 6,
-                       mod_set_pval_threshold_ui("Title")),
-
-                column(width = 3,
-                       htmlOutput("showFDR"))
-            ),
+            mod_set_pval_threshold_ui("Title"),
             fluidRow(
                 
                 column(width = 5, 
@@ -913,7 +907,8 @@ output$diffAna_Summary <- renderUI({
 ################################################################
 
     logpval <- mod_set_pval_threshold_server(id = "Title",
-                                         pval_init = reactive({rv$widgets$anaDiff$th_pval}))
+                                         logpval_init = reactive({rv$widgets$anaDiff$th_pval}),
+                                         fdr = reactive({Get_FDR()}))
 
 
 observeEvent(logpval(), {
