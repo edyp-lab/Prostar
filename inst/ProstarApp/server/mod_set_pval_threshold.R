@@ -46,7 +46,7 @@ mod_set_pval_threshold_ui <- function(id) {
 #' @export
 #'
 mod_set_pval_threshold_server <- function(id,
-                                          logpval_init = reactive({0}),
+                                          pval_init = reactive({1}),
                                           fdr = reactive({NULL})) {
     moduleServer(id, function(input, output, session) {
         ns <- session$ns
@@ -70,21 +70,25 @@ mod_set_pval_threshold_server <- function(id,
         
         output$showFDR_UI <- renderUI({
             req(fdr())
-            p(paste0('FDR = ', fdr(), ' %'))
+            txt <- "FDR = NA"
+            if (!is.infinite(fdr())) {
+                txt <- paste0("FDR = ", round(100 * fdr(), digits = 2), ' %' )
+            }
+            p(txt)
         })
         
         
         output$text1_UI <- renderUI({
-            logpval_init()
+            pval_init()
             textInput(ns('text1'), NULL, 
-                      value = 10^logpval_init(), 
+                      value = pval_init(), 
                       width = '100px')
         })
         
         output$text2_UI <- renderUI({
-            logpval_init()
+            pval_init()
             textInput(ns('text2'), NULL, 
-                      value = logpval_init(), 
+                      value = -log10(pval_init()), 
                       width = '100px')
         })
         
@@ -93,14 +97,14 @@ mod_set_pval_threshold_server <- function(id,
             shinyjs::toggleState('text1', condition = input$toto == 'pval')
         })
         
-        observeEvent(input$text1, {
+        observeEvent(input$text1, ignoreInit = TRUE, {
             req(input$toto == 'pval')
             updateTextInput(session, 'text2', value = -log10(as.numeric(input$text1)))
         })
         
-        observeEvent(input$text2, {
+        observeEvent(input$text2, ignoreInit = TRUE, {
             req(input$toto == 'logpval')
-            updateTextInput(session, 'text1', value = 10^as.numeric((input$text2)))
+            updateTextInput(session, 'text1', value = 10^(-as.numeric((input$text2))))
         })
         
         
@@ -124,10 +128,10 @@ ui <- fluidPage(
 )
 server <- function(input, output) {
     logpval <- mod_set_pval_threshold_server(id = "Title",
-                                             logpval_init = reactive({0.22}),
+                                             pval_init = reactive({1}),
                                              fdr = reactive({3.8}))
     
-    observe({
+    observeEvent(logpval(), {
         print(logpval())
     })
 }

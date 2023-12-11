@@ -901,8 +901,8 @@ output$diffAna_Summary <- renderUI({
 ###### Set code for widgets managment
 ################################################################
 
-    logpval <- mod_set_pval_threshold_server(id = "Title",
-                                         logpval_init = reactive({rv$widgets$anaDiff$th_pval}),
+logpval <- mod_set_pval_threshold_server(id = "Title",
+                                         pval_init = reactive({10^(-rv$widgets$anaDiff$th_pval)}),
                                          fdr = reactive({Get_FDR()}))
 
 
@@ -1020,8 +1020,8 @@ Get_th_logFC <- reactive({
 
 
 Get_FDR <- reactive({
-    rv$widgets$anaDiff$th_pval
-    Build_pval_table()
+    req(rv$widgets$anaDiff$th_pval)
+    req(Build_pval_table())
     
     adj.pval <- Build_pval_table()$Adjusted_PValue
     logpval <- Build_pval_table()$Log_PValue
@@ -1043,17 +1043,13 @@ Get_Nb_Significant <- reactive({
     )
     nb
 })
-output$showFDR <- renderUI({
-    req(rv$current.obj)
-    #browser()
+
+#output$showFDR <- renderUI({
+ observe({
+     req(Get_FDR())
+     req(Get_Nb_Significant())
     
     th <- Get_FDR() * Get_Nb_Significant()
-
-    txt <- "FDR = NA"
-    if (!is.infinite(Get_FDR())) {
-        txt <- paste0("FDR = ", round(100 * Get_FDR(), digits = 2), ' %' )
-    }
-    
 
     if (th < 1) {
         warntxt <- paste0(
@@ -1067,19 +1063,15 @@ output$showFDR <- renderUI({
                               title = 'Warning',
                               text = warntxt)
     }
-    
-    
-    tagList(
-        h4(txt)
-    )
+
 })
 
 
 
 
 GetCalibrationMethod <- reactive({
-    rv$widgets$anaDiff$numValCalibMethod
-    rv$widgets$anaDiff$calibMethod
+    req(rv$widgets$anaDiff$numValCalibMethod)
+    req(rv$widgets$anaDiff$calibMethod != 'None')
     .calibMethod <- NULL
     if (rv$widgets$anaDiff$calibMethod == "Benjamini-Hochberg") {
         .calibMethod <- 1
@@ -1094,13 +1086,14 @@ GetCalibrationMethod <- reactive({
 
 
 Build_pval_table <- reactive({
-    req(rv$resAnaDiff)
-    #rv$widgets$anaDiff$downloadAnaDiff
+    req(rv$resAnaDiff$logFC)
+    req(rv$resAnaDiff$P_Value)
+    req(rv$current.obj)
+    req(GetCalibrationMethod())
     rv$widgets$hypothesisTest$th_logFC
     rv$widgets$anaDiff$th_pval
     
-    #browser()
-
+    
     pval_table <- data.frame(
         id = rownames(Biobase::exprs(rv$current.obj)),
         logFC = round(rv$resAnaDiff$logFC, digits = rv$settings_nDigits),
@@ -1119,7 +1112,6 @@ Build_pval_table <- reactive({
                              which(abs(pval_table$logFC) >= thlogfc)
                              )
     pval_table[signifItems,'isDifferential'] <- 1
-    
     
     upItems_pval <- which(-log10(rv$resAnaDiff$P_Value) >= thpval)
     upItems_logFC <- which(abs(rv$resAnaDiff$logFC) >= thlogfc)
