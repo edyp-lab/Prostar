@@ -86,7 +86,7 @@ resetModuleAnaDiff <- reactive({
     rv$widgets$anaDiff$FDR <- 0
     rv$widgets$anaDiff$NbSelected <- 0
     rv$widgets$anaDiff$nBinsHistpval <- 80
-    rv$widgets$anaDiff$downloadAnaDiff <- "All"
+    #rv$widgets$anaDiff$downloadAnaDiff <- "All"
 
     .protId <- rv$current.obj@experimentData@other$proteinId
     rv$widgets$anaDiff$tooltipInfo <- .protId
@@ -848,28 +848,23 @@ output$screenAnaDiff3 <- renderUI({
     isolate({
         tagList(
             mod_set_pval_threshold_ui("Title"),
-            fluidRow(
-                
-                column(width = 5, 
-                       withProgress(message = "", detail = "", value = 1, {
-                           moduleVolcanoplotUI("volcano_Step2")
-                       })
-                       ),
-                column(width = 5,
-                       uiOutput("tooltipInfo")
-                       )
-            ),
+            withProgress(message = "", detail = "", value = 1, {
+                moduleVolcanoplotUI("volcano_Step2")
+            }),
             tags$hr(),
             fluidRow(
-                    
-                    column(width = 4,
-                           checkboxInput('viewAdjPval', 'View adjusted p-value', value = FALSE),
-                           radioButtons("downloadAnaDiff", "Download as Excel file",
-                                        choices = c("All data" = "All",
-                                                    "only DA" = "onlyDA"),
-                                        selected = rv$widgets$anaDiff$downloadAnaDiff
-                                        ),
-                        downloadButton("downloadSelectedItems", "Download", class = actionBtnClass)
+                column(width = 4,
+                       checkboxInput('viewAdjPval', 'View adjusted p-value', value = FALSE)
+                       ),
+                # column(width = 4,
+                #        radioButtons("downloadAnaDiff", "Download as Excel file",
+                #                     choices = c("All data" = "All",
+                #                                 "only DA" = "onlyDA"),
+                #                     selected = rv$widgets$anaDiff$downloadAnaDiff
+                #                     )
+                #        ),
+                column(width = 4,
+                       downloadButton("downloadSelectedItems", "Download (Excel file)", class = actionBtnClass)
                     )
                 ),
                 DT::DTOutput("anaDiff_selectedItems")
@@ -929,9 +924,9 @@ observeEvent(input$validTooltipInfo, {
 
 })
 
-observeEvent(input$downloadAnaDiff, {
-    rv$widgets$anaDiff$downloadAnaDiff <- input$downloadAnaDiff
-})
+# observeEvent(input$downloadAnaDiff, {
+#     rv$widgets$anaDiff$downloadAnaDiff <- input$downloadAnaDiff
+# })
 
 
 
@@ -975,7 +970,7 @@ output$anaDiff_selectedItems <- DT::renderDT({
 
 
 
-output$downloadSelectedItems <- downloadHandler(
+output$download_SelectedItems <- downloadHandler(
     filename = reactive({rv_anaDiff$filename}),
     content = function(file) {
         DA_Style <- openxlsx::createStyle(fgFill = orangeProstar)
@@ -1007,9 +1002,9 @@ output$downloadSelectedItems <- downloadHandler(
             length(ll.DA.row) )
 
         openxlsx::addStyle(wb,
-            sheet = 1, cols = ll.DA.col,
-            rows = 3 + ll.DA.row, style = DA_Style
-        )
+                           sheet = 1, cols = ll.DA.col,
+                           rows = 3 + ll.DA.row, style = DA_Style
+                           )
 
         tempFile <- tempfile(fileext = ".xlsx")
         openxlsx::saveWorkbook(wb, file = tempFile, overwrite = TRUE)
@@ -1100,7 +1095,7 @@ GetCalibrationMethod <- reactive({
 
 Build_pval_table <- reactive({
     req(rv$resAnaDiff)
-    rv$widgets$anaDiff$downloadAnaDiff
+    #rv$widgets$anaDiff$downloadAnaDiff
     rv$widgets$hypothesisTest$th_logFC
     rv$widgets$anaDiff$th_pval
     

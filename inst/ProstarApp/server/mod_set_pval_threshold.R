@@ -59,7 +59,7 @@ mod_set_pval_threshold_server <- function(id,
         .pt2 <- "Spot the protein P which has the largest adjusted p-value below x%"
         .pt3 <- "Tune the p-value (or log p-value) threshold using a value between the p-value (or log p-value) of P and of the next protein below in the list."
         popover_for_help_server("modulePopover_pValThreshold",
-                                title = "Significant threshold",
+                                title = h4("Significant threshold"),
                                 content = HTML(paste0(.head, "<br>", 
                                                       "<ul>", 
                                                       "<li>", .pt1, "</li>", 
@@ -70,7 +70,7 @@ mod_set_pval_threshold_server <- function(id,
         
         output$showFDR_UI <- renderUI({
             req(fdr())
-            h3(paste0('FDR = ', fdr(), ' %'))
+            p(paste0('FDR = ', fdr(), ' %'))
         })
         
         
