@@ -847,7 +847,14 @@ output$screenAnaDiff3 <- renderUI({
 
     isolate({
         tagList(
-            mod_set_pval_threshold_ui("Title"),
+            fluidRow(
+                column(width = 6,
+                       mod_set_pval_threshold_ui("Title")
+                       ),
+                column(width = 2,
+                       actionButton('validate_pval', "Validate threshold")
+                       )
+                ),
             withProgress(message = "", detail = "", value = 1, {
                 moduleVolcanoplotUI("volcano_Step2")
             }),
@@ -856,15 +863,8 @@ output$screenAnaDiff3 <- renderUI({
                 column(width = 4,
                        checkboxInput('viewAdjPval', 'View adjusted p-value', value = FALSE)
                        ),
-                # column(width = 4,
-                #        radioButtons("downloadAnaDiff", "Download as Excel file",
-                #                     choices = c("All data" = "All",
-                #                                 "only DA" = "onlyDA"),
-                #                     selected = rv$widgets$anaDiff$downloadAnaDiff
-                #                     )
-                #        ),
                 column(width = 4,
-                       downloadButton("downloadSelectedItems", "Download (Excel file)", class = actionBtnClass)
+                       downloadButton("download_SelectedItems", "Download (Excel file)", class = actionBtnClass)
                     )
                 ),
                 DT::DTOutput("anaDiff_selectedItems")
@@ -911,6 +911,7 @@ observeEvent(logpval(), {
     tmp <- gsub(",", ".", logpval(), fixed = TRUE)
 
     rv$widgets$anaDiff$th_pval <- as.numeric(tmp)
+    
 })
 
 
@@ -923,11 +924,6 @@ observeEvent(input$validTooltipInfo, {
     rv$widgets$anaDiff$tooltipInfo <- unique(.tmp)
 
 })
-
-# observeEvent(input$downloadAnaDiff, {
-#     rv$widgets$anaDiff$downloadAnaDiff <- input$downloadAnaDiff
-# })
-
 
 
 output$anaDiff_selectedItems <- DT::renderDT({
@@ -945,7 +941,7 @@ output$anaDiff_selectedItems <- DT::renderDT({
             list(targets = (match(name, colnames(df)) - 1), visible = FALSE))
     }
     
-       
+
     DT::datatable(df,
         escape = FALSE,
         rownames = FALSE,
@@ -966,13 +962,15 @@ output$anaDiff_selectedItems <- DT::renderDT({
             target = "row",
             backgroundColor = DT::styleEqual(c(0, 1), c("white", orangeProstar))
         )
+    
 })
 
 
-
 output$download_SelectedItems <- downloadHandler(
-    filename = reactive({rv_anaDiff$filename}),
-    content = function(file) {
+    
+    
+    filename = function() {rv_anaDiff$filename},
+    content = function(fname) {
         DA_Style <- openxlsx::createStyle(fgFill = orangeProstar)
         hs1 <- openxlsx::createStyle(fgFill = "#DCE6F1",
                                      halign = "CENTER",
@@ -1002,14 +1000,13 @@ output$download_SelectedItems <- downloadHandler(
             length(ll.DA.row) )
 
         openxlsx::addStyle(wb,
-                           sheet = 1, cols = ll.DA.col,
-                           rows = 3 + ll.DA.row, style = DA_Style
+                           sheet = 1, 
+                           cols = ll.DA.col,
+                           rows = 3 + ll.DA.row, 
+                           style = DA_Style
                            )
 
-        tempFile <- tempfile(fileext = ".xlsx")
-        openxlsx::saveWorkbook(wb, file = tempFile, overwrite = TRUE)
-
-        file.rename(tempFile, file)
+        openxlsx::saveWorkbook(wb, file = fname, overwrite = TRUE)
     }
 )
 
@@ -1028,9 +1025,13 @@ Get_FDR <- reactive({
     upitems_logpval <- which(logpval >= rv$widgets$anaDiff$th_pval)
     
     fdr <- max(adj.pval[upitems_logpval], na.rm = TRUE)
-    rvModProcess$moduleAnaDiffDone[3] <- TRUE
+
     as.numeric(fdr)
 })
+
+observeEvent(input$validate_pval,{
+    rvModProcess$moduleAnaDiffDone[3] <- TRUE
+    })
 
 Get_Nb_Significant <- reactive({
     nb <- length(
@@ -1044,7 +1045,6 @@ Get_Nb_Significant <- reactive({
     nb
 })
 
-#output$showFDR <- renderUI({
  observe({
      req(Get_FDR())
      req(Get_Nb_Significant())
