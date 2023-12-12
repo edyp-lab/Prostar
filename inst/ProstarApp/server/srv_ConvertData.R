@@ -117,20 +117,15 @@ output$ConvertOptions <- renderUI({
     tagList(
         radioButtons("typeOfData",
             "Is it a peptide or protein dataset ?",
-            choices = c(
-                "peptide dataset" = "peptide",
-                "protein dataset" = "protein"
-            )
-        ),
+            choices = c( "peptide dataset" = "peptide",
+                         "protein dataset" = "protein"),
+            selected = rv$widgets$Convert$typeOfDataset),
         radioButtons("checkDataLogged",
             "Are your data already log-transformed ?",
             # width = widthWellPanel,
-            choices = c(
-                "yes (they stay unchanged)" = "yes",
-                "no (they wil be automatically transformed)" = "no"
-            ),
-            selected = "no"
-        ),
+            choices = c("yes (they stay unchanged)" = "yes",
+                        "no (they wil be automatically transformed)" = "no"),
+            selected = rv$widgets$Convert$checkDataLogged),
         br(),
         checkboxInput("replaceAllZeros",
             "Replace all 0 and NaN by NA",
@@ -139,7 +134,8 @@ output$ConvertOptions <- renderUI({
     )
 })
 
-
+observeEvent(input$typeOfData, ignoreInit = TRUE, {rv$widgets$Convert$typeOfDataset <- input$typeOfData})
+observeEvent(input$checkDataLogged, ignoreInit = TRUE, {rv$widgets$Convert$checkDataLogged <- input$checkDataLogged})
 
 
 ############ Read text file to be imported ######################
@@ -151,8 +147,8 @@ observeEvent(input$loadFile, {
      Please choose another one.")
     } else {
         tryCatch({
-        ClearUI()
-        ClearMemory()
+        #ClearUI()
+        #ClearMemory()
         ext <- GetExtension(input$file1$name)
         shinyjs::disable("file1")
         
@@ -265,7 +261,7 @@ output$warningNonUniqueID <- renderUI({
 
 output$convertChooseProteinID_UI <- renderUI({
     req(rv$tab1)
-    req(input$typeOfData != "protein")
+    req(rv$widgets$Convert$typeOfDataset != "protein")
 
     .choices <- c("", colnames(rv$tab1))
     names(.choices) <- c("", colnames(rv$tab1))
@@ -282,12 +278,12 @@ output$convertChooseProteinID_UI <- renderUI({
 
 
 output$helpTextDataID <- renderUI({
-    input$typeOfData
-    if (is.null(input$typeOfData)) {
+    rv$widgets$Convert$typeOfDataset
+    if (is.null(rv$widgets$Convert$typeOfDataset)) {
         return(NULL)
     }
     t <- ""
-    switch(input$typeOfData,
+    switch(rv$widgets$Convert$typeOfDataset,
         protein = {
             t <- "proteins"
         },
@@ -643,15 +639,13 @@ output$warningCreateMSnset <- renderUI({
 
 #######################################
 observeEvent(input$createMSnsetButton, ignoreInit = TRUE, {
+    
     colNamesForMetacell <- NULL
-    
-    
     if (isTRUE(as.logical(input$selectIdent))) {
         n <- length(input$choose_quantitative_columns)
 
         colNamesForMetacell <- unlist(lapply(seq_len(n), function(x) {
-            input[[paste0("colForOriginValue_", x)]]
-        }))
+            input[[paste0("colForOriginValue_", x)]]}))
         if (length(which(colNamesForMetacell == "None")) > 0) {
             return(NULL)
         }
@@ -679,27 +673,26 @@ observeEvent(input$createMSnsetButton, ignoreInit = TRUE, {
                     xlsx = writeToCommandLogFile(txtXls)
                 )
 
-
+                metadata <- hot_to_r(input$hot)
+                #logData <- (rv$widgets$Convert$checkDataLogged== "no")
+                
+                
                 input$filenameToCreate
                 rv$tab1
-                .chooseCols <- input$choose_quantitative_columns
-                indexForEData <- match(
-                    .chooseCols,
-                    colnames(rv$tab1)
-                )
-                if (!is.null(rv$newOrder)) {
-                    .chooseCols <- .chooseCols[rv$newOrder]
-                    indexForEData <- indexForEData[rv$newOrder]
-                }
+                
+               # browser()
+                indexForEData <- match(rv$hot[, 'Sample.name'], colnames(rv$tab1))
+                # .chooseCols <- input$choose_quantitative_columns
+                # indexForEData <- match(.chooseCols,colnames(rv$tab1))
+                # if (!is.null(rv$newOrder)) {
+                #     indexForEData <- rv$newOrder
+                # }
 
                 indexForFData <- seq(1, ncol(rv$tab1))[-indexForEData]
 
 
 
-                metadata <- hot_to_r(input$hot)
-                logData <- (input$checkDataLogged == "no")
-
-
+                
                 indexForMetacell <- NULL
                 if (!is.null(colNamesForMetacell) &&
                     (length(grep("None", colNamesForMetacell)) == 0) &&
@@ -713,21 +706,23 @@ observeEvent(input$createMSnsetButton, ignoreInit = TRUE, {
                 options(digits = 15)
 
                 protId <- NULL
-                if (input$typeOfData == "protein") {
+                if (rv$widgets$Convert$typeOfDataset == "protein") {
                     protId <- input$colnameForID
-                } else if (input$typeOfData == "peptide") {
+                } else if (rv$widgets$Convert$typeOfDataset == "peptide") {
                     protId <- input$convert_proteinId
                 }
 
+                
+                #browser()
                 tmp <- DAPAR::createMSnset(
                     file = rv$tab1,
                     metadata = metadata,
                     indExpData = indexForEData,
                     colnameForID = input$colnameForID,
                     indexForMetacell = indexForMetacell,
-                    logData = logData,
+                    logData = (rv$widgets$Convert$checkDataLogged== "no"),
                     replaceZeros = input$replaceAllZeros,
-                    pep_prot_data = input$typeOfData,
+                    pep_prot_data = rv$widgets$Convert$typeOfDataset,
                     proteinId = gsub(".", "_", protId, fixed = TRUE),
                     software = input$choose_software
                 )

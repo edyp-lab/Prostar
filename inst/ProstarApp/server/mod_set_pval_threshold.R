@@ -31,7 +31,7 @@ mod_set_pval_threshold_ui <- function(id) {
                           disabled(uiOutput(ns('text2_UI')))
                  ),
         tags$div(style = "align: center;display:inline-block; vertical-align: center; ",
-                 actionButton(ns('ApplyThreshold'), 'Apply threshold')
+                 actionButton(ns('ApplyThreshold'), 'Apply threshold', class = actionBtnClass)
         ),
         tags$div(style = "align: center;display:inline-block; vertical-align: center; padding-left: 20px;",
                  uiOutput(ns('showFDR_UI'))

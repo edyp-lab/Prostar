@@ -4,7 +4,8 @@ mod_errorModal_ui <- function(id) {}
 
 mod_errorModal_server <- function(id, 
                                   title = NULL,
-                                  text = NULL){
+                                  text = NULL, 
+                                  footer = modalButton("Close")){
     
 
     shiny::moduleServer(id,
@@ -16,12 +17,13 @@ mod_errorModal_server <- function(id,
                         tags$style("#errModal .modal-dialog{width: 600px;}"),
                         shiny::modalDialog(
                             h3(title),
-                            tags$style("#tPanel {overflow-y:scroll; color: red;}"),
-                            shiny::wellPanel(
-                                id = "tPanel",
-                                HTML(paste('> ', text, collapse = "<br/>"))
-                            )
-                            ,easyClose = TRUE)
+                            tags$style("#tPanel {overflow-y:scroll; color: red; background: white;}"),
+                            shiny::wellPanel(id = "tPanel",
+                                HTML(paste(text, collapse = "<br/>")),
+                                width = '250px'
+                            ),
+                            footer = footer,
+                            easyClose = TRUE)
                     ))
             })
             }

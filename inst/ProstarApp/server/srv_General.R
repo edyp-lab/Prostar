@@ -1027,7 +1027,7 @@ ClearMemory <- function() {
     rv$dirnameforlink <- ""
     rv$temp.aggregate <- NULL
     
-    rv$typeOfDataset <- ""
+    rv$typeOfDataset <- "peptide"
     rv$proteinId <- NULL
     rv$commandLog <- ""
     rv$resAnaDiff <- list(
