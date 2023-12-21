@@ -1,6 +1,7 @@
 source(system.file("ProstarApp/server", "mod_popover_for_help.R", package = 'Prostar'), local = TRUE)$value
 source(system.file("ProstarApp/server", "mod_set_pval_threshold.R", package = 'Prostar'), local = TRUE)$value
 source(system.file("ProstarApp/server", "mod_errorModal.R", package = 'Prostar'), local = TRUE)$value
+source(system.file("ProstarApp/server", "mod_volcanoplot.R", package = 'Prostar'), local = TRUE)$value
 
 
 
@@ -22,17 +23,17 @@ convertAnaDiff2DF <- reactive({
 })
 
 
-callModule(moduleVolcanoplot, "volcano_Step1",
-    data = reactive({rv$resAnaDiff}),
-    comp = reactive({as.character(rv$widgets$anaDiff$Comparison)}),
-    tooltip = reactive({rv$widgets$anaDiff$tooltipInfo})
-)
+mod_volcanoplot_server("volcano_Step1",
+                       data = reactive({rv$resAnaDiff}),
+                       comp = reactive({as.character(rv$widgets$anaDiff$Comparison)}),
+                       tooltip = reactive({rv$widgets$anaDiff$tooltipInfo})
+                       )
 
-callModule(moduleVolcanoplot, "volcano_Step2",
-    data = reactive({rv$resAnaDiff}),
-    comp = reactive({as.character(rv$widgets$anaDiff$Comparison)}),
-    tooltip = reactive({rv$widgets$anaDiff$tooltipInfo})
-)
+mod_volcanoplot_server("volcano_Step2",
+                       data = reactive({rv$resAnaDiff}),
+                       comp = reactive({as.character(rv$widgets$anaDiff$Comparison)}),
+                       tooltip = reactive({rv$widgets$anaDiff$tooltipInfo})
+                       )
 
 format_DT_server("params_AnaDiff",
     data = reactive({convertAnaDiff2DF()}),
@@ -180,7 +181,7 @@ output$screenAnaDiff1 <- renderUI({
             tags$div(
                 tags$div(
                     style = "display:inline-block; vertical-align: top; padding-right: 60px",
-                    moduleVolcanoplotUI("volcano_Step1")
+                    mod_volcanoplot_ui("volcano_Step1")
                 ),
                 tags$div(
                     style = "display:inline-block; vertical-align: top;",
@@ -844,20 +845,20 @@ output$calibrationPlotAll <- renderImage(
 output$screenAnaDiff3 <- renderUI({
     req(as.character(rv$widgets$anaDiff$Comparison) != "None")
 
-
     isolate({
         tagList(
             fluidRow(
-                column(width = 6,
-                       mod_set_pval_threshold_ui("Title")
-                       ),
-                column(width = 2,
+                column(width = 5,
+                       mod_set_pval_threshold_ui("Title"),
+                       uiOutput("nbSelectedItems"),
                        actionButton('validate_pval', "Validate threshold", class = actionBtnClass)
+                       ),
+                column(width = 7,
+                       withProgress(message = "", detail = "", value = 1, {
+                           mod_volcanoplot_ui("volcano_Step2")
+                       })
                        )
                 ),
-            withProgress(message = "", detail = "", value = 1, {
-                moduleVolcanoplotUI("volcano_Step2")
-            }),
             tags$hr(),
             fluidRow(
                 column(width = 4,
@@ -888,13 +889,74 @@ output$screenAnaDiff4 <- renderUI({
     )
 })
 
-# output$diffAna_Summary <- renderUI({
-#     req(as.character(rv$widgets$anaDiff$Comparison) != "None")
-# 
-#     tagList(
-#         format_DT_ui("params_AnaDiff")
-#     )
-# })
+
+output$nbSelectedItems <- renderUI({
+    rv$widgets$anaDiff$th_pval
+    rv$widgets$hypothesisTest$th_logFC
+    rv$current.obj
+    req(Build_pval_table())
+    
+    
+    m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
+                        pattern = c("Missing", "Missing POV", "Missing MEC"),
+                        level = "peptide"
+    )
+    #req(length(which(m)) > 0)
+    
+    p <- Build_pval_table()
+    upItemsPVal <- NULL
+    upItemsLogFC <- NULL
+    
+    
+    upItemsLogFC <- which(abs(p$logFC) >= as.numeric(
+        rv$widgets$hypothesisTest$th_logFC
+    ))
+    upItemsPVal <- which(-log10(p$P_Value) >= as.numeric(
+        rv$widgets$anaDiff$th_pval
+    ))
+    
+    rv$nbTotalAnaDiff <- nrow(Biobase::exprs(rv$current.obj))
+    rv$nbSelectedAnaDiff <- NULL
+    t <- NULL
+    
+    if (!is.null(rv$widgets$anaDiff$th_pval) &&
+        !is.null(rv$widgets$hypothesisTest$th_logFC)) {
+        t <- intersect(upItemsPVal, upItemsLogFC)
+    } else if (!is.null(rv$widgets$anaDiff$th_pval) &&
+               is.null(rv$widgets$hypothesisTest$th_logFC)) {
+        t <- upItemsPVal
+    } else if (is.null(rv$widgets$anaDiff$th_pval) &&
+               !is.null(rv$widgets$hypothesisTest$th_logFC)) {
+        t <- upItemsLogFC
+    }
+    rv$nbSelectedAnaDiff <- length(t)
+    
+    
+    ##
+    ## Condition: A = C + D
+    ##
+    A <- rv$nbTotalAnaDiff
+    B <- A - length(rv$resAnaDiff$pushed)
+    C <- rv$nbSelectedAnaDiff
+    D <- ( A - C)
+    # 
+    # txt <- paste("Total number of ", rv$typeOfDataset, "(s) = ", A , "<br>",
+    #   "\t <em>Total remaining after push p-values = ", B , "</em><br>",
+    #     paste("Number of selected ", rv$typeOfDataset, "(s) = ", C, sep=''),
+    #     paste("Number of non selected ", rv$typeOfDataset, "(s) = ", D, sep = ''),
+    #     sep = ""
+    # )
+    
+    div(id="bloc_page",
+        style = "background-color: lightgrey; width: 300px",
+        p(paste("Total number of ", rv$typeOfDataset, "(s) = ", A, sep = '' )),
+        tags$em(p(style = "padding:0 0 0 20px;", paste("Total remaining after push p-values = ", B, sep=''))),
+        p(paste("Number of selected ", rv$typeOfDataset, "(s) = ", C, sep = '')),
+        p(paste("Number of non selected ", rv$typeOfDataset, "(s) = ", D, sep = ''))
+    )
+    #HTML(txt)
+})
+
 
 
 #################################################################
@@ -1053,8 +1115,7 @@ Get_Nb_Significant <- reactive({
     th <- Get_FDR() * Get_Nb_Significant()
 
     if (th < 1) {
-        warntxt <- paste0(
-            "Warning: With such a dataset size (",
+        warntxt <- paste0("With such a dataset size (",
             Get_Nb_Significant(), " selected discoveries), an FDR of ",
             round(100 * Get_FDR(), digits = 2),
             "% should be cautiously interpreted as strictly less than one

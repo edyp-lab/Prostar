@@ -13,7 +13,10 @@ mod_query_metacell_ui <- function(id) {
                 column(6, uiOutput(ns("MetacellFilters_widgets_set2_ui")))
             ),
         fluidRow(
-            column(6, uiOutput(ns("metacellFilter_request_ui"))),
+            column(6, 
+                   uiOutput(ns("metacellFilter_request_ui")),
+                   uiOutput(ns("metacellFilter_warning_ui"))
+                   ),
             column(3, uiOutput(ns("show_example_ui"))),
             column(3, uiOutput(ns('showApplyBtn')))
         )
@@ -138,7 +141,7 @@ mod_query_metacell_server <- function(id,
                 if(is.null(obj())){
                     dataOut$trigger <- as.numeric(Sys.time())
                     dataOut$params<- list(
-                        MetacellTag = NULL,
+                        MetacellTag = '',
                         KeepRemove = NULL,
                         MetacellFilters = NULL,
                         metacell_percent_th = NULL,
@@ -394,6 +397,26 @@ mod_query_metacell_server <- function(id,
                 txt_summary <- paste("You are about to ", WriteQuery())
                 tags$p(style = "font-size: small; text-align : center; color: purple;",
                        txt_summary)
+            })
+            
+            output$metacellFilter_warning_ui <- renderUI({
+                warn.txt <- ''
+                nb <- Check_NbValues_In_Columns(exprs(obj()))
+                nb.empty.cols <- length(which(nb == 0))
+                nb.one.val.cols <- length(which(nb == 1))
+                
+                if (nb.empty.cols > 0)
+                    warn.txt <- paste(warn.txt, "Some columns are empty.")
+                if (nb.one.val.cols > 0)
+                    warn.txt <- paste(warn.txt, "Some columns contains only 1 value.")
+                
+                
+                if (warn.txt != ''){
+                    warn.txt <- paste(warn.txt, "Are you sure to filter the dataset with such parameters? The resulting dataset can lead to unexpected behaviour.")
+                    tags$p(style = "font-size: small; text-align : center; color: purple;",
+                           warn.txt)
+                }
+
             })
 
             # Set useless widgets to default values

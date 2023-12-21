@@ -307,14 +307,10 @@ checksRetroCompatibility <- function(num=3){
         txt <- paste0("The Msnset file has been created with an older version of ", txt, ".\n", 
                       "This can lead to unexpected behaviour.")
         
-        shinyWidgets::sendSweetAlert(
-            session = session,
-            title = "Info",
-            text = tags$div(style = "display:inline-block; vertical-align: top;",
-                            p(txt)
-            ),
-            type = "alert"
-        )
+        mod_SweetAlert_server(id = 'sweetalert_checksRetroCompatibility',
+                              text = txt,
+                              type = 'alert' )
+        
     }
 }
 
@@ -384,7 +380,6 @@ loadObjectInMemoryFromConverter <- function() {
                 rv$current.obj <- SetCC(rv$current.obj, ComputeConnectedComposants())
             }
         }
-        
         m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
                             pattern = c("Missing", "Missing POV", "Missing MEC"),
                             level = DAPAR::GetTypeofData(rv$current.obj)

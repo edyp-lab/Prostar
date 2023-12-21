@@ -55,18 +55,29 @@ output$checkConvertPanel <- renderUI({
 ########### STEP 1 ############
 output$Convert_SelectFile <- renderUI({
     tagList(
-         br(), br(),
-        tags$div(style = "display:inline-block; vertical-align: top;",
-            radioButtons("choose_software", "Software to import from",
+        wellPanel(
+            p('Data source'),
+            fluidRow(
+            column(width = 3,
+                   radioButtons("choose_software", "Software to import from",
             choices = setNames(nm = DAPAR::GetSoftAvailables()),
-            selected = character(0)
+            selected = DAPAR::GetSoftAvailables()[2]
+            )),
+            column(width =5,
+                   uiOutput("choose_file_to_import")),
+            column(width = 4,uiOutput("ManageXlsFiles")
+                   ))
             ),
-            uiOutput("choose_file_to_import")
-        ),
-        uiOutput("ManageXlsFiles"),
-        uiOutput("ConvertOptions"),
-        uiOutput('loadFile_btn_UI'),
-        uiOutput('info_file_loaded_UI')
+        wellPanel(
+            p('Options'),
+            uiOutput("ConvertOptions")
+            ),
+        tags$div(style='"align: center;display:inline-block; vertical-align: top;',
+                 uiOutput('loadFile_btn_UI')
+                 ),
+        tags$div(style='"align: center;display:inline-block; vertical-align: top;',
+                 uiOutput('info_file_loaded_UI')
+        )
     )
 })
 
@@ -74,7 +85,7 @@ output$Convert_SelectFile <- renderUI({
 
 output$info_file_loaded_UI <- renderUI({
     req(rv$tab1)
-    h4('The file has been loaded correctly')
+    p('The file has been loaded correctly')
 })
 
 output$loadFile_btn_UI <- renderUI({
@@ -87,17 +98,14 @@ output$loadFile_btn_UI <- renderUI({
 })
 
 output$choose_file_to_import <- renderUI({
-    req(input$choose_software)
-    fluidRow(
-        column(width = 2,
-            popover_for_help_ui("modulePopover_convertChooseDatafile")
-        ),
-        column(width = 10,
-            fileInput("file1", "",
-                multiple = FALSE,
-                accept = c(".txt", ".tsv", ".csv", ".xls", ".xlsx")
+    #req(input$choose_software)
+    tagList(
+        popover_for_help_ui("modulePopover_convertChooseDatafile"),
+        fileInput("file1", "",
+              width = '300px',
+              multiple = FALSE,
+              accept = c(".txt", ".tsv", ".csv", ".xls", ".xlsx")
             )
-        )
     )
 })
 
@@ -110,27 +118,26 @@ fileExt.ok <- reactive({
 })
 
 output$ConvertOptions <- renderUI({
-    req(input$choose_software)
-    req(input$file1)
-    req(fileExt.ok())
+    #req(input$choose_software)
+    #req(input$file1)
+    #req(fileExt.ok())
 
     tagList(
-        radioButtons("typeOfData",
-            "Is it a peptide or protein dataset ?",
+        fluidRow(
+            column(width = 2,
+                   radioButtons("typeOfData", "Type of dataset",
             choices = c( "peptide dataset" = "peptide",
                          "protein dataset" = "protein"),
-            selected = rv$widgets$Convert$typeOfDataset),
-        radioButtons("checkDataLogged",
-            "Are your data already log-transformed ?",
-            # width = widthWellPanel,
-            choices = c("yes (they stay unchanged)" = "yes",
-                        "no (they wil be automatically transformed)" = "no"),
-            selected = rv$widgets$Convert$checkDataLogged),
-        br(),
-        checkboxInput("replaceAllZeros",
-            "Replace all 0 and NaN by NA",
-            value = TRUE
-        )
+            selected = rv$widgets$Convert$typeOfDataset)),
+        column(width = 4,
+               radioButtons("checkDataLogged", "Data already log-transformed ?",
+                            choices = c("yes (they stay unchanged)" = "yes",
+                                        "no (they wil be automatically transformed)" = "no"),
+                            selected = rv$widgets$Convert$checkDataLogged)),
+        column(width = 2,
+               checkboxInput("replaceAllZeros", "Replace all 0 and NaN by NA",
+                             value = TRUE)
+        ))
     )
 })
 
@@ -147,8 +154,7 @@ observeEvent(input$loadFile, {
      Please choose another one.")
     } else {
         tryCatch({
-        #ClearUI()
-        #ClearMemory()
+        
         ext <- GetExtension(input$file1$name)
         shinyjs::disable("file1")
         
@@ -530,14 +536,11 @@ output$Convert_BuildDesign <- renderUI({
             " page."
         ),
         fluidRow(
-            column(
-                width = 6,
-                tags$b("1 - Fill the \"Condition\" column to identify
-                the conditions to compare.")
+            column(width = 6,
+            tags$b("1 - Fill the \"Condition\" column to identify the conditions to compare.")
             ),
-            column(
-                width = 6,
-                uiOutput("UI_checkConditions")
+            column(width = 6,
+                   uiOutput("UI_checkConditions")
             )
         ),
         fluidRow(
@@ -550,12 +553,10 @@ output$Convert_BuildDesign <- renderUI({
             width = "100px"
         ),
         tags$div(
-            tags$div(
-                style = "display:inline-block; vertical-align: top;",
+            tags$div(style = "display:inline-block; vertical-align: top;",
                 uiOutput("viewDesign", width = "100%")
             ),
-            tags$div(
-                style = "display:inline-block; vertical-align: top;",
+            tags$div(style = "display:inline-block; vertical-align: top;",
                 shinyjs::hidden(div(
                     id = "showExamples",
                     uiOutput("designExamples")
@@ -743,21 +744,10 @@ observeEvent(input$createMSnsetButton, ignoreInit = TRUE, {
             })
         
         if(inherits(result, "try-error")) {
-          # browser()
-          sendSweetAlert(
-            session = session,
-            title = "Error",
-            text = tags$div(style = "display:inline-block; vertical-align: top;",
-                            p(result[[1]]),
-                            rclipButton(inputId = "clipbtn",
-                                        label = "",
-                                        clipText = result[[1]], 
-                                        icon = icon("copy"),
-                                        class = actionBtnClass
-                            )
-            ),
-            type = "error"
-          )
+             mod_SweetAlert_server('sweetAlert_convert',
+                                  text = result[[1]],
+                                  showClipBtn = TRUE,
+                                  type = 'error')
         } else {
           # sendSweetAlert(
           #   session = session,
@@ -767,5 +757,15 @@ observeEvent(input$createMSnsetButton, ignoreInit = TRUE, {
         }
         
 
+    })
+    
+    
+    observe({
+        req(Check_Dataset_Validity(rv$current.obj))
+        mod_SweetAlert_server('sweetAlert_Check_Dataset_Validity',
+                              text = Check_Dataset_Validity(rv$current.obj),
+                              showClipBtn = FALSE,
+                              type = 'warning')
+        
     })
 })

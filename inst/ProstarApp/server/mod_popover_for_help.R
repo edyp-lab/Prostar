@@ -12,7 +12,14 @@ popover_for_help_ui <- function(id) {
     tagList(
         shinyjs::useShinyjs(),
         shinyjs::inlineCSS(pop_css),
-        
+        tags$style(HTML("
+                .tooltip > .tooltip-inner {
+                width: 400px;
+                color: black;
+                background-color: lightgrey;
+                text-align: left;
+                }
+                ")),
         div(style = "display:inline-block; vertical-align: middle; padding-bottom: 5px;",
             uiOutput(ns("write_title_ui"))
             ),
@@ -73,6 +80,7 @@ popover_for_help_server <- function(id, title, content) {
         })
         
         output$show_Pop <- renderUI({
+            
             shinyBS::bsTooltip(ns("dot"), HTML(content), trigger = "hover")
         })
     })
@@ -120,7 +128,7 @@ button.Prostar_tooltip_white {
     width: 15px;
     height: 15px;
     display: inline-block;
-    background-color: #ccc;
+    background-color: red;
     position: absolute;
     left: 5px;
     top: 5px;

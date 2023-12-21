@@ -234,7 +234,7 @@ mod_metacell_tree_server <- function(id,
             dataOut$values <- NULL
             }) 
         
-        observeEvent(input$openModalBtn,{
+        observeEvent(req(input$openModalBtn),{
             
             print('------------ observeEvent(input$openModalBtn ---------------')
             init_tree()
@@ -576,7 +576,8 @@ ui <- fluidPage(
 server <- function(input, output) {
     
      utils::data('Exp1_R25_pept', package='DAPARdata')
-    tags <- mod_metacell_tree_server('tree', obj = reactive({Exp1_R25_prot}))
+    obj <- Exp1_R25_pept
+    tags <- mod_metacell_tree_server('tree', obj = reactive({obj}))
 
 }
 

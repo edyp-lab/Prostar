@@ -1,4 +1,5 @@
 require(imp4p)
+source(system.file("ProstarApp/server", "mod_DetQuantImpValues.R", package = 'Prostar'), local = TRUE)$value
 
 
 callModule(moduleMVPlots, "mvImputationPlots_MV",
@@ -22,17 +23,17 @@ callModule(moduleMVPlots, "mvImputationPlots_Valid",
     pattern = c("Missing", "Missing POV", "Missing MEC")
 )
 
-callModule(
-    moduleDetQuantImpValues, "POV_DetQuantValues_DT",
-    reactive({ rv$widgets$proteinImput$POV_detQuant_quantile}),
-    reactive({rv$widgets$proteinImput$POV_detQuant_factor})
+mod_DetQuantImpValues_server("POV_DetQuantValues_DT",
+    obj = reactive({rv$current.obj}),
+    quant = reactive({ rv$widgets$proteinImput$POV_detQuant_quantile}),
+    factor = reactive({rv$widgets$proteinImput$POV_detQuant_factor})
 )
 
-callModule(
-    moduleDetQuantImpValues, "MEC_DetQuantValues_DT",
-    reactive({rv$widgets$proteinImput$MEC_detQuant_quantile}),
-    reactive({rv$widgets$proteinImput$MEC_detQuant_factor})
-)
+mod_DetQuantImpValues_server("MEC_DetQuantValues_DT",
+                             obj = reactive({rv$current.obj}),
+                             quant = reactive({rv$widgets$proteinImput$MEC_detQuant_quantile}),
+                             factor = reactive({rv$widgets$proteinImput$MEC_detQuant_factor})
+                             )
 
 
 callModule(moduleProcess, "moduleProcess_ProtImputation",
@@ -175,7 +176,7 @@ output$POV_showDetQuantValues <- renderUI({
     if (rv$widgets$proteinImput$POV_algorithm == "detQuantile") {
         tagList(
             h5("The POV will be imputed by the following values :"),
-            moduleDetQuantImpValuesUI("POV_DetQuantValues_DT")
+            mod_DetQuantImpValues_ui("POV_DetQuantValues_DT")
         )
     }
 })
@@ -260,21 +261,9 @@ observeEvent(input$perform.POVimputation.button, {
         })
       
         if(inherits(.tmp, "try-error")) {
-          # browser()
-          sendSweetAlert(
-            session = session,
-            title = "Error",
-            text = tags$div(style = "display:inline-block; vertical-align: top;",
-                            p(.tmp[[1]]),
-                            rclipButton(inputId = "clipbtn",
-                                        label = "",
-                                        clipText = .tmp[[1]], 
-                                        icon = icon("copy"),
-                                        class = actionBtnClass
-                            )
-            ),
-            type = "error"
-          )
+         mod_SweetAlert_server(id = 'sweetalert_perform_POVimputation_button',
+                                  text = .tmp[[1]],
+                                  type = 'error' )
         } else {
           # sendSweetAlert(
           #   session = session,
@@ -377,7 +366,7 @@ output$MEC_showDetQuantValues <- renderUI({
     if (rv$widgets$proteinImput$MEC_algorithm == "detQuantile") {
         tagList(
             h5("The MEC will be imputed by the following values :"),
-            moduleDetQuantImpValuesUI("MEC_DetQuantValues_DT")
+            mod_DetQuantImpValues_ui("MEC_DetQuantValues_DT")
         )
     }
 })
@@ -482,27 +471,11 @@ observeEvent(input$perform.imputationMEC.button, {
         })
 
         if(inherits(.tmp, "try-error")) {
-          # browser()
-          sendSweetAlert(
-            session = session,
-            title = "Error",
-            text = tags$div(style = "display:inline-block; vertical-align: top;",
-              p(.tmp[[1]]),
-              rclipButton(inputId = "clipbtn",
-                          label = "",
-                          clipText = .tmp[[1]], 
-                          icon = icon("copy"),
-                          class = actionBtnClass
-              )
-            ),
-            type = "error"
-          )
+            mod_SweetAlert_server(id = 'sweetalert_perform_imputationMEC_button',
+                                  text = .tmp[[1]],
+                                  type = 'error' )
         } else {
-          # sendSweetAlert(
-          #   session = session,
-          #   title = "Success",
-          #   type = "success"
-          # )
+          
           rv$current.obj <- .tmp
         m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
             pattern = "Missing MEC",

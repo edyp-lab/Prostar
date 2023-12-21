@@ -16,8 +16,8 @@ mod_errorModal_server <- function(id,
                         id = 'errModal',
                         tags$style("#errModal .modal-dialog{width: 600px;}"),
                         shiny::modalDialog(
-                            h3(title),
-                            tags$style("#tPanel {overflow-y:scroll; color: red; background: white;}"),
+                            h3(title, style='color: red;'),
+                            tags$style("#tPanel {overflow-y:scroll; color: black; background: white;}"),
                             shiny::wellPanel(id = "tPanel",
                                 HTML(paste(text, collapse = "<br/>")),
                                 width = '250px'

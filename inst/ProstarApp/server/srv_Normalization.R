@@ -419,21 +419,10 @@ observeEvent(input$perform.normalization, {
     
     
     if(inherits(.tmp, "try-error")) {
-      # browser()
-      sendSweetAlert(
-        session = session,
-        title = "Error",
-        text = tags$div(style = "display:inline-block; vertical-align: top;",
-                        p(.tmp[[1]]),
-                        rclipButton(inputId = "clipbtn",
-                                    label = "",
-                                    clipText = .tmp[[1]], 
-                                    icon = icon("copy"),
-                                    class = actionBtnClass
-                        )
-        ),
-        type = "error"
-      )
+      
+        mod_SweetAlert_server(id = 'sweetalert_perform_normalization',
+                              text = .tmp[[1]],
+                              type = 'error' )
     } else {
       # sendSweetAlert(
       #   session = session,

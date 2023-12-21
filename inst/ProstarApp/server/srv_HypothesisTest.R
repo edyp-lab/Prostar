@@ -68,23 +68,10 @@ observeEvent(input$PerformLogFCPlot, {
         
         if(is.null(rv$res_AllPairwiseComparisons)){} 
         else if(inherits(rv$res_AllPairwiseComparisons, "try-error")) {
-            # browser()
             
-            
-            sendSweetAlert(
-                session = session,
-                title = "Error",
-                text = tags$div(style = "display:inline-block; vertical-align: top;",
-                                p(rv$res_AllPairwiseComparisons[[1]]),
-                                rclipButton(inputId = "clipbtn",
-                                            label = "",
-                                            clipText = rv$res_AllPairwiseComparisons[[1]], 
-                                            icon = icon("copy"),
-                                            class = actionBtnClass
-                                )
-                ),
-                type = "error"
-            )
+            mod_SweetAlert_server(id = 'sweetalert_PerformLogFCPlot',
+                                  text = rv$res_AllPairwiseComparisons[[1]],
+                                  type = 'error' )
         } else {
             # sendSweetAlert(
             #   session = session,

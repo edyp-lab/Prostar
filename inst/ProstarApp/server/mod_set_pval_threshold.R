@@ -14,22 +14,23 @@ source(system.file("ProstarApp/server", "mod_errorModal.R", package = 'Prostar')
 #'
 mod_set_pval_threshold_ui <- function(id) {
     ns <- NS(id)
-    wellPanel(
-        width = '150px',
+    tagList(
+        tags$style("#pvalPanel {width: 100%;}"),
+    wellPanel(id = 'pvalPanel',
         useShinyjs(),
         popover_for_help_ui(ns("modulePopover_pValThreshold")),
         br(),
         tags$div(style = "align: center;display:inline-block; vertical-align: top;",
                  tags$style(HTML(".form-control {height: 20px; font-size: 13px;}")),
                  tags$style(HTML(".radio {padding-right: 0px; padding-bottom: 10px;}")),
-                          radioButtons(ns('toto'), NULL, 
-                                       choices = c('p-value' = 'pval', 
-                                                   '-log10(p-value)' = 'logpval'))
-                 ),
-                 tags$div(style = "align: center;display:inline-block; vertical-align: top;",
-                          uiOutput(ns('text1_UI')),
-                          disabled(uiOutput(ns('text2_UI')))
-                 ),
+                          uiOutput(ns('thresholdType_UI'))),
+        tags$div(style = "align: center;display:inline-block; vertical-align: center;",
+                uiOutput(ns('text1_UI')),
+                disabled(uiOutput(ns('text2_UI')))),
+        tags$div(style = "align: center;display:inline-block; vertical-align: center;",
+                uiOutput(ns('warn_text1_UI')),
+                uiOutput(ns('warn_text2_UI'))),
+        br(),
         tags$div(style = "align: center;display:inline-block; vertical-align: center; ",
                  actionButton(ns('ApplyThreshold'), 'Apply threshold', class = actionBtnClass)
         ),
@@ -37,6 +38,7 @@ mod_set_pval_threshold_ui <- function(id) {
                  uiOutput(ns('showFDR_UI'))
         )
         
+    )
     )
 }
 
@@ -47,12 +49,13 @@ mod_set_pval_threshold_ui <- function(id) {
 #'
 mod_set_pval_threshold_server <- function(id,
                                           pval_init = reactive({1}),
-                                          fdr = reactive({NULL})) {
+                                          fdr = reactive({NULL}),
+                                          options = list(threshold = NULL)) {
     moduleServer(id, function(input, output, session) {
         ns <- session$ns
         
         dataOut <- reactiveVal()
-        
+        threshold_type <- reactiveVal('pval')
        
         .head <- "To perform the selection using a FDR threshold of x% : "
         .pt1 <- "Display in the table below the adjusted p-values. The proteins are then automatically sorted by increasing adjusted p-values"
@@ -68,6 +71,16 @@ mod_set_pval_threshold_server <- function(id,
                                                       "</ul>"))
         )
         
+        output$thresholdType_UI <- renderUI({
+            radioButtons(ns('thresholdType'), NULL, 
+                         choices = c('p-value' = 'pval', 
+                                     '-log10(p-value)' = 'logpval'),
+                         selected = if (is.null(options$threshold)) 'pval' else options$threshold)
+        })
+        
+        
+        observeEvent(input$thresholdType, {threshold_type(input$thresholdType)})
+        
         output$showFDR_UI <- renderUI({
             req(fdr())
             txt <- "FDR = NA"
@@ -77,6 +90,15 @@ mod_set_pval_threshold_server <- function(id,
             p(txt)
         })
         
+        output$warn_text1_UI <- renderUI({
+            req(0 > as.numeric(input$text1) || as.numeric(input$text1) > 1)
+            p(style='color: red;', 'Must be between 0 and 1.')
+        })
+        
+        output$warn_text2_UI <- renderUI({
+            req(0 > as.numeric(input$text2))
+            p(style='color: red;', 'Must be greater than 0.')
+        })
         
         output$text1_UI <- renderUI({
             pval_init()
@@ -93,17 +115,18 @@ mod_set_pval_threshold_server <- function(id,
         })
         
         observe({
-            shinyjs::toggleState('text2', condition = input$toto == 'logpval')
-            shinyjs::toggleState('text1', condition = input$toto == 'pval')
+            shinyjs::toggleState('text2', condition = input$thresholdType == 'logpval')
+            shinyjs::toggleState('text1', condition = input$thresholdType == 'pval')
         })
         
         observeEvent(input$text1, ignoreInit = TRUE, {
-            req(input$toto == 'pval')
+            req(input$thresholdType == 'pval')
             updateTextInput(session, 'text2', value = -log10(as.numeric(input$text1)))
+
         })
         
         observeEvent(input$text2, ignoreInit = TRUE, {
-            req(input$toto == 'logpval')
+            req(input$thresholdType == 'logpval')
             updateTextInput(session, 'text1', value = 10^(-as.numeric((input$text2))))
         })
         
@@ -124,15 +147,23 @@ mod_set_pval_threshold_server <- function(id,
 library(shiny)
 library(shinyBS)
 ui <- fluidPage(
-    mod_set_pval_threshold_ui("Title")
+    uiOutput('test')
+    
 )
 server <- function(input, output) {
-    logpval <- mod_set_pval_threshold_server(id = "Title",
+    
+    rv <- reactiveValues(
+        logpval = NULL)
+    
+    output$test <- renderUI({
+        rv$logpval <- mod_set_pval_threshold_server(id = "Title",
                                              pval_init = reactive({1}),
                                              fdr = reactive({3.8}))
+        mod_set_pval_threshold_ui("Title")
+    })
     
-    observeEvent(logpval(), {
-        print(logpval())
+    observeEvent(req(rv$logpval()), {
+        print(rv$logpval())
     })
 }
 

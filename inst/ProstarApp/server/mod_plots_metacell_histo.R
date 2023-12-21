@@ -32,19 +32,31 @@ mod_plotsMetacellHistos_server <- function(id,
                 # Auto mode
                 show <- FALSE
                 if( showSelect() == 'auto')
-                    show <- is.null(pattern())
+                    show <- pattern() == ''
                 else
                     show <- showSelect()
-                print(show)
+                #print(show)
                 show
             })
             
             rv <- reactiveValues(
-                chooseTag = pattern(),
+                chooseTag = NULL,
                 showSelect = setShowSelect()
             )
             
-            tmp.tags <- mod_metacell_tree_server('tree_plot_metacell', obj = reactive({obj()}))
+            
+            observe({
+                req(pattern())
+                
+                if (! (length(pattern()==1 && pattern=='')))
+                rv$chooseTag <- pattern()
+            }, priority = 1000)
+            
+            
+           
+            
+            tmp.tags <- mod_metacell_tree_server('tree_plot_metacell', 
+                                                 obj = reactive({obj()}))
             
             observeEvent(tmp.tags()$values, ignoreNULL = FALSE, ignoreInit = TRUE,{
                 
@@ -114,12 +126,12 @@ ui <- fluidPage(
 
 server <- function(input, output) {
     utils::data("Exp1_R25_prot", package='DAPARdata')
-    
+    obj <- Exp1_R25_prot
     pattern <- c('Missing POV', 'Missing MEC')
    pattern <- NULL
     observe({
         mod_plotsMetacellHistos_server('test',
-                                   obj = reactive({Exp1_R25_prot}),
+                                   obj = reactive({obj}),
                                    pal = reactive({NULL}),
                                    pattern = reactive({pattern}),
                                    showSelect = reactive({'auto'})

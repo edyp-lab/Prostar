@@ -5,15 +5,15 @@ NUM_PAGES_FILTERING <- 3
 
 
 
-moduleVolcanoplotUI <- function(id) {
-    ns <- NS(id)
-    tagList(
-        uiOutput(ns("nbSelectedItems")),
-        highchartOutput(ns("volcanoPlot"), width = "600px", height = "600px"),
-        uiOutput(ns("quantiDT"))
-    )
-}
-
+# moduleVolcanoplotUI <- function(id) {
+#     ns <- NS(id)
+#     tagList(
+#         uiOutput(ns("nbSelectedItems")),
+#         highchartOutput(ns("volcanoPlot"), width = "600px", height = "600px"),
+#         uiOutput(ns("quantiDT"))
+#     )
+# }
+# 
 
 
 
@@ -22,13 +22,13 @@ moduleVolcanoplotUI <- function(id) {
 ########################################################
 ###### -------------------------------------------------
 ########################################################
-moduleDetQuantImpValuesUI <- function(id) {
-    ns <- NS(id)
-    tagList(
-        h5("The missing values will be imputed by the following values :"),
-        DT::dataTableOutput(ns("detQuantValues_DT"))
-    )
-}
+# moduleDetQuantImpValuesUI <- function(id) {
+#     ns <- NS(id)
+#     tagList(
+#         h5("The missing values will be imputed by the following values :"),
+#         DT::dataTableOutput(ns("detQuantValues_DT"))
+#     )
+# }
 
 
 
@@ -64,17 +64,15 @@ moduleMVPlotsUI <- function(id) {
     tagList(
         tags$div(
             tags$div(
-                style = "display:inline-block; vertical-align: top;
-                padding-right: 20px;",
-                highchartOutput(ns("plot_viewNAbyMean"),
-                    width = "600px"
-                )
+                style = "display:inline-block; vertical-align: top; padding-right: 20px;",
+                highchartOutput(ns("plot_viewNAbyMean"), width = "600px")
             ),
             tags$div(
-                style = "display:inline-block; vertical-align: top;
-            padding-right: 20px;",
-                uiOutput(ns("WarnForImageNA")),
-                imageOutput(ns("plot_showImageNA"), width = "600px")
+                style = "display:inline-block; vertical-align: top; padding-right: 20px;",
+                tagList(
+                    uiOutput(ns("WarnForImageNA")),
+                    imageOutput(ns("plot_showImageNA"), width = "600px")
+                )
             )
         )
     )

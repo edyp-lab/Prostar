@@ -58,6 +58,7 @@ output$infoAboutDemoDataset <- renderUI({
     req(rv$current.obj)
 
     isolate({
+
         m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
                             pattern = c("Missing", "Missing POV", "Missing MEC"),
                             level = "peptide")
@@ -121,4 +122,16 @@ observeEvent(input$loadDemoDataset, {
     # shinyjs::disable("loadDemoDataset")
     # shinyjs::disable("chooseDataset")
     # shinyjs::disable("linktoDemoPdf")
+})
+
+
+observe({
+    req(rv$current.obj)
+    req(!Check_Dataset_Validity(rv$current.obj))
+    #browser()
+    mod_SweetAlert_server('sweetAlert_demoMode',
+                          text = Check_Dataset_Validity(rv$current.obj),
+                          showClipBtn = FALSE,
+                          type = 'warning')
+    
 })
