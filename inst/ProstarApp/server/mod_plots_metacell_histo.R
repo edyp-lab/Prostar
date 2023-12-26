@@ -32,7 +32,7 @@ mod_plotsMetacellHistos_server <- function(id,
                 # Auto mode
                 show <- FALSE
                 if( showSelect() == 'auto')
-                    show <- pattern() == ''
+                    show <- is.null(pattern()) || pattern() == ''
                 else
                     show <- showSelect()
                 #print(show)
@@ -47,9 +47,11 @@ mod_plotsMetacellHistos_server <- function(id,
             
             observe({
                 req(pattern())
-                
-                if (! (length(pattern()==1 && pattern=='')))
+                #browser()
+                test <- (length(pattern())==1) && pattern () == ''
+                if (!isTRUE(test))
                 rv$chooseTag <- pattern()
+                
             }, priority = 1000)
             
             
@@ -128,7 +130,7 @@ server <- function(input, output) {
     utils::data("Exp1_R25_prot", package='DAPARdata')
     obj <- Exp1_R25_prot
     pattern <- c('Missing POV', 'Missing MEC')
-   pattern <- NULL
+    pattern <- NULL
     observe({
         mod_plotsMetacellHistos_server('test',
                                    obj = reactive({obj}),

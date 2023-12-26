@@ -116,10 +116,10 @@ output$IntensityStatsPlots <- renderUI({
 })
 
 output$plotsMVHistograms <- renderUI({
-    mod_plotsMetacellHistos_ui("MVPlots_DS")
+    mod_plotsMetacellHistos_ui("MVPlots_DS_1")
 })
 
-mod_plotsMetacellHistos_server(id = "MVPlots_DS",
+mod_plotsMetacellHistos_server(id = "MVPlots_DS_1",
                                obj = reactive({rv$current.obj}),
                                pal = reactive({rv$PlotParams$paletteForConditions}),
                                pattern = reactive({NULL}),

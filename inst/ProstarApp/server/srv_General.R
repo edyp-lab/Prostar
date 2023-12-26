@@ -169,26 +169,35 @@ session$onSessionEnded(function() {
 
 ### -------------------------------------------------------------------
 ClearUI <- reactive({
-    updateSelectInput(session,
-                      "datasets",
-                      choices = G_noneStr
-    )
+    updateSelectInput(session, "datasets", choices = G_noneStr)
     updateRadioButtons(session, "typeOfData", selected = typePeptide)
     updateRadioButtons(session, "checkDataLogged", selected = "no")
     
     updateSelectInput(session, "idBox", selected = NULL)
     
     updateSelectizeInput(session, "choose_quantitative_columns",
-                         choices = NULL, selected = NULL
-    )
+                         choices = NULL, selected = NULL)
     updateTextInput(session, "filenameToCreate", value = "")
     updateTextInput(session, "nameExport", value = "")
     
     updateCheckboxInput(session, "replaceAllZeros", value = TRUE)
     updateRadioButtons(session,
                        inputId = "ChooseFilters",
-                       selected = gFilterNone
-    )
+                       selected = gFilterNone)
+    
+    print('Reseting UI...')
+    
+    # Clear Filtering tool
+    resetModuleProcess("Aggregation")
+    resetModuleProcess("Normalization")
+    resetModuleProcess("Filtering")
+    resetModuleProcess("PepImputation")
+    resetModuleProcess("ProtImputation")
+    resetModuleProcess("HypothesisTest")
+    # resetModuleProcess("Convert")
+    resetModuleProcess("AnaDiff")
+    
+    print('end of resetting UI processes')
 })
 
 
@@ -316,6 +325,7 @@ checksRetroCompatibility <- function(num=3){
 
 ######################################
 loadObjectInMemoryFromConverter <- function() {
+    #browser()
     
     rv$proteinId <- rv$current.obj@experimentData@other$proteinId
     rv$typeOfDataset <- ""
@@ -459,7 +469,64 @@ createPNGFromWidget <- function(tempplot, pattern) {
     )
 }
 
+# reset <- reactive({
+#     reset_Filtering_UI()
+#     }) %>% bindEvent(input$validAggregation)
 
+
+reset_Filtering_UI <- reactive({
+    rv$widgets$filtering <- list(
+        MetacellTag = "None",
+        MetacellFilters = "None",
+        KeepRemove = "delete",
+        metacell_value_th = 0,
+        metacell_value_percent = 0,
+        val_vs_percent = "Value",
+        metacellFilter_operator = NULL,
+        metacell_Filter_SummaryDT = data.frame(
+            query = NULL,
+            nbDeleted = NULL, # nb line removed
+            Total = NULL, # sum of lines deleted multiple filters
+            stringsAsFactors = F
+        ),
+        DT_filterSummary = data.frame(
+            Filter = NULL,
+            Prefix = NULL,
+            nbDeleted = NULL,
+            Total = NULL,
+            stringsAsFactors = F
+        ),
+        DT_numfilterSummary = data.frame(
+            Filter = NULL,
+            Condition = NULL,
+            nbDeleted = NULL,
+            Total = NULL,
+            stringsAsFactors = F
+        )
+    )
+    
+    updateSelectInput(session, "ChooseMetacellFilters",
+                      selected = rv$widgets$filtering$MetacellFilters
+    )
+    updateSelectInput(session, "chooseMetacellTag",
+                      selected = rv$widgets$filtering$MetacellTag
+    )
+    updateSelectInput(session, "choose_metacell_value_th",
+                      selected = rv$widgets$filtering$metacell_value_th
+    )
+    updateNumericInput(session, "choose_metacell_percent_th",
+                       value = rv$widgets$filtering$metacell_value_percent
+    )
+    updateRadioButtons(session, "choose_val_vs_percent",
+                       selected = rv$widgets$filtering$val_vs_percent)
+    updateRadioButtons(session, "ChooseKeepRemove",
+                       selected = rv$widgets$filtering$KeepRemove
+    )
+    
+    updateSelectInput(session, "choose_metacellFilter_operator",
+                      selected = rv$widgets$filtering$metacellFilter_operator
+    )
+})
 resetModuleProcess <- function(moduleName) {
     switch(moduleName,
            Filtering = {

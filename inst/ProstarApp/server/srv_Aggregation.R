@@ -526,7 +526,14 @@ observeEvent(input$validAggregation, {
                 build_ParamsList_Aggregation()
             )
             
+            # Initialize Prostar
+            ClearUI()
+            
             rv$dataset[[name]] <- rv$current.obj
+            rv$current.obj.name <- input$demoDataset
+            loadObjectInMemoryFromConverter()
+            
+            
             rvModProcess$moduleAggregationDone[3] <- TRUE
             updateSelectInput(session, "datasets",
                               choices = names(rv$dataset),
