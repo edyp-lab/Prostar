@@ -13,6 +13,8 @@ callModule(moduleProcess, "moduleProcess_Filtering",
 
 resetModuleFiltering <- reactive({
     # req(input$datasets)
+    
+    print('resetModuleFiltering()')
     ## update rv$widgets values (reactive values)
     resetModuleProcess("Filtering")
 

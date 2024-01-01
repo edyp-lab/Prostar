@@ -528,6 +528,8 @@ observeEvent(input$validAggregation, {
             
             # Initialize Prostar
             ClearUI()
+            #browser()
+            #resetModuleFiltering()
             
             rv$dataset[[name]] <- rv$current.obj
             rv$current.obj.name <- input$demoDataset

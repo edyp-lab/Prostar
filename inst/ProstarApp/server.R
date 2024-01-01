@@ -71,6 +71,7 @@ shinyServer(
 
      tryCatch({
          loadLibraries()
+         
          Sys.setenv("R_ZIPCMD" = Sys.which("zip"))
          sessionID <- Sys.getpid()
     
@@ -99,6 +100,8 @@ shinyServer(
          # source(file.path(".", "modules/Plots/modulePlots.R"),  local = TRUE)$value
          source(system.file("ProstarApp/modules/Plots/moduleCC.R", package = 'Prostar'), local = TRUE)$value
          #stop('simulated error')
+         
+         #loadSourceFiles()
          },
      error = function(e) {
          #if(showErrLog)

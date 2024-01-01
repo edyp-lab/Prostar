@@ -82,15 +82,11 @@ shinyUI(
                 launchGA(),
                 tags$head(
                     HTML(
-                        "<script type='text/javascript' src='sbs/shinyBS.js'></script>"
-                    )
+                        "<script type='text/javascript' src='sbs/shinyBS.js'></script>")
                 ),
                 tags$head(tags$style(".modal-dialog{ width:200px}")),
                 tags$head(
-                    tags$style(
-                        HTML("hr {border-top: 1px solid #000000;}")
-                    )
-                ),
+                    tags$style( HTML("hr {border-top: 1px solid #000000;}"))),
                 tags$style(HTML(".tab-content {padding-top: 40px; }")),
                 sidebarPanelWidth(),
                 includeCSS("www/css/prostar.css"),
@@ -128,9 +124,7 @@ shinyUI(
                             source(file.path("ui", "ui_Settings.R"),
                                 local = TRUE
                             )$value,
-                            source(file.path("ui", "ui_ReleaseNotes.R"),
-                                local = TRUE
-                            )$value,
+                            source(file.path("ui", "ui_ReleaseNotes.R"), local = TRUE)$value,
                             source(file.path("ui", "ui_CheckForUpdates.R"),
                                 local = TRUE
                             )$value

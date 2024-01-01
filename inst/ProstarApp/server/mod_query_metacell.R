@@ -171,7 +171,15 @@ mod_query_metacell_server <- function(id,
                                                  )
             
             observeEvent(tmp.tags()$values, ignoreNULL = FALSE, ignoreInit = TRUE, {
-                #print('marqueur 3')
+                print('marqueur 3')
+
+                updateSelectInput(session, 'ChooseMetacellFilters', selected = 'None')
+                updateRadioButtons(session, 'ChooseKeepRemove', selected = "delete")
+                updateRadioButtons(session, 'choose_val_vs_percent', selected = 'Count')
+                updateSelectInput(session, 'choose_metacellFilter_operator', selected = '<=')
+                updateSelectInput(session, 'choose_metacell_value_th', selected = 0)
+                updateSliderInput(session, 'choose_metacell_percent_th', value = 0)
+                
                 rv.widgets$MetacellTag <- tmp.tags()$values
                 dataOut$trigger <- as.numeric(Sys.time())
                 dataOut$params<- list(
