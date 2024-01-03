@@ -6,8 +6,7 @@ mod_cc_ui <- function(id) {
         value = "graphTab",
         tabsetPanel(
             id = "graphsPanel",
-            tabPanel(
-                "One-One Connected Components",
+            tabPanel("One-One Connected Components",
                 tagList(
                     fluidRow(
                         column(width = 4, tagList(
@@ -21,8 +20,7 @@ mod_cc_ui <- function(id) {
                     )
                 )
             ),
-            tabPanel(
-                "One-Multi Connected Components",
+            tabPanel("One-Multi Connected Components",
                 tagList(
                     fluidRow(
                         column(
@@ -41,24 +39,22 @@ mod_cc_ui <- function(id) {
                     )
                 )
             ),
-            tabPanel(
-                "Multi-Multi Connected Components",
+            tabPanel("Multi-Multi Connected Components",
                 tagList(
+                    #useShinyjs(),
                     uiOutput(ns("pepInfo_ui")),
                     selectInput(ns("searchCC"), "Search for CC",
-                        choices = c(
-                            "Tabular view" = "tabular",
-                            "Graphical view" = "graphical"
-                        ),
+                        choices = c("Tabular view" = "tabular",
+                                    "Graphical view" = "graphical"),
                         width = "150px"
                     ),
                     fluidRow(
                         column(width = 6, tagList(
                             highchartOutput(ns("jiji")),
                             uiOutput(ns("CCMultiMulti_DL_btns_ui")),
-                            shinyjs::hidden(
-                                dataTableOutput(ns("CCMultiMulti"))
-                            )
+                            #shinyjs::hidden(
+                                DT::dataTableOutput(ns("CCMultiMulti"))
+                           # )
                         )),
                         column(width = 6, tagList(
                             visNetworkOutput(ns("visNet_CC"), height = "600px")
@@ -73,9 +69,7 @@ mod_cc_ui <- function(id) {
 
 
 mod_cc_server <- function(id, obj, cc) {
-    moduleServer(
-        id,
-        function(input, output, session) {
+    moduleServer(id, function(input, output, session) {
             ns <- session$ns
 
             rvCC <- reactiveValues(
@@ -90,16 +84,14 @@ mod_cc_server <- function(id, obj, cc) {
                     sharedPepLabels = NULL,
                     specPepLabels = NULL,
                     protLabels = NULL
-                )
+                ),
+                tempplot = NULL
             )
 
             observeEvent(req(input$searchCC), {
-                shinyjs::toggle("jiji",
-                    condition = input$searchCC == "graphical"
-                )
-                shinyjs::toggle("CCMultiMulti",
-                    condition = input$searchCC == "tabular"
-                )
+                rvCC$selectedCC <- NULL
+                shinyjs::toggle("jiji", condition = input$searchCC == "graphical")
+                shinyjs::toggle("CCMultiMulti", condition = input$searchCC == "tabular")
             })
 
 
@@ -159,6 +151,7 @@ mod_cc_server <- function(id, obj, cc) {
 
 
             output$jiji <- renderHighchart({
+                req(input$searchCC == "graphical")
                 tooltip <- NULL
 
                 isolate({
@@ -169,11 +162,10 @@ mod_cc_server <- function(id, obj, cc) {
                     n.pept <- unlist(lapply(local, function(x) {
                         length(x$peptides)
                     }))
-                    df <- tibble::tibble(
-                        x = jitter(n.pept),
-                        y = jitter(n.prot),
-                        index = 1:length(local)
-                    )
+                    df <- tibble::tibble(x = jitter(n.pept),
+                                         y = jitter(n.prot),
+                                         index = 1:length(local)
+                                         )
 
                     if (!is.null(tooltip)) {
                         df <- cbind(df, Biobase::fData(obj())[tooltip])
@@ -182,9 +174,7 @@ mod_cc_server <- function(id, obj, cc) {
                     colnames(df) <- gsub(".", "_", colnames(df), fixed = TRUE)
                     if (ncol(df) > 3) {
                         colnames(df)[4:ncol(df)] <-
-                            paste("tooltip_",
-                                colnames(df)[4:ncol(df)],
-                                sep = ""
+                            paste("tooltip_", colnames(df)[4:ncol(df)], sep = ""
                             )
                     }
 
@@ -195,11 +185,11 @@ mod_cc_server <- function(id, obj, cc) {
                             "', [this.index]+'_'+ [this.series.name]);}"
                         ))
 
-                    rv$tempplot$plotCC <- plotJitter_rCharts(df,
+                    rvCC$tempplot$plotCC <- plotJitter_rCharts(df,
                         clickFunction = clickFun
                     )
                 })
-                rv$tempplot$plotCC
+                rvCC$tempplot$plotCC
             })
 
 
@@ -210,38 +200,27 @@ mod_cc_server <- function(id, obj, cc) {
                     id = 1:length(Get_CC_Multi2Any()),
                     nProt = cbind(lapply(
                         GetCC(obj())$allPep[Get_CC_Multi2Any()],
-                        function(x) {
-                            l
-                            ength(x$proteins)
-                        }
+                        function(x) {length(x$proteins)}
                     )),
                     nPep = cbind(lapply(
                         GetCC(obj())$allPep[Get_CC_Multi2Any()],
-                        function(x) {
-                            length(x$peptides)
-                        }
+                        function(x) {length(x$peptides)}
                     )),
                     proteins = cbind(lapply(
                         GetCC(obj())$allPep[Get_CC_Multi2Any()],
-                        function(x) {
-                            paste(x$proteins, collapse = ",")
-                        }
+                        function(x) {paste(x$proteins, collapse = ",")}
                     )),
                     peptides = cbind(lapply(
                         GetCC(obj())$allPep[Get_CC_Multi2Any()],
-                        function(x) {
-                            paste(x$proteins, collapse = ",")
-                        }
+                        function(x) {paste(x$proteins, collapse = ",")}
                     ))
                 )
 
-                colnames(df) <- c(
-                    "id",
-                    "nProt",
-                    "nPep",
-                    "Proteins Ids",
-                    "Peptides Ids"
-                )
+                colnames(df) <- c("id",
+                                  "nProt",
+                                  "nPep",
+                                  "Proteins Ids",
+                                  "Peptides Ids")
 
                 df
             })
@@ -254,52 +233,41 @@ mod_cc_server <- function(id, obj, cc) {
             })
 
             mod_download_btns_server("CCMultiMulti_DL_btns",
-                df.data = reactive({
-                    GetDataFor_CCMultiMulti()
-                }),
-                name = reactive({
-                    "CC_MultiMulti"
-                }),
-                colors = reactive({
-                    NULL
-                }),
-                df.tags = reactive({
-                    NULL
-                })
+                df.data = reactive({ GetDataFor_CCMultiMulti()}),
+                name = reactive({"CC_MultiMulti" }),
+                colors = reactive({NULL}),
+                df.tags = reactive({NULL})
             )
 
 
 
 
             output$CCMultiMulti <- DT::renderDataTable(server = TRUE, {
-                dat <- DT::datatable(GetDataFor_CCMultiMulti(),
+                req(input$searchCC == "tabular")
+                
+                df <- GetDataFor_CCMultiMulti()
+                dat <- DT::datatable(df,
                     selection = "single",
                     rownames = FALSE,
                     extensions = c("Scroller"),
                     options = list(
                         initComplete = initComplete(),
-                        dom = "frt",
-                        # deferRender = TRUE,
-                        # bLengthChange = FALSE,
+                        dom = "rt",
                         scrollX = 400,
                         scrollY = 400,
                         displayLength = 10,
                         scroller = TRUE
-                        # orderClasses = TRUE,
-                        # autoWidth=TRUE
                     )
                 )
 
-                return(dat)
+                dat
             })
 
 
 
-            observeEvent(c(
-                rvCC$selectedNeighbors,
-                input$node_selected,
-                rvCC$selectedCCgraph
-            ), {
+            observeEvent(c(rvCC$selectedNeighbors,
+                           input$node_selected,
+                           rvCC$selectedCCgraph), {
                 local <- cc()[Get_CC_Multi2Any()]
                 rvCC$selectedNeighbors
 
@@ -361,19 +329,18 @@ mod_cc_server <- function(id, obj, cc) {
                 colnames(df) <- c("Proteins Ids")
                 dt <- DT::datatable(df,
                     extensions = c("Scroller"),
-                    options = list(
-                        initComplete = initComplete(),
-                        dom = "rt",
-                        blengthChange = FALSE,
-                        ordering = FALSE,
-                        scrollX = 400,
-                        scrollY = 100,
-                        displayLength = 10,
-                        scroller = TRUE,
-                        header = FALSE,
-                        server = FALSE
+                    options = list(initComplete = initComplete(),
+                                   dom = "rt",
+                                   blengthChange = FALSE,
+                                   ordering = FALSE,
+                                   scrollX = 400,
+                                   scrollY = 100,
+                                   displayLength = 10,
+                                   scroller = TRUE,
+                                   header = FALSE,
+                                   server = FALSE
+                                   )
                     )
-                )
                 dt
             })
 
@@ -389,7 +356,7 @@ mod_cc_server <- function(id, obj, cc) {
 
 
                 ind <- 1:ncol(obj())
-                data <- getDataForExprs(obj(), rv$settings_nDigits)
+                data <- getDataForExprs(obj(), 4)
                 .n <- ncol(data)
                 pepLine <- rvCC$detailedselectedNode$sharedPepLabels
                 indices <- unlist(lapply(pepLine, function(x) {
@@ -450,7 +417,7 @@ mod_cc_server <- function(id, obj, cc) {
                 req(rvCC$detailedselectedNode$specPepLabels)
 
                 ind <- 1:ncol(obj())
-                data <- getDataForExprs(obj(), rv$settings_nDigits)
+                data <- getDataForExprs(obj(), 4)
                 .n <- ncol(data)
                 pepLine <- rvCC$detailedselectedNode$specPepLabels
                 indices <- unlist(lapply(
@@ -662,15 +629,9 @@ mod_cc_server <- function(id, obj, cc) {
                     colnames(df) <- c("Proteins Ids", "nPep", "Peptides Ids")
                     df
                 }),
-                name = reactive({
-                    "CC_OneMulti"
-                }),
-                colors = reactive({
-                    NULL
-                }),
-                df.tags = reactive({
-                    NULL
-                })
+                name = reactive({"CC_OneMulti"}),
+                colors = reactive({NULL}),
+                df.tags = reactive({NULL})
             )
 
 
@@ -712,23 +673,19 @@ mod_cc_server <- function(id, obj, cc) {
 
                 line <- input$OneMultiDT_rows_selected
                 ind <- 1:ncol(obj())
-                data <- getDataForExprs(obj(), rv$settings_nDigits)
+                data <- getDataForExprs(obj(), 4)
                 .n <- ncol(data)
                 .pep <- input$pepInfo
                 pepLine <- unlist(
                     strsplit(
-                        unlist(
-                            BuildOne2MultiTab()[line, "peptides"]
-                        ),
+                        unlist(BuildOne2MultiTab()[line, "peptides"]),
                         split = ","
                     )
                 )
 
                 indices <- unlist(lapply(
                     pepLine,
-                    function(x) {
-                        which(rownames(data) == x)
-                    }
+                    function(x) {which(rownames(data) == x)}
                 ))
 
                 data <- data[indices, c(ind, (ind + .n / 2))]
@@ -842,7 +799,7 @@ mod_cc_server <- function(id, obj, cc) {
                 .pep <- input$pepInfo
                 line <- input$OneOneDT_rows_selected
                 ind <- 1:ncol(obj())
-                data <- getDataForExprs(obj(), rv$settings_nDigits)
+                data <- getDataForExprs(obj(), 4)
                 .n <- ncol(data)
 
                 pepLine <- BuildOne2OneTab()[line, 2]
@@ -902,3 +859,30 @@ mod_cc_server <- function(id, obj, cc) {
         }
     )
 }
+
+
+
+#------------------------------------------------------
+
+
+
+
+library(shiny)
+library(shinyBS)
+ui <- fluidPage(
+    mod_cc_ui("CC_Multi_Any")
+    )
+
+server <- function(input, output) {
+    data(Exp1_R25_pept, package = 'DAPARdata')
+    obj <- Exp1_R25_pept
+    mod_cc_server("CC_Multi_Any",
+                  obj = reactive({obj}),
+                  cc = reactive({GetCC(obj)$allPep})
+    )
+}
+shinyApp(ui, server)
+
+
+
+
