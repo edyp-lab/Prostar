@@ -56,17 +56,23 @@ output$checkConvertPanel <- renderUI({
 output$Convert_SelectFile <- renderUI({
     tagList(
         wellPanel(
-            p('Data source'),
             fluidRow(
             column(width = 3,
-                   radioButtons("choose_software", "Software to import from",
-            choices = setNames(nm = DAPAR::GetSoftAvailables()),
-            selected = DAPAR::GetSoftAvailables()[2]
-            )),
-            column(width =5,
-                   uiOutput("choose_file_to_import")),
-            column(width = 4,uiOutput("ManageXlsFiles")
-                   ))
+                   p('Data source'),
+                   radioButtons("choose_software", "",
+                                choices = setNames(nm = DAPAR::GetSoftAvailables()),
+                                selected = DAPAR::GetSoftAvailables()[2]
+                                )),
+            column(width = 4,
+                   uiOutput("choose_file_to_import"),
+                   uiOutput("ManageXlsFiles"),
+                   uiOutput("Manage_csv_Files")
+                   ),
+            column(width = 5,
+                   checkboxInput('show_preview', 'show_preview', value = FALSE),
+                   uiOutput("previewDataset_UI")
+                   )
+            )
             ),
         wellPanel(
             p('Options'),
@@ -145,41 +151,102 @@ observeEvent(input$typeOfData, ignoreInit = TRUE, {rv$widgets$Convert$typeOfData
 observeEvent(input$checkDataLogged, ignoreInit = TRUE, {rv$widgets$Convert$checkDataLogged <- input$checkDataLogged})
 
 
-############ Read text file to be imported ######################
-observeEvent(input$loadFile, {
 
+
+
+
+ReadDatasetFile <- reactive({
+    req(input$file1)
+    
+    tab1 <- NULL
+    #browser()
     authorizedExts <- c("txt", "csv", "tsv", "xls", "xlsx")
     if (!fileExt.ok()) {
         shinyjs::info("Warning : this file is not a text nor an Excel file !
      Please choose another one.")
     } else {
         tryCatch({
-        
-        ext <- GetExtension(input$file1$name)
-        shinyjs::disable("file1")
-        
-        if (ext %in% c('txt', 'csv', 'tsv'))
-            rv$tab1 <- read.csv(input$file1$datapath, header = TRUE, sep = "\t", as.is = T)
-        else if (ext %in% c('xls', 'xlsx'))
-            rv$tab1 <- DAPAR::readExcel(input$file1$datapath, sheet = input$XLSsheets)
-
-        colnames(rv$tab1) <- gsub(".", "_", colnames(rv$tab1), fixed = TRUE)
-        colnames(rv$tab1) <- gsub(" ", "_", colnames(rv$tab1), fixed = TRUE)
+            
+            ext <- GetExtension(input$file1$name)
+            shinyjs::disable("file1")
+            
+            if (ext %in% c('txt', 'csv', 'tsv')){
+                req(input$csv_separator)
+                
+                .sep <- input$csv_separator
+                if (.sep == 'tab')
+                    .sep <- '\t'
+                
+                tab1 <- read.csv(input$file1$datapath, 
+                                 header = TRUE, 
+                                 sep = .sep, 
+                                 as.is = T)
+            }
+            else if (ext %in% c('xls', 'xlsx')){
+                req(input$XLSsheets)
+                tab1 <- DAPAR::readExcel(input$file1$datapath, 
+                                         sheet = input$XLSsheets)
+            }
+            
+            colnames(tab1) <- gsub(".", "_", colnames(tab1), fixed = TRUE)
+            colnames(tab1) <- gsub(" ", "_", colnames(tab1), fixed = TRUE)
         },
         warning = function(w) {
-            shinyjs::info(conditionMessage(w))
-            return(NULL)
+            #shinyjs::info(conditionMessage(w))
+            tab1 <- NULL
         },
         error = function(e) {
-            shinyjs::info(conditionMessage(e))
-            return(NULL)
+            #shinyjs::info(conditionMessage(e))
+            tab1 <- NULL
         },
         finally = {
             # cleanup-code
         })
-        
-        
     }
+    
+    tab1
+})
+
+
+
+output$previewDataset_UI <- renderUI({
+    req(ReadDatasetFile())
+    req(input$show_preview)
+    
+    tagList(
+        p(style = "color: black;", "Preview"),
+        DT::DTOutput("previewDataset", width = '100%')
+    )
+})
+
+output$previewDataset <- DT::renderDT(server = TRUE, {
+    req(ReadDatasetFile())
+    DT::datatable(as.data.frame(ReadDatasetFile()[1:3,]),
+                  rownames = FALSE,
+                  plugins = "ellipsis",
+                  extensions = c("Scroller", "FixedColumns"),
+                  options = list(
+                      dom = "Brt",
+                      scrollX = TRUE,
+                      ordering = FALSE
+                  )
+                  )
+})
+
+
+
+observeEvent(input$show_preview, {
+    print("preload")
+    #browser()
+    preview.dataset <- ReadDatasetFile()
+    
+    print(colnames(preview.dataset))
+})
+
+
+############ Read text file to be imported ######################
+observeEvent(input$loadFile, {
+rv$tab1 <- ReadDatasetFile()
 })
 
 
@@ -209,6 +276,20 @@ output$ManageXlsFiles <- renderUI({
 })
 
 
+
+
+
+output$Manage_csv_Files <- renderUI({
+    req(input$file1)
+    
+    req(GetExtension(input$file1$name) %in% c("csv"))
+    
+    selectInput('csv_separator', 'Separator', 
+                choices = c(';' = ';',
+                            'tab' = 'tab',
+                            '.' = '.'),
+                width = '100px')
+})
 
 
 ################## STEP 2 ###############################
@@ -326,6 +407,7 @@ output$previewProteinID_UI <- renderUI({
         tableOutput("previewProtID")
     )
 })
+
 
 
 
