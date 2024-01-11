@@ -14,24 +14,41 @@
 #' @importFrom shiny NS tagList 
 mod_insert_md_ui <- function(id){
     ns <- NS(id)
-    htmlOutput(ns("insertMD"))
+    
+    tagList(
+        uiOutput(ns('openURLButton_UI')),
+        htmlOutput(ns("insertMD"))
+    )
 }
 
 # Module Server
 
 #' @rdname mod_insert_md
 #' @export
-mod_insert_md_server <- function(id, url){
+mod_insert_md_server <- function(id, 
+                                 url,
+                                 link_URL = NULL){
     
     
     moduleServer(id, function(input, output, session){
         ns <- session$ns
         
+        output$openURLButton_UI <- renderUI({
+            req(!is.null(link_URL))
+            shiny::actionLink(inputId = ns("openURL"), 
+                              label = "Open in new tab")
+        })
+        
+        
+        observeEvent(input$openURL,{
+            browseURL(link_URL)
+        })
         
         output$insertMD <- renderUI({
             tryCatch(
                 {
                     includeMarkdown(readLines(url))
+                    
                 }
                 , warning = function(w) {
                     tags$p("URL not found<br>",conditionMessage(w))
@@ -58,7 +75,9 @@ ui <- fluidPage(
 
 server <- function(input, output) {
     
-    mod_insert_md_server('tree', 'http://www.prostar-proteomics.org/md/presentation.md')
+    mod_insert_md_server('tree', 
+                         url = 'http://www.prostar-proteomics.org/md/presentation.md',
+                         link_URL = 'https://www.prostar-proteomics.org/#Frequently_asked_questions')
     
 }
 

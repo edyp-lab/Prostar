@@ -122,6 +122,7 @@ moduleDensityplot <- function(input, output, session, data) {
         tmp <- NULL
          isolate({
             withProgress(message = "Making plot", value = 100, {
+                #browser()
                 pattern <- paste0(GetCurrentObjName(), ".densityplot")
                 tmp <- DAPAR::densityPlotD_HC(data(),
                     legend = rv$PlotParams$legendForSamples,

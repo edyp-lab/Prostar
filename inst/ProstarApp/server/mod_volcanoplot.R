@@ -49,7 +49,7 @@ mod_volcanoplot_server <- function(id,
                 } else {
                     shinyBS::bsCollapse(
                         id = ns("collapseVolcanoInfos"),
-                        open = "Protein",
+                        open = c("Protein", "Specific peptides", "Shared peptides"),
                         multiple = TRUE,
                         shinyBS::bsCollapsePanel("Protein",
                                                  tagList(
@@ -77,7 +77,7 @@ mod_volcanoplot_server <- function(id,
             } else if (GetTypeofData(rv$current.obj) == "peptide") {
                 shinyBS::bsCollapse(
                     id = ns("collapseVolcanoInfos"),
-                    open = "peptide",
+                    open = "Peptide",
                     multiple = TRUE,
                     shinyBS::bsCollapsePanel("Peptide",
                                              tagList(
@@ -190,7 +190,7 @@ mod_volcanoplot_server <- function(id,
                     colnames(data)[((ncol(data) / 2) + 1):(ncol(data))],
                     backgroundColor = DT::styleEqual(c.tags, c.colors)
                 ) %>%
-                DT::formatStyle(borders_index, borderLeft = "3px solid #000000")
+                DT::formatStyle(GetBorderIndices(), borderLeft = "3px solid #000000")
             
             dt
         })
@@ -255,7 +255,7 @@ mod_volcanoplot_server <- function(id,
                     colnames(data)[((ncol(data) / 2) + 1):(ncol(data))],
                     backgroundColor = DT::styleEqual(c.tags, c.colors)
                 ) %>%
-                DT::formatStyle(borders_index, borderLeft = "3px solid #000000")
+                DT::formatStyle(GetBorderIndices(), borderLeft = "3px solid #000000")
             
             dt
         })

@@ -411,7 +411,7 @@ loadObjectInMemoryFromConverter <- function() {
                     names(rv$current.obj@experimentData@other$Params)
                 )
         }
-        
+        #browser()
         UpdateDatasetWidget(rv$current.obj, name)
         incProgress(0.9, detail = "Build UI")
         ClearNavbarPage()
@@ -1089,7 +1089,7 @@ ClearMemory <- function() {
     rv$dirnameforlink <- ""
     rv$temp.aggregate <- NULL
     
-    rv$typeOfDataset <- "peptide"
+    rv$typeOfDataset <- ""
     rv$proteinId <- NULL
     rv$commandLog <- ""
     rv$resAnaDiff <- list(

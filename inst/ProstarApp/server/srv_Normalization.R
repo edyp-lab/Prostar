@@ -211,8 +211,7 @@ output$helpForNormalizationMethods <- renderUI({
 
     switch(rv$widgets$normalization$method,
         GlobalQuantileAlignment = txt <- "This method proposes a normalization
-        of important magnitude that should be cautiously used. It proposes
-        to align the quantiles of all the replicates as described in
+        of important magnitude that should be cautiously used. It aligns the quantiles of all the replicates as described in
         [Other ref. 1]; practically it amounts to replace abundances by order
       statistics.",
         QuantileCentering = txt <- "These methods propose to shift the sample
@@ -286,11 +285,10 @@ observeEvent(rv$widgets$normalization$method, {
     # }
 
     shinyjs::toggle("perform.normalization",
-        condition = rv$widgets$normalization$method != "None"
-    )
+        condition = rv$widgets$normalization$method != "None")
+    
     shinyjs::toggle("spanLOESS",
-        condition = rv$widgets$normalization$method == "LOESS"
-    )
+        condition = rv$widgets$normalization$method == "LOESS")
 
     .choice <- c("QuantileCentering", 
                  "MeanCentering",
@@ -354,7 +352,7 @@ observeEvent(input$perform.normalization, {
     rv$dataset[[input$datasets]]
     # isolate({
 
-    #.tmp <- NULL
+    .tmp <- NULL
     .tmp <- try({
     switch(rv$widgets$normalization$method,
         G_noneStr = rv$dataset[[input$datasets]],
@@ -429,6 +427,8 @@ observeEvent(input$perform.normalization, {
       #   title = "Success",
       #   type = "success"
       # )
+        
+        
       rv$current.obj <- .tmp
       rvModProcess$moduleNormalizationDone[1] <- TRUE
     shinyjs::toggle("valid.normalization", condition = input$perform.normalization >= 1)

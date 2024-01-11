@@ -128,7 +128,6 @@ observeEvent(input$loadDemoDataset, {
 observe({
     req(rv$current.obj)
     req(!Check_Dataset_Validity(rv$current.obj))
-    #browser()
     mod_SweetAlert_server('sweetAlert_demoMode',
                           text = Check_Dataset_Validity(rv$current.obj),
                           showClipBtn = FALSE,

@@ -22,8 +22,7 @@ popover_for_help_server("modulePopover_convertProteinID",
 
 popover_for_help_server("modulePopover_convertDataQuanti",
     title = "Quantitative data",
-            content = "Select the columns that are quantitation values
-            by clicking in the field below."
+    content = "Select the columns that are quantitation values by clicking in the field below."
         )
 
 format_DT_server("overview_convertData",
@@ -171,10 +170,10 @@ ReadDatasetFile <- reactive({
             shinyjs::disable("file1")
             
             if (ext %in% c('txt', 'csv', 'tsv')){
-                req(input$csv_separator)
+               # req(input$csv_separator)
                 
-                .sep <- input$csv_separator
-                if (.sep == 'tab')
+               # .sep <- input$csv_separator
+               # if (.sep == 'tab')
                     .sep <- '\t'
                 
                 tab1 <- read.csv(input$file1$datapath, 
@@ -220,7 +219,7 @@ output$previewDataset_UI <- renderUI({
 })
 
 output$previewDataset <- DT::renderDT(server = TRUE, {
-    req(ReadDatasetFile())
+    #req(ReadDatasetFile())
     DT::datatable(as.data.frame(ReadDatasetFile()[1:3,]),
                   rownames = FALSE,
                   plugins = "ellipsis",
@@ -279,17 +278,17 @@ output$ManageXlsFiles <- renderUI({
 
 
 
-output$Manage_csv_Files <- renderUI({
-    req(input$file1)
-    
-    req(GetExtension(input$file1$name) %in% c("csv"))
-    
-    selectInput('csv_separator', 'Separator', 
-                choices = c(';' = ';',
-                            'tab' = 'tab',
-                            '.' = '.'),
-                width = '100px')
-})
+# output$Manage_csv_Files <- renderUI({
+#     req(input$file1)
+#     
+#     req(GetExtension(input$file1$name) %in% c("csv"))
+#     
+#     selectInput('csv_separator', 'Separator', 
+#                 choices = c(';' = ';',
+#                             'tab' = 'tab',
+#                             '.' = '.'),
+#                 width = '100px')
+# })
 
 
 ################## STEP 2 ###############################
@@ -438,10 +437,8 @@ output$Convert_ExpFeatData <- renderUI({
             ),
             column(width = 4, uiOutput("checkIdentificationTab")),
             column(width = 4, shinyjs::hidden(
-                div(
-                    id = "warning_neg_values",
-                    p(
-                        "Warning : Your original dataset may contain
+                div(id = "warning_neg_values",
+                    p("Warning : Your original dataset may contain
                       negative values",
                         "so that they cannot be logged. Please check
                       back the dataset or",
@@ -470,8 +467,7 @@ output$inputGroup <- renderUI({
         inputName <- paste("colForOriginValue_", i, sep = "")
         div(
             div(
-                style = "align: center;display:inline-block; vertical-align:
-          middle;padding-right: 10px;",
+                style = "align: center;display:inline-block; vertical-align: middle;padding-right: 10px;",
                 p(tags$strong(paste0(
                     "Identification col. for ",
                     input$choose_quantitative_columns[i]
@@ -528,13 +524,13 @@ output$eData <- renderUI({
     tagList(
         popover_for_help_ui("modulePopover_convertDataQuanti"),
         selectInput("choose_quantitative_columns",
-            label = "",
-            choices = choices,
-            multiple = TRUE, width = "200px",
-            size = 20,
-            selectize = FALSE
+                    label = "",
+                    choices = choices,
+                    multiple = TRUE, width = "200px",
+                    size = 20,
+                    selectize = FALSE
+                    )
         )
-    )
 })
 
 
@@ -610,13 +606,8 @@ output$Convert_BuildDesign <- renderUI({
     tagList(
         tags$p(
             "If you do not know how to fill the experimental design, you can
-            click on the '?' next to each design in the list that appear
-            once the conditions are checked or got to the ",
-            actionLink("linkToFaq1", "FAQ",
-                style = "background-color: white"
-            ),
-            " page."
-        ),
+            go to the ",
+            shiny::actionLink(inputId = "openFAQ", label = "FAQ"), " page."),
         fluidRow(
             column(width = 6,
             tags$b("1 - Fill the \"Condition\" column to identify the conditions to compare.")
@@ -649,6 +640,9 @@ output$Convert_BuildDesign <- renderUI({
 })
 
 
+observeEvent(input$openFAQ, {
+    browseURL('https://www.prostar-proteomics.org/#Frequently_asked_questions')
+})
 
 ############# STEP 5 ########################
 
@@ -843,7 +837,8 @@ observeEvent(input$createMSnsetButton, ignoreInit = TRUE, {
     
     
     observe({
-        req(Check_Dataset_Validity(rv$current.obj))
+        req(rv$current.obj)
+        req(!Check_Dataset_Validity(rv$current.obj))
         mod_SweetAlert_server('sweetAlert_Check_Dataset_Validity',
                               text = Check_Dataset_Validity(rv$current.obj),
                               showClipBtn = FALSE,

@@ -78,6 +78,7 @@ mod_plotsMetacellHistos_server <- function(id,
 
             output$histo_Metacell <- renderHighchart({
                tmp <- NULL
+               #browser()
                tmp <- metacellHisto_HC(obj = obj(),
                                         pattern = rv$chooseTag,
                                         pal = pal()

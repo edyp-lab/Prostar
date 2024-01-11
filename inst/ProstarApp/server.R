@@ -13,8 +13,6 @@ options(
 require(compiler)
 enableJIT(3)
 
-source(system.file("ProstarApp/server", "mod_errorModal.R", package = 'Prostar'), local = TRUE)$value
-
 source(system.file("ProstarApp/ui", "ui_Configure.R", package = 'Prostar'), local = TRUE)$value
 source(system.file("ProstarApp/server", "mod_errorModal.R", package = 'Prostar'), local = TRUE)$value
 source(system.file("ProstarApp/server", "mod_metacell_tree.R", package = 'Prostar'), local = TRUE)$value
@@ -136,12 +134,10 @@ shinyServer(
          )
          
          div(
-             div(
-                 style = "display:inline-block; vertical-align: middle;",
+             div(style = "display:inline-block; vertical-align: middle;",
                  popover_for_help_ui("modulePopover_dataset")
              ),
-             div(
-                 style = "display:inline-block; vertical-align: middle; z-index: 1000;",
+             div(style = "display:inline-block; vertical-align: middle; z-index: 1000;",
                  selectInput("datasets", "",
                              choices = list("None" = "None"),
                              width = "200px"
@@ -214,14 +210,10 @@ shinyServer(
             #   source(file.path("server", "srv_UpdateDesign.R"),
             #   local = TRUE)$value,
             #
-            faqTab =
-                source(file.path("server", "srv_FAQ.R"), local = TRUE)$value,
-            checkForUpdatesTab =
-                source(file.path("server", "srv_CheckForUpdates.R"), local = TRUE)$value,
-            usefulLinksTab =
-                source(file.path("server", "srv_UsefulLinks.R"), local = TRUE)$value,
-            ReleaseNotesTab =
-                source(file.path("server", "srv_ReleaseNotes.R"), local = TRUE)$value,
+            faqTab = source(file.path("server", "srv_FAQ.R"), local = TRUE)$value,
+            checkForUpdatesTab = source(file.path("server", "srv_CheckForUpdates.R"), local = TRUE)$value,
+            usefulLinksTab = source(file.path("server", "srv_UsefulLinks.R"), local = TRUE)$value,
+            ReleaseNotesTab = source(file.path("server", "srv_ReleaseNotes.R"), local = TRUE)$value,
             bugReportTab = source(file.path("server", "srv_BugReport.R"), local = TRUE)$value,
             testTab = source(file.path("server", "srv_HypothesisTest.R"), local = TRUE)$value
         )

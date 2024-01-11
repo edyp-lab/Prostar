@@ -515,23 +515,25 @@ observeEvent(input$validAggregation, {
                 incProgress(cpt / 100, detail = paste0("Processing column ", c))
             }
             
+            
+            # Initialize Prostar
+            #ClearUI()
+            #ClearMemory()
+            
             rv$current.obj <- rv$temp.aggregate$obj.prot
             rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
             
             name <- paste0("Aggregated", ".", rv$typeOfDataset)
-            rv$current.obj <- saveParameters(
-                rv$current.obj,
-                name,
-                "Aggregation",
-                build_ParamsList_Aggregation()
-            )
+            rv$current.obj <- saveParameters(rv$current.obj,
+                                             name,
+                                             "Aggregation",
+                                             build_ParamsList_Aggregation()
+                                             )
             
-            # Initialize Prostar
-            ClearUI()
-            
+             
             rv$dataset[[name]] <- rv$current.obj
-            rv$current.obj.name <- input$demoDataset
-            loadObjectInMemoryFromConverter()
+            #rv$current.obj.name <- input$demoDataset
+            #loadObjectInMemoryFromConverter()
             
             
             rvModProcess$moduleAggregationDone[3] <- TRUE

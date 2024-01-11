@@ -212,15 +212,15 @@ output$UI_hierarchicalExp <- renderUI({
                     style = "display:inline-block; vertical-align: middle;",
                     tags$b("2 - Choose the type of experimental design and
                     complete it accordingly")
-                ),
-                div(
-                    # edit2
-                    style = "display:inline-block; vertical-align: middle;",
-                    tags$button(
-                        id = "btn_helpDesign", tags$sup("[?]"),
-                        class = "Prostar_tooltip"
-                    )
                 )
+                # div(
+                #     # edit2
+                #     style = "display:inline-block; vertical-align: middle;",
+                #     tags$button(
+                #         id = "btn_helpDesign", tags$sup("[?]"),
+                #         class = "Prostar_tooltip"
+                #     )
+                # )
             ),
             radioButtons("chooseExpDesign", "",
                 choices = c(

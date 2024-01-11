@@ -131,33 +131,17 @@ shinyUI(
                         ),
                         navbarMenu(
                             "Data manager",
-                            source(file.path("ui", "ui_OpenMSnSetFile.R"),
-                                local = TRUE
-                            )$value,
-                            source(file.path("ui", "ui_ConvertData.R"),
-                                local = TRUE
-                            )$value,
-                            source(file.path("ui", "ui_DemoMode.R"),
-                                local = TRUE
-                            )$value,
-                            source(file.path("ui", "ui_Export.R"),
-                                local = TRUE
-                            )$value,
-                            source(file.path("ui", "ui_ReloadProstar.R"),
-                                local = TRUE
-                            )$value
+                            source(file.path("ui", "ui_OpenMSnSetFile.R"), local = TRUE)$value,
+                            source(file.path("ui", "ui_ConvertData.R"), local = TRUE)$value,
+                            source(file.path("ui", "ui_DemoMode.R"), local = TRUE)$value,
+                            source(file.path("ui", "ui_Export.R"), local = TRUE)$value,
+                            source(file.path("ui", "ui_ReloadProstar.R"), local = TRUE)$value
                         ),
                         navbarMenu(
                             "Help",
-                            source(file.path("ui", "ui_UsefulLinks.R"),
-                                local = TRUE
-                            )$value,
-                            source(file.path("ui", "ui_FAQ.R"),
-                                local = TRUE
-                            )$value,
-                            source(file.path("ui", "ui_BugReport.R"),
-                                local = TRUE
-                            )$value
+                            source(file.path("ui", "ui_UsefulLinks.R"), local = TRUE)$value,
+                            source(file.path("ui", "ui_FAQ.R"), local = TRUE)$value,
+                            source(file.path("ui", "ui_BugReport.R"), local = TRUE)$value
                         )
                     ) ## end navbarPage
                 ) ## end div for main content 2
