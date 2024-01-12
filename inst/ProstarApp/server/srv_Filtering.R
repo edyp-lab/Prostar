@@ -160,16 +160,13 @@ observeEvent(rv$indices()$trigger, ignoreInit = FALSE, {
 
 
 output$mvplotsUI <- renderUI({
-    print("titi")
     req(rv$indices()$params$MetacellTag)
     mod_plotsMetacellHistos_ui("MVPlotsFiltering")
 })
 
 
 observeEvent(rv$indices()$params$MetacellTag, {
-#browser()
-print('tutu')
-  #  browser()
+
 mod_plotsMetacellHistos_server(id = "MVPlotsFiltering",
                                obj = reactive({rv$current.obj}),
                                pal = reactive({rv$PlotParams$paletteForConditions}),

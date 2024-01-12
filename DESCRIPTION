@@ -23,11 +23,11 @@ biocViews: Proteomics, MassSpectrometry, Normalization, Preprocessing,
 License: Artistic-2.0
 Depends: R (>= 4.3.0)
 Suggests: BiocStyle, BiocManager, testthat
-Imports: DAPAR (>= 1.34.4), DAPARdata (>= 1.27.3), rhandsontable, 
+Imports: DAPAR (>= 1.34.5), DAPARdata (>= 1.27.3), rhandsontable, 
     data.table, shiny, shinyBS, shinyAce, highcharter, htmlwidgets, webshot, 
     shinythemes, later, shinycssloaders, future, promises,  shinyjqui, tibble, 
     ggplot2, gplots, shinyjs, vioplot, shinyTree, knitr, colourpicker, 
-    gtools, XML, R.utils, RColorBrewer, DT, shinyWidgets, sass, rclipboard
+    gtools, XML, R.utils, RColorBrewer, DT, shinyWidgets, sass, rclipboard, markdown
 NeedsCompilation: no
 RoxygenNote: 7.2.3
 Packaged: 2017-10-13 06:25:55 UTC; sw175264
