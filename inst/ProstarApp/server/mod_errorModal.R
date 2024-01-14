@@ -2,35 +2,28 @@
 mod_errorModal_ui <- function(id) {}
 
 
-mod_errorModal_server <- function(id, text){
+mod_errorModal_server <- function(id, 
+                                  title = NULL,
+                                  text = NULL, 
+                                  footer = modalButton("Close")){
     
-    if (!requireNamespace("shiny", quietly = TRUE)) {
-        stop("Please install shiny: BiocManager::install('shiny')")
-    }
-    
-    shiny::moduleServer(
-        id,
+
+    shiny::moduleServer(id,
         function(input, output, session) {
-            
-            
-            
             observeEvent(TRUE, ignoreInit = FALSE, {
-                # shiny::showModal(
-                #     shiny::modalDialog('test')
-                # )
-                
                 shiny::showModal(
                     div(
                         id = 'errModal',
                         tags$style("#errModal .modal-dialog{width: 600px;}"),
                         shiny::modalDialog(
-                            h3("Error log"),
-                            tags$style("#tPanel {overflow-y:scroll; color: red;}"),
-                            shiny::wellPanel(
-                                id = "tPanel",
-                                HTML(paste('> ', text(), collapse = "<br/>"))
-                            )
-                            ,easyClose = TRUE)
+                            h3(title, style='color: red;'),
+                            tags$style("#tPanel {overflow-y:scroll; color: black; background: white;}"),
+                            shiny::wellPanel(id = "tPanel",
+                                HTML(paste(text, collapse = "<br/>")),
+                                width = '250px'
+                            ),
+                            footer = footer,
+                            easyClose = TRUE)
                     ))
             })
             }
@@ -40,4 +33,15 @@ mod_errorModal_server <- function(id, text){
 
 
 
+
+library(shiny)
+library(shinyBS)
+ui <- fluidPage(
+)
+server <- function(input, output) {
+    mod_errorModal_server('test',
+                          title = 'title',
+                          text = 'reactive')
+}
+shinyApp(ui, server)
 

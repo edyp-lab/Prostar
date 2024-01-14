@@ -49,16 +49,16 @@ observeEvent(input$btn_checkConds, {
     input$file1
     input$convert_reorder
 
-    if (length(grep("Bio.Rep", colnames(rv$hot))) > 0) {
-        return(NULL)
-    }
+    req(length(grep("Bio.Rep", colnames(rv$hot))) == 0)
 
     if (input$convert_reorder == "Yes") {
-        rv$newOrder <- order(rv$hot["Condition"])
-        rv$hot <- rv$hot[rv$newOrder, ]
+        rv$hot <- setorder(rv$hot, Condition)
+       # browser()
+        rv$newOrder <- match(rv$hot[, 'Sample.name'], colnames(rv$tab1))
+
     }
 
-    rv$conditionsChecked <- DAPAR::check.conditions(rv$hot$Condition)
+    rv$conditionsChecked <- DAPAR::check.conditions(conds = rv$hot$Condition)
 })
 
 
@@ -212,15 +212,15 @@ output$UI_hierarchicalExp <- renderUI({
                     style = "display:inline-block; vertical-align: middle;",
                     tags$b("2 - Choose the type of experimental design and
                     complete it accordingly")
-                ),
-                div(
-                    # edit2
-                    style = "display:inline-block; vertical-align: middle;",
-                    tags$button(
-                        id = "btn_helpDesign", tags$sup("[?]"),
-                        class = "Prostar_tooltip"
-                    )
                 )
+                # div(
+                #     # edit2
+                #     style = "display:inline-block; vertical-align: middle;",
+                #     tags$button(
+                #         id = "btn_helpDesign", tags$sup("[?]"),
+                #         class = "Prostar_tooltip"
+                #     )
+                # )
             ),
             radioButtons("chooseExpDesign", "",
                 choices = c(

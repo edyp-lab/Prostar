@@ -14,10 +14,11 @@ observe({
 
 output$settings_nDigits_UI <- renderUI({
     numericInput("settings_nDigits", "",
-        value = rv$settings_nDigits,
-        min = 0,
-        width = "100px"
-    )
+                 value = rv$settings_nDigits,
+                 min = 0,
+                 max = 10,
+                 step = 1,
+                 width = "100px")
 })
 
 observeEvent(input$settings_nDigits, {

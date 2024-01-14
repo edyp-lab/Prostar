@@ -13,6 +13,8 @@ callModule(moduleProcess, "moduleProcess_Filtering",
 
 resetModuleFiltering <- reactive({
     # req(input$datasets)
+    
+    print('resetModuleFiltering()')
     ## update rv$widgets values (reactive values)
     resetModuleProcess("Filtering")
 
@@ -104,19 +106,7 @@ observeEvent(rv$indices()$trigger, ignoreInit = FALSE, {
     req(rv$indices()$indices)
     nbDeleted <- 0
     
-    browser()
-    #isolate({
-    # rv$widgets$filtering$MetacellTag <- NULL
-    # rv$widgets$filtering$MetacellFilters <- "None"
-    # rv$widgets$filtering$KeepRemove <- "delete"
-    # rv$widgets$filtering$metacell_value_th <- 0
-    # rv$widgets$filtering$choose_metacell_percent_th <- 0
-    # rv$widgets$filtering$metacell_value_percent <- 0
-    # rv$widgets$filtering$val_vs_percent <- "Value"
-    # rv$widgets$filtering$metacellFilter_operator <- "<="
-
-    
-        obj.tmp <- try({
+    obj.tmp <- try({
         MetaCellFiltering(obj = rv$current.obj,
                           indices = rv$indices()$indices,
                           cmd = rv$indices()$params$KeepRemove
@@ -126,19 +116,23 @@ observeEvent(rv$indices()$trigger, ignoreInit = FALSE, {
     
     if(inherits(obj.tmp, "try-error")) {
         # browser()
-        sendSweetAlert(
-            session = session,
-            title = "Error",
-            text = tags$div(style = "display:inline-block; vertical-align: top;",
-                            p(obj.tmp[[1]]),
-                            rclipButton(inputId = "clipbtn",
-                                        label = "",
-                                        clipText = obj.tmp[[1]], 
-                                        icon = icon("copy"),
-                                        class = actionBtnClass)
-            ),
-            type = "error"
-        )
+        mod_SweetAlert_server(id = 'sweetalert_filtering',
+                              text = obj.tmp[[1]],
+                              type = 'error' )
+        
+        # sendSweetAlert(
+        #     session = session,
+        #     title = "Error",
+        #     text = tags$div(style = "display:inline-block; vertical-align: top;",
+        #                     p(obj.tmp[[1]]),
+        #                     rclipButton(inputId = "clipbtn",
+        #                                 label = "",
+        #                                 clipText = obj.tmp[[1]], 
+        #                                 icon = icon("copy"),
+        #                                 class = actionBtnClass)
+        #     ),
+        #     type = "error"
+        # )
     } else {
         # sendSweetAlert(
         #   session = session,
@@ -164,16 +158,24 @@ observeEvent(rv$indices()$trigger, ignoreInit = FALSE, {
 })
 
 
+
 output$mvplotsUI <- renderUI({
-    mod_plotsMetacellHistos_server(id = "MVPlots_filtering",
+    req(rv$indices()$params$MetacellTag)
+    mod_plotsMetacellHistos_ui("MVPlotsFiltering")
+})
+
+
+observeEvent(rv$indices()$params$MetacellTag, {
+
+mod_plotsMetacellHistos_server(id = "MVPlotsFiltering",
                                obj = reactive({rv$current.obj}),
                                pal = reactive({rv$PlotParams$paletteForConditions}),
                                pattern = reactive({rv$indices()$params$MetacellTag}),
                                showSelect = reactive({FALSE})
 )
-    
-    mod_plotsMetacellHistos_ui("MVPlots_filtering")
 })
+
+
 
 
 
@@ -255,12 +257,10 @@ output$metacell_Filter_SummaryDT <- DT::renderDataTable(server = TRUE, {
     req(rv$widgets$filtering$metacell_Filter_SummaryDT)
     isolate({
         if (nrow(rv$widgets$filtering$metacell_Filter_SummaryDT) == 0) {
-            df <- data.frame(
-                query = "-",
-                nbDeleted = 0,
-                Total = nrow(rv$current.obj),
-                stringsAsFactors = FALSE
-            )
+            df <- data.frame(query = "-",
+                             nbDeleted = 0,
+                             Total = nrow(rv$current.obj),
+                             stringsAsFactors = FALSE)
             rv$widgets$filtering$metacell_Filter_SummaryDT <- df
         }
 
@@ -350,21 +350,9 @@ observeEvent(input$perform.text.filtering, {
     
     
     if(inherits(res, "try-error")) {
-        # browser()
-        sendSweetAlert(
-            session = session,
-            title = "Error",
-            text = tags$div(style = "display:inline-block; vertical-align: top;",
-                            p(res[[1]]),
-                            rclipButton(inputId = "clipbtn",
-                                        label = "",
-                                        clipText = res[[1]], 
-                                        icon = icon("copy"),
-                                        class = actionBtnClass
-                            )
-            ),
-            type = "error"
-        )
+        mod_SweetAlert_server(id = 'sweetalert_filtering2',
+                              text = res[[1]],
+                              type = 'error' )
     } else {
         # sendSweetAlert(
         #     session = session,
@@ -518,21 +506,9 @@ observeEvent(input$btn_numFilter, ignoreInit = TRUE, {
     
     
     if(inherits(res, "try-error")) {
-        # browser()
-        sendSweetAlert(
-            session = session,
-            title = "Error",
-            text = tags$div(style = "display:inline-block; vertical-align: top;",
-                            p(res[[1]]),
-                            rclipButton(inputId = "clipbtn",
-                                        label = "",
-                                        clipText = res[[1]], 
-                                        icon = icon("copy"),
-                                        class = actionBtnClass
-                            )
-            ),
-            type = "error"
-        )
+        mod_SweetAlert_server(id = 'sweetalert_filtering3',
+                              text = res[[1]],
+                              type = 'error' )
     } else {
     #     sendSweetAlert(
     #         session = session,

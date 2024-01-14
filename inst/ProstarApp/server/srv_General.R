@@ -169,26 +169,35 @@ session$onSessionEnded(function() {
 
 ### -------------------------------------------------------------------
 ClearUI <- reactive({
-    updateSelectInput(session,
-                      "datasets",
-                      choices = G_noneStr
-    )
+    updateSelectInput(session, "datasets", choices = G_noneStr)
     updateRadioButtons(session, "typeOfData", selected = typePeptide)
     updateRadioButtons(session, "checkDataLogged", selected = "no")
     
     updateSelectInput(session, "idBox", selected = NULL)
     
     updateSelectizeInput(session, "choose_quantitative_columns",
-                         choices = NULL, selected = NULL
-    )
+                         choices = NULL, selected = NULL)
     updateTextInput(session, "filenameToCreate", value = "")
     updateTextInput(session, "nameExport", value = "")
     
     updateCheckboxInput(session, "replaceAllZeros", value = TRUE)
     updateRadioButtons(session,
                        inputId = "ChooseFilters",
-                       selected = gFilterNone
-    )
+                       selected = gFilterNone)
+    
+    print('Reseting UI...')
+    
+    # Clear Filtering tool
+    resetModuleProcess("Aggregation")
+    resetModuleProcess("Normalization")
+    resetModuleProcess("Filtering")
+    resetModuleProcess("PepImputation")
+    resetModuleProcess("ProtImputation")
+    resetModuleProcess("HypothesisTest")
+    # resetModuleProcess("Convert")
+    resetModuleProcess("AnaDiff")
+    
+    print('end of resetting UI processes')
 })
 
 
@@ -307,19 +316,16 @@ checksRetroCompatibility <- function(num=3){
         txt <- paste0("The Msnset file has been created with an older version of ", txt, ".\n", 
                       "This can lead to unexpected behaviour.")
         
-        shinyWidgets::sendSweetAlert(
-            session = session,
-            title = "Info",
-            text = tags$div(style = "display:inline-block; vertical-align: top;",
-                            p(txt)
-            ),
-            type = "alert"
-        )
+        mod_SweetAlert_server(id = 'sweetalert_checksRetroCompatibility',
+                              text = txt,
+                              type = 'alert' )
+        
     }
 }
 
 ######################################
 loadObjectInMemoryFromConverter <- function() {
+    #browser()
     
     rv$proteinId <- rv$current.obj@experimentData@other$proteinId
     rv$typeOfDataset <- ""
@@ -384,7 +390,6 @@ loadObjectInMemoryFromConverter <- function() {
                 rv$current.obj <- SetCC(rv$current.obj, ComputeConnectedComposants())
             }
         }
-        
         m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
                             pattern = c("Missing", "Missing POV", "Missing MEC"),
                             level = DAPAR::GetTypeofData(rv$current.obj)
@@ -406,7 +411,7 @@ loadObjectInMemoryFromConverter <- function() {
                     names(rv$current.obj@experimentData@other$Params)
                 )
         }
-        
+        #browser()
         UpdateDatasetWidget(rv$current.obj, name)
         incProgress(0.9, detail = "Build UI")
         ClearNavbarPage()
@@ -464,7 +469,64 @@ createPNGFromWidget <- function(tempplot, pattern) {
     )
 }
 
+# reset <- reactive({
+#     reset_Filtering_UI()
+#     }) %>% bindEvent(input$validAggregation)
 
+
+reset_Filtering_UI <- reactive({
+    rv$widgets$filtering <- list(
+        MetacellTag = "None",
+        MetacellFilters = "None",
+        KeepRemove = "delete",
+        metacell_value_th = 0,
+        metacell_value_percent = 0,
+        val_vs_percent = "Value",
+        metacellFilter_operator = NULL,
+        metacell_Filter_SummaryDT = data.frame(
+            query = NULL,
+            nbDeleted = NULL, # nb line removed
+            Total = NULL, # sum of lines deleted multiple filters
+            stringsAsFactors = F
+        ),
+        DT_filterSummary = data.frame(
+            Filter = NULL,
+            Prefix = NULL,
+            nbDeleted = NULL,
+            Total = NULL,
+            stringsAsFactors = F
+        ),
+        DT_numfilterSummary = data.frame(
+            Filter = NULL,
+            Condition = NULL,
+            nbDeleted = NULL,
+            Total = NULL,
+            stringsAsFactors = F
+        )
+    )
+    
+    updateSelectInput(session, "ChooseMetacellFilters",
+                      selected = rv$widgets$filtering$MetacellFilters
+    )
+    updateSelectInput(session, "chooseMetacellTag",
+                      selected = rv$widgets$filtering$MetacellTag
+    )
+    updateSelectInput(session, "choose_metacell_value_th",
+                      selected = rv$widgets$filtering$metacell_value_th
+    )
+    updateNumericInput(session, "choose_metacell_percent_th",
+                       value = rv$widgets$filtering$metacell_value_percent
+    )
+    updateRadioButtons(session, "choose_val_vs_percent",
+                       selected = rv$widgets$filtering$val_vs_percent)
+    updateRadioButtons(session, "ChooseKeepRemove",
+                       selected = rv$widgets$filtering$KeepRemove
+    )
+    
+    updateSelectInput(session, "choose_metacellFilter_operator",
+                      selected = rv$widgets$filtering$metacellFilter_operator
+    )
+})
 resetModuleProcess <- function(moduleName) {
     switch(moduleName,
            Filtering = {
@@ -859,6 +921,7 @@ resetModuleProcess <- function(moduleName) {
                    calibMethod = "None",
                    numValCalibMethod = 0,
                    th_pval = 0,
+                   type_pval <- '-log10()',
                    FDR = 0,
                    NbSelected = 0,
                    nBinsHistpval = 80,
@@ -877,7 +940,7 @@ resetModuleProcess <- function(moduleName) {
                        screenStep1 = uiOutput("screenAnaDiff1"),
                        screenStep2 = uiOutput("screenAnaDiff2"),
                        screenStep3 = uiOutput("screenAnaDiff3"),
-                       screenStep2 = uiOutput("screenAnaDiff4")
+                       screenStep4 = uiOutput("screenAnaDiff4")
                    )
                )
                ## update widgets in UI
@@ -904,6 +967,9 @@ resetModuleProcess <- function(moduleName) {
                )
                updateTextInput(session, "seuilPVal",
                                value = rv$widgets$anaDiff$th_pval
+               )
+               updateTextInput(session, "type_pval",
+                               value = rv$widgets$anaDiff$type_pval
                )
                updateRadioButtons(session, "downloadAnaDiff", selected = "All")
                updateRadioButtons(session, "tooltipInfo",
@@ -1260,6 +1326,7 @@ rv <- reactiveValues(
             calibMethod = "None",
             numValCalibMethod = 0,
             th_pval = 0,
+            type_pval = '-log10()',
             FDR = 0,
             NbSelected = 0,
             nBinsHistpval = 80,

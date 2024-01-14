@@ -1,15 +1,9 @@
 
 callModule(moduleProcess, "moduleProcess_GO",
-    isDone = reactive({
-        rvModProcess$moduleGODone
-    }),
-    pages = reactive({
-        rvModProcess$moduleGO
-    }),
+    isDone = reactive({rvModProcess$moduleGODone}),
+    pages = reactive({rvModProcess$moduleGO}),
     rstFunc = resetModuleGO,
-    forceReset = reactive({
-        rvModProcess$moduleGOForceReset
-    })
+    forceReset = reactive({rvModProcess$moduleGOForceReset})
 )
 
 
@@ -126,17 +120,15 @@ output$screenGO1 <- renderUI({
                 ), width = "200px"
             ),
             tags$div(
-                style = "display:inline-block; vertical-align: middle;
-        padding-right: 20px;",
-                modulePopoverUI("modulePopover_GenomeWide"),
+                style = "display:inline-block; vertical-align: middle; padding-right: 20px;",
+                popover_for_help_ui("modulePopover_GenomeWide"),
                 selectInput("Organism", NULL,
                     choices = GetListInstalledOrgdDB(),
                     selected = rv$widgets$go$Organism
                 ), width = "200px"
             ),
             tags$div(
-                style = "display:inline-block; vertical-align: middle;
-        padding-right: 20px;",
+                style = "display:inline-block; vertical-align: middle; padding-right: 20px;",
                 selectInput("Ontology", "Ontology",
                     choices = G_ontology_Choices,
                     selected = rv$widgets$go$Ontology
@@ -169,7 +161,7 @@ output$screenGO2 <- renderUI({
         tags$div(
             tags$div(
                 style = "display:inline-block; vertical-align: middle;",
-                modulePopoverUI("modulePopover_GOlevel"),
+                popover_for_help_ui("modulePopover_GOlevel"),
                 checkboxGroupInput("GO_level", NULL,
                     choices = c(2:4),
                     selected = rv$widgets$go$GO_level
@@ -201,7 +193,7 @@ output$screenGO3 <- renderUI({
         tags$div(
             tags$div(
                 style = "display:inline-block; vertical-align: middle; padding-right: 20px;",
-                modulePopoverUI("modulePopover_GOuniverse"),
+                popover_for_help_ui("modulePopover_GOuniverse"),
                 radioButtons("universe", NULL,
                     choices = G_universe_Choices,
                     selected = rv$widgets$go$universe
@@ -213,7 +205,7 @@ output$screenGO3 <- renderUI({
             ),
             tags$div(
                 style = "display:inline-block; vertical-align: middle; padding-right: 20px;",
-                modulePopoverUI("modulePopover_GOfdr"),
+                popover_for_help_ui("modulePopover_GOfdr"),
                 numericInput("pvalueCutoff", NULL,
                     min = 0, max = 1, step = 0.01,
                     value = rv$widgets$go$pvalueCutoff, width = "100px"

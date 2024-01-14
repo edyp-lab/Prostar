@@ -1,5 +1,8 @@
 require(imp4p)
 
+source(system.file("ProstarApp/server", "mod_DetQuantImpValues.R", package = 'Prostar'), local = TRUE)$value
+
+
 callModule(moduleMVPlots, "mvImputationPlots_PeptideLevel",
     data = reactive(rv$current.obj),
     title = reactive("POV distribution"),
@@ -8,14 +11,10 @@ callModule(moduleMVPlots, "mvImputationPlots_PeptideLevel",
 )
 
 
-callModule(
-    moduleDetQuantImpValues, "peptide_DetQuantValues_DT",
-    reactive({
-        rv$widgets$peptideImput$pepLevel_detQuantile
-    }),
-    reactive({
-        rv$widgets$peptideImput$pepLevel_detQuant_factor
-    })
+mod_DetQuantImpValues_server("peptide_DetQuantValues_DT",
+    obj = reactive({rv$current.obj}),
+    quant = reactive({rv$widgets$peptideImput$pepLevel_detQuantile}),
+    factor = reactive({rv$widgets$peptideImput$pepLevel_detQuant_factor})
 )
 
 
@@ -331,7 +330,7 @@ output$peptideLevel_detQuant_impValues <- renderUI({
     }
 
 
-    moduleDetQuantImpValuesUI("peptide_DetQuantValues_DT")
+    mod_DetQuantImpValues_ui("peptide_DetQuantValues_DT")
 })
 
 output$peptideLevel_TAB_detQuant_impValues <- DT::renderDataTable(server = TRUE, {
@@ -421,20 +420,13 @@ observeEvent(input$peptideLevel_perform.imputation.button, {
     })
 
     if(inherits(.tmp, "try-error")) {
-      # browser()
-      sendSweetAlert(
-        session = session,
-        title = "Error",
-        text = .tmp[[1]],
-        type = "error"
-      )
+       
+        mod_SweetAlert_server(id = 'sweetalert_peptideLevel_perform_imputation_button',
+                              text = .tmp[[1]],
+                              type = 'error' )
+        
+        
     } else {
-      # sendSweetAlert(
-      #   session = session,
-      #   title = "Success",
-      #   type = "success"
-      # )
-      
       rv$current.obj <- .tmp
     m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
         pattern = c("Missing", "Missing POV", "Missing MEC"),

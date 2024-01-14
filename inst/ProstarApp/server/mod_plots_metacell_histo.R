@@ -3,7 +3,7 @@ mod_plotsMetacellHistos_ui <- function(id) {
     tagList(
         shinyjs::useShinyjs(),
 
-        p('Select one or several tag(s) to display statistics about'),
+        #shinyjs::hidden(uiOutput(ns('chooseTagUI'))),
         uiOutput(ns('chooseTagUI')),
         fluidRow(
             column(width = 4,
@@ -24,36 +24,61 @@ mod_plotsMetacellHistos_server <- function(id,
                                            obj = reactive({NULL}), 
                                            pal = reactive({NULL}), 
                                            pattern = reactive({NULL}),
-                                           showSelect = reactive({TRUE})) {
+                                           showSelect = reactive({'auto'})) {
     moduleServer(id, function(input, output, session) {
             ns <- session$ns
             
+            setShowSelect <- reactive({
+                # Auto mode
+                show <- FALSE
+                if( showSelect() == 'auto')
+                    show <- is.null(pattern()) || pattern() == ''
+                else
+                    show <- showSelect()
+                #print(show)
+                show
+            })
+            
             rv <- reactiveValues(
-                chooseTag = pattern(),
-                showSelect = if(is.null(pattern())) TRUE else showSelect()
+                chooseTag = NULL,
+                showSelect = setShowSelect()
             )
             
-            # observe({
-            #     
-            #     print(pattern())
-            #     rv$chooseTag <- pattern()
-            #     rv$showSelect <- if(is.null(pattern())) TRUE else showSelect()
-            # })
             
-            tmp.tags <- mod_metacell_tree_server('tree', obj = reactive({obj()}))
+            observe({
+                req(pattern())
+                #browser()
+                test <- (length(pattern())==1) && pattern () == ''
+                if (!isTRUE(test))
+                rv$chooseTag <- pattern()
+                
+            }, priority = 1000)
+            
+            
+           
+            
+            tmp.tags <- mod_metacell_tree_server('tree_plot_metacell', 
+                                                 obj = reactive({obj()}))
             
             observeEvent(tmp.tags()$values, ignoreNULL = FALSE, ignoreInit = TRUE,{
+                
                 rv$chooseTag <- tmp.tags()$values
             })
             
             
+            # observe({
+            #     shinyjs::toggle('div_tree_plot_metacell',
+            #                     condition = !is.null(rv$showSelect)) 
+            # })
             output$chooseTagUI <- renderUI({
+                req(rv$showSelect)
                 req(obj())
-                mod_metacell_tree_ui(ns('tree'))
+                mod_metacell_tree_ui(ns('tree_plot_metacell'))
              })
 
             output$histo_Metacell <- renderHighchart({
                tmp <- NULL
+               #browser()
                tmp <- metacellHisto_HC(obj = obj(),
                                         pattern = rv$chooseTag,
                                         pal = pal()
@@ -104,15 +129,15 @@ ui <- fluidPage(
 
 server <- function(input, output) {
     utils::data("Exp1_R25_prot", package='DAPARdata')
-    
-    #pattern <- c('Missing POV', 'Missing MEC')
-   pattern <- NULL
+    obj <- Exp1_R25_prot
+    pattern <- c('Missing POV', 'Missing MEC')
+    pattern <- NULL
     observe({
         mod_plotsMetacellHistos_server('test',
-                                   obj = reactive({Exp1_R25_prot}),
+                                   obj = reactive({obj}),
                                    pal = reactive({NULL}),
                                    pattern = reactive({pattern}),
-                                   showSelect = reactive({is.null(pattern)})
+                                   showSelect = reactive({'auto'})
                                    )
     })
 

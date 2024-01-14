@@ -13,12 +13,12 @@ options(
 require(compiler)
 enableJIT(3)
 
-
-source(file.path("ui", "ui_Configure.R"), local = TRUE)$value
-source(file.path("server", "mod_errorModal.R"), local = TRUE)$value
-source(file.path("server", "mod_metacell_tree.R"), local = TRUE)$value
-source(file.path("server", "mod_insert_md.R"), local = TRUE)$value
-source(file.path("server", "mod_popover_for_help.R"), local = TRUE)$value
+source(system.file("ProstarApp/ui", "ui_Configure.R", package = 'Prostar'), local = TRUE)$value
+source(system.file("ProstarApp/server", "mod_errorModal.R", package = 'Prostar'), local = TRUE)$value
+source(system.file("ProstarApp/server", "mod_metacell_tree.R", package = 'Prostar'), local = TRUE)$value
+source(system.file("ProstarApp/server", "mod_insert_md.R", package = 'Prostar'), local = TRUE)$value
+source(system.file("ProstarApp/server", "mod_popover_for_help.R", package = 'Prostar'), local = TRUE)$value
+source(system.file("ProstarApp/server", "mod_SweetAlert.R", package = 'Prostar'), local = TRUE)$value
 
 # Initialize data with colnames
 df <- data.frame(matrix(c("0", "0"), 1, 2))
@@ -69,6 +69,7 @@ shinyServer(
 
      tryCatch({
          loadLibraries()
+         
          Sys.setenv("R_ZIPCMD" = Sys.which("zip"))
          sessionID <- Sys.getpid()
     
@@ -76,27 +77,29 @@ shinyServer(
      # Hide the loading message when the rest of the server function has executed
     
          env <- environment()
-          source(file.path("server", "mod_format_DT.R"), local = TRUE)$value
+          source(system.file("ProstarApp/server", "mod_format_DT.R", package = 'Prostar'), local = TRUE)$value
          
-         source(file.path("server", "mod_dl.R"), local = TRUE)$value
-         source(file.path("server", "mod_insert_md.R"), local = TRUE)$value
-         source(file.path("server", "mod_popover_for_help.R"), local = TRUE)$value
-         source(file.path("server", "mod_download_btns.R"), local = TRUE)$value
-         source(file.path("modules/Plots", "mod_MSnSetExplorer.R"), local = TRUE)$value
-         source(file.path("server", "mod_LegendColoredExprs.R"), local = TRUE)$value
+         source(system.file("ProstarApp/server", "mod_dl.R", package = 'Prostar'), local = TRUE)$value
+         source(system.file("ProstarApp/server", "mod_insert_md.R", package = 'Prostar'), local = TRUE)$value
+         source(system.file("ProstarApp/server", "mod_popover_for_help.R", package = 'Prostar'), local = TRUE)$value
+         source(system.file("ProstarApp/server", "mod_download_btns.R", package = 'Prostar'), local = TRUE)$value
+         source(system.file("ProstarApp/modules/Plots", "mod_MSnSetExplorer.R", package = 'Prostar'), local = TRUE)$value
+         source(system.file("ProstarApp/server", "mod_LegendColoredExprs.R", package = 'Prostar'), local = TRUE)$value
     
-         source(file.path("server", "srv_NavbarPage.R"), local = TRUE)$value
-         source(file.path("server", "srv_ModulesSrv.R"), local = TRUE)$value
-         source(file.path("server", "srv_ModuleProcess.R"), local = TRUE)$value
-         source(file.path("server", "srv_General.R"), local = TRUE)$value
-         source(file.path("server", "srv_DefineRVmoduleProcess.R"), local = TRUE)$value
-         source(file.path("server", "srv_Home.R"), local = TRUE)$value
-         source(file.path("server", "srv_Settings.R"), local = TRUE)$value
-         source(file.path("server", "srv_ParamsManager.R"), local = TRUE)$value
+         source(system.file("ProstarApp/server", "srv_NavbarPage.R", package = 'Prostar'), local = TRUE)$value
+         source(system.file("ProstarApp/server", "srv_ModulesSrv.R", package = 'Prostar'), local = TRUE)$value
+         source(system.file("ProstarApp/server", "srv_ModuleProcess.R", package = 'Prostar'), local = TRUE)$value
+         source(system.file("ProstarApp/server", "srv_General.R", package = 'Prostar'), local = TRUE)$value
+         source(system.file("ProstarApp/server", "srv_DefineRVmoduleProcess.R", package = 'Prostar'), local = TRUE)$value
+         source(system.file("ProstarApp/server", "srv_Home.R", package = 'Prostar'), local = TRUE)$value
+         source(system.file("ProstarApp/server", "srv_Settings.R", package = 'Prostar'), local = TRUE)$value
+         source(system.file("ProstarApp/server", "srv_ParamsManager.R", package = 'Prostar'), local = TRUE)$value
     
          # source(file.path(".", "modules/Plots/modulePlots.R"),  local = TRUE)$value
-         source(file.path(".", "modules/Plots/moduleCC.R"), local = TRUE)$value
+         source(system.file("ProstarApp/modules/Plots/moduleCC.R", package = 'Prostar'), local = TRUE)$value
          #stop('simulated error')
+         
+         #loadSourceFiles()
          },
      error = function(e) {
          #if(showErrLog)
@@ -131,12 +134,10 @@ shinyServer(
          )
          
          div(
-             div(
-                 style = "display:inline-block; vertical-align: middle;",
+             div(style = "display:inline-block; vertical-align: middle;",
                  popover_for_help_ui("modulePopover_dataset")
              ),
-             div(
-                 style = "display:inline-block; vertical-align: middle; z-index: 1000;",
+             div(style = "display:inline-block; vertical-align: middle; z-index: 1000;",
                  selectInput("datasets", "",
                              choices = list("None" = "None"),
                              width = "200px"
@@ -209,14 +210,10 @@ shinyServer(
             #   source(file.path("server", "srv_UpdateDesign.R"),
             #   local = TRUE)$value,
             #
-            faqTab =
-                source(file.path("server", "srv_FAQ.R"), local = TRUE)$value,
-            checkForUpdatesTab =
-                source(file.path("server", "srv_CheckForUpdates.R"), local = TRUE)$value,
-            usefulLinksTab =
-                source(file.path("server", "srv_UsefulLinks.R"), local = TRUE)$value,
-            ReleaseNotesTab =
-                source(file.path("server", "srv_ReleaseNotes.R"), local = TRUE)$value,
+            faqTab = source(file.path("server", "srv_FAQ.R"), local = TRUE)$value,
+            checkForUpdatesTab = source(file.path("server", "srv_CheckForUpdates.R"), local = TRUE)$value,
+            usefulLinksTab = source(file.path("server", "srv_UsefulLinks.R"), local = TRUE)$value,
+            ReleaseNotesTab = source(file.path("server", "srv_ReleaseNotes.R"), local = TRUE)$value,
             bugReportTab = source(file.path("server", "srv_BugReport.R"), local = TRUE)$value,
             testTab = source(file.path("server", "srv_HypothesisTest.R"), local = TRUE)$value
         )

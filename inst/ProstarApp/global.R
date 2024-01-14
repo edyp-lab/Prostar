@@ -15,6 +15,18 @@ DAPAR.loc <- DAPARdata.loc <- Prostar.loc <- NULL
 
 
 
+loadSourceFiles <- function(){
+    path <- system.file('ProstarApp', package='Prostar')
+    files <- list.files(path, 
+               pattern='\\.R$',
+               recursive = TRUE,
+               full.names = TRUE)
+    for ( f in files){
+        print(paste0('source ', f))
+        source(f, local = TRUE)$value
+    }
+}
+
 loadLibraries <- function() {
     #library(shinycssloaders)
     #library(shinythemes)

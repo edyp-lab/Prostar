@@ -4,13 +4,14 @@
 ##            NORMALIZATION FUNCTIONS                                    ##
 ###########################################################################
 ###########################################################################
+source(file.path("server", "mod_Not_a_numeric.R"), local = TRUE)$value
 
 
 callModule(moduleDensityplot, "densityPlot_Norm",
            data = reactive({rv$current.obj})
            )
 
-callModule(module_Not_a_numeric,"test_spanLOESS",
+mod_Not_a_numeric_server("test_spanLOESS",
     reactive({rv$widgets$normalization$spanLOESS})
 )
 
@@ -138,7 +139,7 @@ output$screenNormalization1 <- renderUI({
                             width = "100px"
                         )
                     ),
-                    module_Not_a_numericUI("test_spanLOESS"),
+                    mod_Not_a_numeric_ui("test_spanLOESS"),
                     uiOutput("choose_normalizationQuantile"),
                     uiOutput("choose_normalizationScaling")
                 ),
@@ -210,8 +211,7 @@ output$helpForNormalizationMethods <- renderUI({
 
     switch(rv$widgets$normalization$method,
         GlobalQuantileAlignment = txt <- "This method proposes a normalization
-        of important magnitude that should be cautiously used. It proposes
-        to align the quantiles of all the replicates as described in
+        of important magnitude that should be cautiously used. It aligns the quantiles of all the replicates as described in
         [Other ref. 1]; practically it amounts to replace abundances by order
       statistics.",
         QuantileCentering = txt <- "These methods propose to shift the sample
@@ -244,7 +244,7 @@ output$helpForNormalizationMethods <- renderUI({
 })
 
 
-callModule(module_Not_a_numeric, "test_normQuant",
+mod_Not_a_numeric_server("test_normQuant",
     reactive({rv$widgets$normalization$quantile})
 )
 
@@ -256,7 +256,7 @@ output$choose_normalizationQuantile <- renderUI({
         textInput("normalization.quantile", NULL,
             value = rv$widgets$normalization$quantile, width = "150px"
         ),
-        module_Not_a_numericUI("test_normQuant")
+        mod_Not_a_numeric_ui("test_normQuant")
     )
 })
 
@@ -285,11 +285,10 @@ observeEvent(rv$widgets$normalization$method, {
     # }
 
     shinyjs::toggle("perform.normalization",
-        condition = rv$widgets$normalization$method != "None"
-    )
+        condition = rv$widgets$normalization$method != "None")
+    
     shinyjs::toggle("spanLOESS",
-        condition = rv$widgets$normalization$method == "LOESS"
-    )
+        condition = rv$widgets$normalization$method == "LOESS")
 
     .choice <- c("QuantileCentering", 
                  "MeanCentering",
@@ -353,7 +352,7 @@ observeEvent(input$perform.normalization, {
     rv$dataset[[input$datasets]]
     # isolate({
 
-    #.tmp <- NULL
+    .tmp <- NULL
     .tmp <- try({
     switch(rv$widgets$normalization$method,
         G_noneStr = rv$dataset[[input$datasets]],
@@ -418,27 +417,18 @@ observeEvent(input$perform.normalization, {
     
     
     if(inherits(.tmp, "try-error")) {
-      # browser()
-      sendSweetAlert(
-        session = session,
-        title = "Error",
-        text = tags$div(style = "display:inline-block; vertical-align: top;",
-                        p(.tmp[[1]]),
-                        rclipButton(inputId = "clipbtn",
-                                    label = "",
-                                    clipText = .tmp[[1]], 
-                                    icon = icon("copy"),
-                                    class = actionBtnClass
-                        )
-        ),
-        type = "error"
-      )
+      
+        mod_SweetAlert_server(id = 'sweetalert_perform_normalization',
+                              text = .tmp[[1]],
+                              type = 'error' )
     } else {
       # sendSweetAlert(
       #   session = session,
       #   title = "Success",
       #   type = "success"
       # )
+        
+        
       rv$current.obj <- .tmp
       rvModProcess$moduleNormalizationDone[1] <- TRUE
     shinyjs::toggle("valid.normalization", condition = input$perform.normalization >= 1)

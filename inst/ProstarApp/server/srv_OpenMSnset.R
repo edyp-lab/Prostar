@@ -197,3 +197,14 @@ observeEvent(input$loadMSnset, ignoreInit = TRUE, {
         }
     )
 })
+
+
+observe({
+    req(rv$current.obj)
+    req(!Check_Dataset_Validity(rv$current.obj))
+    mod_SweetAlert_server('sweetAlert_Check_Dataset_Validity',
+                          text = Check_Dataset_Validity(rv$current.obj),
+                          showClipBtn = FALSE,
+                          type = 'warning')
+    
+})

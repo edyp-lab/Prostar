@@ -13,7 +13,10 @@ mod_query_metacell_ui <- function(id) {
                 column(6, uiOutput(ns("MetacellFilters_widgets_set2_ui")))
             ),
         fluidRow(
-            column(6, uiOutput(ns("metacellFilter_request_ui"))),
+            column(6, 
+                   uiOutput(ns("metacellFilter_request_ui")),
+                   uiOutput(ns("metacellFilter_warning_ui"))
+                   ),
             column(3, uiOutput(ns("show_example_ui"))),
             column(3, uiOutput(ns('showApplyBtn')))
         )
@@ -138,7 +141,7 @@ mod_query_metacell_server <- function(id,
                 if(is.null(obj())){
                     dataOut$trigger <- as.numeric(Sys.time())
                     dataOut$params<- list(
-                        MetacellTag = NULL,
+                        MetacellTag = '',
                         KeepRemove = NULL,
                         MetacellFilters = NULL,
                         metacell_percent_th = NULL,
@@ -168,8 +171,20 @@ mod_query_metacell_server <- function(id,
                                                  )
             
             observeEvent(tmp.tags()$values, ignoreNULL = FALSE, ignoreInit = TRUE, {
-                #print('marqueur 3')
+                print('marqueur 3')
+
+                updateSelectInput(session, 'ChooseMetacellFilters', selected = 'None')
+                updateRadioButtons(session, 'ChooseKeepRemove', selected = "delete")
+                updateRadioButtons(session, 'choose_val_vs_percent', selected = 'Count')
+                updateSelectInput(session, 'choose_metacellFilter_operator', selected = '<=')
+                updateSelectInput(session, 'choose_metacell_value_th', selected = 0)
+                updateSliderInput(session, 'choose_metacell_percent_th', value = 0)
+                
                 rv.widgets$MetacellTag <- tmp.tags()$values
+                dataOut$trigger <- as.numeric(Sys.time())
+                dataOut$params<- list(
+                    MetacellTag = rv.widgets$MetacellTag)
+                
             }, priority = 900)
             
 
@@ -390,6 +405,26 @@ mod_query_metacell_server <- function(id,
                 txt_summary <- paste("You are about to ", WriteQuery())
                 tags$p(style = "font-size: small; text-align : center; color: purple;",
                        txt_summary)
+            })
+            
+            output$metacellFilter_warning_ui <- renderUI({
+                warn.txt <- ''
+                nb <- Check_NbValues_In_Columns(exprs(obj()))
+                nb.empty.cols <- length(which(nb == 0))
+                nb.one.val.cols <- length(which(nb == 1))
+                
+                if (nb.empty.cols > 0)
+                    warn.txt <- paste(warn.txt, "Some columns are empty.")
+                if (nb.one.val.cols > 0)
+                    warn.txt <- paste(warn.txt, "Some columns contains only 1 value.")
+                
+                
+                if (warn.txt != ''){
+                    warn.txt <- paste(warn.txt, "Are you sure to filter the dataset with such parameters? The resulting dataset can lead to unexpected behaviour.")
+                    tags$p(style = "font-size: small; text-align : center; color: purple;",
+                           warn.txt)
+                }
+
             })
 
             # Set useless widgets to default values

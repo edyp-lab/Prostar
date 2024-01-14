@@ -22,8 +22,7 @@ popover_for_help_server("modulePopover_convertProteinID",
 
 popover_for_help_server("modulePopover_convertDataQuanti",
     title = "Quantitative data",
-            content = "Select the columns that are quantitation values
-            by clicking in the field below."
+    content = "Select the columns that are quantitation values by clicking in the field below."
         )
 
 format_DT_server("overview_convertData",
@@ -55,31 +54,63 @@ output$checkConvertPanel <- renderUI({
 ########### STEP 1 ############
 output$Convert_SelectFile <- renderUI({
     tagList(
-        br(), br(),
-        radioButtons("choose_software", "Software to import from",
-            choices = setNames(nm = DAPAR::GetSoftAvailables()),
-            selected = character(0)
-        ),
-        uiOutput("choose_file_to_import"),
-        uiOutput("ManageXlsFiles"),
-        uiOutput("ConvertOptions")
+        wellPanel(
+            fluidRow(
+            column(width = 3,
+                   p('Data source'),
+                   radioButtons("choose_software", "",
+                                choices = setNames(nm = DAPAR::GetSoftAvailables()),
+                                selected = DAPAR::GetSoftAvailables()[2]
+                                )),
+            column(width = 4,
+                   uiOutput("choose_file_to_import"),
+                   uiOutput("ManageXlsFiles"),
+                   uiOutput("Manage_csv_Files")
+                   ),
+            column(width = 5,
+                   checkboxInput('show_preview', 'show_preview', value = FALSE),
+                   uiOutput("previewDataset_UI")
+                   )
+            )
+            ),
+        wellPanel(
+            p('Options'),
+            uiOutput("ConvertOptions")
+            ),
+        tags$div(style='"align: center;display:inline-block; vertical-align: top;',
+                 uiOutput('loadFile_btn_UI')
+                 ),
+        tags$div(style='"align: center;display:inline-block; vertical-align: top;',
+                 uiOutput('info_file_loaded_UI')
+        )
     )
 })
 
 
 
+output$info_file_loaded_UI <- renderUI({
+    req(rv$tab1)
+    p('The file has been loaded correctly')
+})
+
+output$loadFile_btn_UI <- renderUI({
+    req(input$file1$name)
+    .ext <- GetExtension(input$file1$name)
+    cond.csv <-.ext %in% c("txt", "csv", 'tsv')
+    cond.xl <- .ext %in% c("xls", "xlsx") && !is.null(input$XLSsheets)
+    req(cond.csv || cond.xl)
+    actionButton("loadFile", "Load file", class = actionBtnClass)
+})
+
 output$choose_file_to_import <- renderUI({
-    req(input$choose_software)
-    fluidRow(
-        column(width = 2,
-            popover_for_help_ui("modulePopover_convertChooseDatafile")
-        ),
-        column(width = 10,
-            fileInput("file1", "",
-                multiple = FALSE,
-                accept = c(".txt", ".tsv", ".csv", ".xls", ".xlsx")
+    #req(input$choose_software)
+    tagList(
+        popover_for_help_ui("modulePopover_convertChooseDatafile"),
+        fileInput("file1", "",
+              width = '300px',
+              multiple = FALSE,
+              accept = c(".txt", ".tsv", ".csv", ".xls", ".xlsx")
             )
-        )
     )
 })
 
@@ -92,91 +123,129 @@ fileExt.ok <- reactive({
 })
 
 output$ConvertOptions <- renderUI({
-    req(input$choose_software)
-    req(input$file1)
-    req(fileExt.ok())
+    #req(input$choose_software)
+    #req(input$file1)
+    #req(fileExt.ok())
 
     tagList(
-        radioButtons("typeOfData",
-            "Is it a peptide or protein dataset ?",
-            choices = c(
-                "peptide dataset" = "peptide",
-                "protein dataset" = "protein"
-            )
-        ),
-        radioButtons("checkDataLogged",
-            "Are your data already log-transformed ?",
-            # width = widthWellPanel,
-            choices = c(
-                "yes (they stay unchanged)" = "yes",
-                "no (they wil be automatically transformed)" = "no"
-            ),
-            selected = "no"
-        ),
-        br(),
-        checkboxInput("replaceAllZeros",
-            "Replace all 0 and NaN by NA",
-            value = TRUE
-        )
+        fluidRow(
+            column(width = 2,
+                   radioButtons("typeOfData", "Type of dataset",
+            choices = c( "peptide dataset" = "peptide",
+                         "protein dataset" = "protein"),
+            selected = rv$widgets$Convert$typeOfDataset)),
+        column(width = 4,
+               radioButtons("checkDataLogged", "Data already log-transformed ?",
+                            choices = c("yes (they stay unchanged)" = "yes",
+                                        "no (they wil be automatically transformed)" = "no"),
+                            selected = rv$widgets$Convert$checkDataLogged)),
+        column(width = 2,
+               checkboxInput("replaceAllZeros", "Replace all 0 and NaN by NA",
+                             value = TRUE)
+        ))
     )
 })
 
+observeEvent(input$typeOfData, ignoreInit = TRUE, {rv$widgets$Convert$typeOfDataset <- input$typeOfData})
+observeEvent(input$checkDataLogged, ignoreInit = TRUE, {rv$widgets$Convert$checkDataLogged <- input$checkDataLogged})
 
 
 
-############ Read text file to be imported ######################
-observeEvent(req(input$file1), {
-    #input$XLSsheets
-    #if (((GetExtension(input$file1$name) %in% c("xls", "xlsx"))) &&
-    #    is.null(input$XLSsheets)) {
-    #  return(NULL)
-    #}
 
+
+
+ReadDatasetFile <- reactive({
+    req(input$file1)
+    
+    tab1 <- NULL
+    #browser()
     authorizedExts <- c("txt", "csv", "tsv", "xls", "xlsx")
     if (!fileExt.ok()) {
         shinyjs::info("Warning : this file is not a text nor an Excel file !
      Please choose another one.")
     } else {
         tryCatch({
-        ClearUI()
-        ClearMemory()
-        ext <- GetExtension(input$file1$name)
-        shinyjs::disable("file1")
-        switch(ext,
-            txt = {
-                rv$tab1 <- read.csv(input$file1$datapath, header = TRUE, sep = "\t", as.is = T)
-            },
-            csv = {
-                rv$tab1 <- read.csv(input$file1$datapath, header = TRUE, sep = ";", as.is = T)
-            },
-            tsv = {
-                rv$tab1 <- read.csv(input$file1$datapath, header = TRUE, sep = "\t", as.is = T)
-            },
-            xls = {
-                rv$tab1 <- readExcel(input$file1$datapath, ext, sheet = input$XLSsheets)
-            },
-            xlsx = {
-                rv$tab1 <- readExcel(input$file1$datapath, ext, sheet = input$XLSsheets)
+            
+            ext <- GetExtension(input$file1$name)
+            shinyjs::disable("file1")
+            
+            if (ext %in% c('txt', 'csv', 'tsv')){
+               # req(input$csv_separator)
+                
+               # .sep <- input$csv_separator
+               # if (.sep == 'tab')
+                    .sep <- '\t'
+                
+                tab1 <- read.csv(input$file1$datapath, 
+                                 header = TRUE, 
+                                 sep = .sep, 
+                                 as.is = T)
             }
-        )
-
-        colnames(rv$tab1) <- gsub(".", "_", colnames(rv$tab1), fixed = TRUE)
-        colnames(rv$tab1) <- gsub(" ", "_", colnames(rv$tab1), fixed = TRUE)
-           },
+            else if (ext %in% c('xls', 'xlsx')){
+                req(input$XLSsheets)
+                tab1 <- DAPAR::readExcel(input$file1$datapath, 
+                                         sheet = input$XLSsheets)
+            }
+            
+            colnames(tab1) <- gsub(".", "_", colnames(tab1), fixed = TRUE)
+            colnames(tab1) <- gsub(" ", "_", colnames(tab1), fixed = TRUE)
+        },
         warning = function(w) {
-            shinyjs::info(conditionMessage(w))
-            return(NULL)
+            #shinyjs::info(conditionMessage(w))
+            tab1 <- NULL
         },
         error = function(e) {
-            shinyjs::info(conditionMessage(e))
-            return(NULL)
+            #shinyjs::info(conditionMessage(e))
+            tab1 <- NULL
         },
         finally = {
             # cleanup-code
         })
-        
-        
     }
+    
+    tab1
+})
+
+
+
+output$previewDataset_UI <- renderUI({
+    req(ReadDatasetFile())
+    req(input$show_preview)
+    
+    tagList(
+        p(style = "color: black;", "Preview"),
+        DT::DTOutput("previewDataset", width = '100%')
+    )
+})
+
+output$previewDataset <- DT::renderDT(server = TRUE, {
+    #req(ReadDatasetFile())
+    DT::datatable(as.data.frame(ReadDatasetFile()[1:3,]),
+                  rownames = FALSE,
+                  plugins = "ellipsis",
+                  extensions = c("Scroller", "FixedColumns"),
+                  options = list(
+                      dom = "Brt",
+                      scrollX = TRUE,
+                      ordering = FALSE
+                  )
+                  )
+})
+
+
+
+observeEvent(input$show_preview, {
+    print("preload")
+    #browser()
+    preview.dataset <- ReadDatasetFile()
+    
+    print(colnames(preview.dataset))
+})
+
+
+############ Read text file to be imported ######################
+observeEvent(input$loadFile, {
+rv$tab1 <- ReadDatasetFile()
 })
 
 
@@ -206,6 +275,20 @@ output$ManageXlsFiles <- renderUI({
 })
 
 
+
+
+
+# output$Manage_csv_Files <- renderUI({
+#     req(input$file1)
+#     
+#     req(GetExtension(input$file1$name) %in% c("csv"))
+#     
+#     selectInput('csv_separator', 'Separator', 
+#                 choices = c(';' = ';',
+#                             'tab' = 'tab',
+#                             '.' = '.'),
+#                 width = '100px')
+# })
 
 
 ################## STEP 2 ###############################
@@ -264,7 +347,7 @@ output$warningNonUniqueID <- renderUI({
 
 output$convertChooseProteinID_UI <- renderUI({
     req(rv$tab1)
-    req(input$typeOfData != "protein")
+    req(rv$widgets$Convert$typeOfDataset != "protein")
 
     .choices <- c("", colnames(rv$tab1))
     names(.choices) <- c("", colnames(rv$tab1))
@@ -281,12 +364,12 @@ output$convertChooseProteinID_UI <- renderUI({
 
 
 output$helpTextDataID <- renderUI({
-    input$typeOfData
-    if (is.null(input$typeOfData)) {
+    rv$widgets$Convert$typeOfDataset
+    if (is.null(rv$widgets$Convert$typeOfDataset)) {
         return(NULL)
     }
     t <- ""
-    switch(input$typeOfData,
+    switch(rv$widgets$Convert$typeOfDataset,
         protein = {
             t <- "proteins"
         },
@@ -326,6 +409,7 @@ output$previewProteinID_UI <- renderUI({
 
 
 
+
 output$previewProtID <- renderTable(
     # req(input$convert_proteinId),
     head(rv$tab1[, input$convert_proteinId]),
@@ -353,10 +437,8 @@ output$Convert_ExpFeatData <- renderUI({
             ),
             column(width = 4, uiOutput("checkIdentificationTab")),
             column(width = 4, shinyjs::hidden(
-                div(
-                    id = "warning_neg_values",
-                    p(
-                        "Warning : Your original dataset may contain
+                div(id = "warning_neg_values",
+                    p("Warning : Your original dataset may contain
                       negative values",
                         "so that they cannot be logged. Please check
                       back the dataset or",
@@ -385,8 +467,7 @@ output$inputGroup <- renderUI({
         inputName <- paste("colForOriginValue_", i, sep = "")
         div(
             div(
-                style = "align: center;display:inline-block; vertical-align:
-          middle;padding-right: 10px;",
+                style = "align: center;display:inline-block; vertical-align: middle;padding-right: 10px;",
                 p(tags$strong(paste0(
                     "Identification col. for ",
                     input$choose_quantitative_columns[i]
@@ -443,13 +524,13 @@ output$eData <- renderUI({
     tagList(
         popover_for_help_ui("modulePopover_convertDataQuanti"),
         selectInput("choose_quantitative_columns",
-            label = "",
-            choices = choices,
-            multiple = TRUE, width = "200px",
-            size = 20,
-            selectize = FALSE
+                    label = "",
+                    choices = choices,
+                    multiple = TRUE, width = "200px",
+                    size = 20,
+                    selectize = FALSE
+                    )
         )
-    )
 })
 
 
@@ -525,22 +606,14 @@ output$Convert_BuildDesign <- renderUI({
     tagList(
         tags$p(
             "If you do not know how to fill the experimental design, you can
-            click on the '?' next to each design in the list that appear
-            once the conditions are checked or got to the ",
-            actionLink("linkToFaq1", "FAQ",
-                style = "background-color: white"
-            ),
-            " page."
-        ),
+            go to the ",
+            shiny::actionLink(inputId = "openFAQ", label = "FAQ"), " page."),
         fluidRow(
-            column(
-                width = 6,
-                tags$b("1 - Fill the \"Condition\" column to identify
-                the conditions to compare.")
+            column(width = 6,
+            tags$b("1 - Fill the \"Condition\" column to identify the conditions to compare.")
             ),
-            column(
-                width = 6,
-                uiOutput("UI_checkConditions")
+            column(width = 6,
+                   uiOutput("UI_checkConditions")
             )
         ),
         fluidRow(
@@ -553,12 +626,10 @@ output$Convert_BuildDesign <- renderUI({
             width = "100px"
         ),
         tags$div(
-            tags$div(
-                style = "display:inline-block; vertical-align: top;",
+            tags$div(style = "display:inline-block; vertical-align: top;",
                 uiOutput("viewDesign", width = "100%")
             ),
-            tags$div(
-                style = "display:inline-block; vertical-align: top;",
+            tags$div(style = "display:inline-block; vertical-align: top;",
                 shinyjs::hidden(div(
                     id = "showExamples",
                     uiOutput("designExamples")
@@ -569,6 +640,9 @@ output$Convert_BuildDesign <- renderUI({
 })
 
 
+observeEvent(input$openFAQ, {
+    browseURL('https://www.prostar-proteomics.org/#Frequently_asked_questions')
+})
 
 ############# STEP 5 ########################
 
@@ -642,15 +716,13 @@ output$warningCreateMSnset <- renderUI({
 
 #######################################
 observeEvent(input$createMSnsetButton, ignoreInit = TRUE, {
+    
     colNamesForMetacell <- NULL
-    
-    
     if (isTRUE(as.logical(input$selectIdent))) {
         n <- length(input$choose_quantitative_columns)
 
         colNamesForMetacell <- unlist(lapply(seq_len(n), function(x) {
-            input[[paste0("colForOriginValue_", x)]]
-        }))
+            input[[paste0("colForOriginValue_", x)]]}))
         if (length(which(colNamesForMetacell == "None")) > 0) {
             return(NULL)
         }
@@ -678,27 +750,26 @@ observeEvent(input$createMSnsetButton, ignoreInit = TRUE, {
                     xlsx = writeToCommandLogFile(txtXls)
                 )
 
-
+                metadata <- hot_to_r(input$hot)
+                #logData <- (rv$widgets$Convert$checkDataLogged== "no")
+                
+                
                 input$filenameToCreate
                 rv$tab1
-                .chooseCols <- input$choose_quantitative_columns
-                indexForEData <- match(
-                    .chooseCols,
-                    colnames(rv$tab1)
-                )
-                if (!is.null(rv$newOrder)) {
-                    .chooseCols <- .chooseCols[rv$newOrder]
-                    indexForEData <- indexForEData[rv$newOrder]
-                }
+                
+               # browser()
+                indexForEData <- match(rv$hot[, 'Sample.name'], colnames(rv$tab1))
+                # .chooseCols <- input$choose_quantitative_columns
+                # indexForEData <- match(.chooseCols,colnames(rv$tab1))
+                # if (!is.null(rv$newOrder)) {
+                #     indexForEData <- rv$newOrder
+                # }
 
                 indexForFData <- seq(1, ncol(rv$tab1))[-indexForEData]
 
 
 
-                metadata <- hot_to_r(input$hot)
-                logData <- (input$checkDataLogged == "no")
-
-
+                
                 indexForMetacell <- NULL
                 if (!is.null(colNamesForMetacell) &&
                     (length(grep("None", colNamesForMetacell)) == 0) &&
@@ -712,21 +783,23 @@ observeEvent(input$createMSnsetButton, ignoreInit = TRUE, {
                 options(digits = 15)
 
                 protId <- NULL
-                if (input$typeOfData == "protein") {
+                if (rv$widgets$Convert$typeOfDataset == "protein") {
                     protId <- input$colnameForID
-                } else if (input$typeOfData == "peptide") {
+                } else if (rv$widgets$Convert$typeOfDataset == "peptide") {
                     protId <- input$convert_proteinId
                 }
 
+                
+                #browser()
                 tmp <- DAPAR::createMSnset(
                     file = rv$tab1,
                     metadata = metadata,
                     indExpData = indexForEData,
                     colnameForID = input$colnameForID,
                     indexForMetacell = indexForMetacell,
-                    logData = logData,
+                    logData = (rv$widgets$Convert$checkDataLogged== "no"),
                     replaceZeros = input$replaceAllZeros,
-                    pep_prot_data = input$typeOfData,
+                    pep_prot_data = rv$widgets$Convert$typeOfDataset,
                     proteinId = gsub(".", "_", protId, fixed = TRUE),
                     software = input$choose_software
                 )
@@ -747,21 +820,10 @@ observeEvent(input$createMSnsetButton, ignoreInit = TRUE, {
             })
         
         if(inherits(result, "try-error")) {
-          # browser()
-          sendSweetAlert(
-            session = session,
-            title = "Error",
-            text = tags$div(style = "display:inline-block; vertical-align: top;",
-                            p(result[[1]]),
-                            rclipButton(inputId = "clipbtn",
-                                        label = "",
-                                        clipText = result[[1]], 
-                                        icon = icon("copy"),
-                                        class = actionBtnClass
-                            )
-            ),
-            type = "error"
-          )
+             mod_SweetAlert_server('sweetAlert_convert',
+                                  text = result[[1]],
+                                  showClipBtn = TRUE,
+                                  type = 'error')
         } else {
           # sendSweetAlert(
           #   session = session,
@@ -771,5 +833,16 @@ observeEvent(input$createMSnsetButton, ignoreInit = TRUE, {
         }
         
 
+    })
+    
+    
+    observe({
+        req(rv$current.obj)
+        req(!Check_Dataset_Validity(rv$current.obj))
+        mod_SweetAlert_server('sweetAlert_Check_Dataset_Validity',
+                              text = Check_Dataset_Validity(rv$current.obj),
+                              showClipBtn = FALSE,
+                              type = 'warning')
+        
     })
 })
