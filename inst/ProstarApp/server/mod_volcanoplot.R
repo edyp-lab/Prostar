@@ -34,49 +34,38 @@ mod_volcanoplot_server <- function(id,
             
             if (DAPAR::GetTypeofData(rv$current.obj) == "protein") {
                 if (is.null(DAPAR::GetMatAdj(rv$current.obj))) {
-                    shinyBS::bsCollapse(
-                        id = ns("collapseVolcanoInfos"),
+                    shinyBS::bsCollapse(id = ns("collapseVolcanoInfos"),
                         open = "Protein",
                         multiple = TRUE,
                         shinyBS::bsCollapsePanel("Protein",
                                                  tagList(
                                                      uiOutput(ns("Warning_Infos")),
                                                      DT::dataTableOutput(ns("Infos"))
-                                                 ),
-                                                 style = "info"
-                        )
+                                                 ), style = "info")
                     )
                 } else {
-                    shinyBS::bsCollapse(
-                        id = ns("collapseVolcanoInfos"),
+                    shinyBS::bsCollapse(id = ns("collapseVolcanoInfos"),
                         open = c("Protein", "Specific peptides", "Shared peptides"),
                         multiple = TRUE,
                         shinyBS::bsCollapsePanel("Protein",
                                                  tagList(
                                                      uiOutput(ns("Warning_Infos")),
                                                      DT::dataTableOutput(ns("Infos"))
-                                                 ),
-                                                 style = "info"
-                        ),
+                                                 ), style = "info"),
                         shinyBS::bsCollapsePanel("Specific peptides",
                                                  tagList(
                                                      uiOutput(ns("Warning_specificPeptidesInfos")),
                                                      DT::dataTableOutput(ns("specificPeptidesInfos"))
-                                                 ),
-                                                 style = "primary"
-                        ),
+                                                 ), style = "primary"),
                         shinyBS::bsCollapsePanel("Shared peptides",
                                                  tagList(
                                                      uiOutput(ns("Warning_sharedPeptidesInfos")),
                                                      DT::dataTableOutput(ns("sharedPeptidesInfos"))
-                                                 ),
-                                                 style = "primary"
-                        )
+                                                 ), style = "primary")
                     )
                 }
             } else if (GetTypeofData(rv$current.obj) == "peptide") {
-                shinyBS::bsCollapse(
-                    id = ns("collapseVolcanoInfos"),
+                shinyBS::bsCollapse(id = ns("collapseVolcanoInfos"),
                     open = "Peptide",
                     multiple = TRUE,
                     shinyBS::bsCollapsePanel("Peptide",

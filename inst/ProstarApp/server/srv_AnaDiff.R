@@ -179,12 +179,10 @@ output$screenAnaDiff1 <- renderUI({
             uiOutput("pushpval_ui"),
             tags$hr(),
             tags$div(
-                tags$div(
-                    style = "display:inline-block; vertical-align: top; padding-right: 60px",
+                tags$div(style = "display:inline-block; vertical-align: top; padding-right: 60px",
                     mod_volcanoplot_ui("volcano_Step1")
                 ),
-                tags$div(
-                    style = "display:inline-block; vertical-align: top;",
+                tags$div(style = "display:inline-block; vertical-align: top;",
                     tagList(
                         br(),
                         uiOutput("volcanoTooltip_UI")
