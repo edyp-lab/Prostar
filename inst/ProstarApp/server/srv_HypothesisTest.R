@@ -189,30 +189,21 @@ output$screenHypoTest1 <- renderUI({
         anaDiffMethod_Choices <- NULL
         if (length(unique(pData(rv$current.obj)$Condition)) > 26 ||
             DAPAR::getDesignLevel(pData(rv$current.obj)) > 1)
-            anaDiffMethod_Choices <- c(
-                "None" = "None",
-                "t-tests" = "ttests"
-            )
+            anaDiffMethod_Choices <- c("None" = "None",
+                                       "t-tests" = "ttests")
         else
-            anaDiffMethod_Choices <- c(
-                "None" = "None",
-                "Limma" = "Limma",
-                "t-tests" = "ttests"
-            )
+            anaDiffMethod_Choices <- c("None" = "None",
+                                       "Limma" = "Limma",
+                                       "t-tests" = "ttests")
         
         design_choices <- c("None" = "None", 
                             "One vs One" = "OnevsOne",
                             "One vs All" = "OnevsAll")
-        
-        
-        
-        
-        
+
         
         m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
                             pattern = c("Missing", "Missing POV", "Missing MEC"),
-                            level = DAPAR::GetTypeofData(rv$current.obj)
-        )
+                            level = DAPAR::GetTypeofData(rv$current.obj))
         NA.count <- length(which(m))
         
         
@@ -226,8 +217,7 @@ output$screenHypoTest1 <- renderUI({
                 uiOutput("warning_conditions_ui"),
                 tags$div(
                     tags$div(
-                        style = "display:inline-block; vertical-align: middle;
-          padding-right: 20px;",
+                        style = "display:inline-block; vertical-align: middle; padding-right: 20px;",
                         selectInput("anaDiff_Design", "Contrast",
                                     choices = design_choices,
                                     selected = .widgets$design,
@@ -235,8 +225,7 @@ output$screenHypoTest1 <- renderUI({
                         )
                     ),
                     tags$div(
-                        style = "display:inline-block; vertical-align: middle;
-          padding-right: 20px;",
+                        style = "display:inline-block; vertical-align: middle; padding-right: 20px;",
                         selectInput("diffAnaMethod", "Statistical test",
                                     choices = anaDiffMethod_Choices,
                                     selected = .widgets$method,
@@ -244,8 +233,7 @@ output$screenHypoTest1 <- renderUI({
                         )
                     ),
                     tags$div(
-                        style = "display:inline-block; vertical-align: middle;
-          padding-right: 20px;",
+                        style = "display:inline-block; vertical-align: middle; padding-right: 20px;",
                         hidden(
                             radioButtons("ttest_options", "t-tests options",
                                          choices = c("Student", "Welch"),
@@ -255,8 +243,7 @@ output$screenHypoTest1 <- renderUI({
                         )
                     ),
                     tags$div(
-                        style = "display:inline-block; vertical-align: middle;
-          padding-right: 20px;",
+                        style = "display:inline-block; vertical-align: middle; padding-right: 20px;",
                         textInput("seuilLogFC",
                                   "log(FC) threshold",
                                   value = .widgets$th_logFC,
@@ -303,20 +290,19 @@ output$warning_conditions_ui <- renderUI({
 })
 
 output$perform_btn <- renderUI({
-    rvModProcess$moduleHypothesisTestDone[1]
-    if (rvModProcess$moduleHypothesisTestDone[1]) {
-        shinyjs::disabled(
-            actionButton("PerformLogFCPlot",
-                         "Perform log FC plot",
-                         class = actionBtnClass
-            )
-        )
-    } else {
+    #rvModProcess$moduleHypothesisTestDone[1]
+    # if (rvModProcess$moduleHypothesisTestDone[1]) {
+    #     shinyjs::disabled(
+    #         actionButton("PerformLogFCPlot",
+    #                      "Perform log FC plot",
+    #                      class = actionBtnClass
+    #         )
+    #     )
+    # } else {
         actionButton("PerformLogFCPlot",
                      "Perform log FC plot",
-                     class = actionBtnClass
-        )
-    }
+                     class = actionBtnClass)
+   # }
 })
 
 # Definition of screen 2

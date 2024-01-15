@@ -325,8 +325,15 @@ output$screenFiltering2 <- renderUI({
 output$explainSymFilter_ui <- renderUI({
     req(input$symFilter_cname != "None")
     req(input$symFilter_tagName != "")
+    
+    ind <- getIndicesOfLinesToRemove(rv$current.obj,
+                                     input$symFilter_cname,
+                                     input$symFilter_tagName)
+ 
     txt <- paste0(
-        "You are about to delete lines in the column '",
+        "You are about to delete ",
+        length(ind),
+        " lines in the column '",
         input$symFilter_cname, "' which begin with '",
         input$symFilter_tagName,
         "'."
@@ -373,12 +380,11 @@ observeEvent(input$perform.text.filtering, {
     rv$current.obj <- res[["obj"]]
     rvModProcess$moduleFilteringDone[2] <- TRUE
 
-    df <- data.frame(
-        Filter = cname,
-        Prefix = tagName,
-        nbDeleted = nbDeleted,
-        Total = nrow(rv$current.obj)
-    )
+    df <- data.frame(Filter = cname,
+                     Prefix = tagName,
+                     nbDeleted = nbDeleted,
+                     Total = nrow(rv$current.obj)
+                     )
     rv$widgets$filtering$DT_filterSummary <- rbind(
         rv$widgets$filtering$DT_filterSummary, df
     )
@@ -393,13 +399,11 @@ output$FilterSummaryData <- DT::renderDataTable(server = TRUE, {
     req(rv$widgets$filtering$DT_numfilterSummary)
     isolate({
         if (nrow(rv$widgets$filtering$DT_filterSummary) == 0) {
-            df <- data.frame(
-                Filter = "-",
-                Prefix = "-",
-                nbDeleted = 0,
-                Total = nrow(rv$current.obj),
-                stringsAsFactors = FALSE
-            )
+            df <- data.frame(Filter = "-",
+                             Prefix = "-",
+                             nbDeleted = 0,
+                             Total = nrow(rv$current.obj),
+                             stringsAsFactors = FALSE)
             rv$widgets$filtering$DT_filterSummary <- df
         }
 
@@ -476,9 +480,18 @@ output$screenFiltering3 <- renderUI({
 output$explainNumFilter_ui <- renderUI({
     req(input$numericFilter_cname != "None")
     req(input$numericFilter_value != "")
-
+    req(input$numericFilter_operator != "")
+    
+    indices <- NumericalgetIndicesOfLinesToRemove(
+        rv$current.obj,
+        input$numericFilter_cname,
+        input$numericFilter_value,
+        input$numericFilter_operator)
+    
     txt <- paste0(
-        "You are about to delete lines where ",
+        "You are about to delete ", 
+        length(indices),
+        " lines where ",
         input$numericFilter_cname, " ",
         input$numericFilter_operator,
         " ", input$numericFilter_value, "."
