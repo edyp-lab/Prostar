@@ -73,9 +73,9 @@ mod_set_pval_threshold_server <- function(id,
         
         output$thresholdType_UI <- renderUI({
             radioButtons(ns('thresholdType'), NULL, 
-                         choices = c('p-value' = 'pval', 
-                                     '-log10(p-value)' = 'logpval'),
-                         selected = if (is.null(options$threshold)) 'pval' else options$threshold)
+                         choices = c('-log10(p-value)' = 'logpval',
+                                     'p-value' = 'pval'),
+                         selected = if (is.null(options$threshold)) 'logpval' else options$threshold)
         })
         
         
@@ -91,26 +91,26 @@ mod_set_pval_threshold_server <- function(id,
         })
         
         output$warn_text1_UI <- renderUI({
-            req(0 > as.numeric(input$text1) || as.numeric(input$text1) > 1)
-            p(style='color: red;', 'Must be between 0 and 1.')
-        })
-        
-        output$warn_text2_UI <- renderUI({
             req(0 > as.numeric(input$text2))
             p(style='color: red;', 'Must be greater than 0.')
         })
         
+        output$warn_text2_UI <- renderUI({
+            req(0 > as.numeric(input$text1) || as.numeric(input$text1) > 1)
+            p(style='color: red;', 'Must be between 0 and 1.')
+        })
+        
         output$text1_UI <- renderUI({
             pval_init()
-            textInput(ns('text1'), NULL, 
-                      value = pval_init(), 
+            textInput(ns('text2'), NULL, 
+                      value = -log10(pval_init()), 
                       width = '100px')
         })
         
         output$text2_UI <- renderUI({
             pval_init()
-            textInput(ns('text2'), NULL, 
-                      value = -log10(pval_init()), 
+            textInput(ns('text1'), NULL, 
+                      value = pval_init(), 
                       width = '100px')
         })
         
@@ -158,7 +158,8 @@ server <- function(input, output) {
     output$test <- renderUI({
         rv$logpval <- mod_set_pval_threshold_server(id = "Title",
                                              pval_init = reactive({1}),
-                                             fdr = reactive({3.8}))
+                                             fdr = reactive({3.8})
+                                             )
         mod_set_pval_threshold_ui("Title")
     })
     
