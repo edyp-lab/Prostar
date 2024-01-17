@@ -731,13 +731,13 @@ observeEvent(input$createMSnsetButton, ignoreInit = TRUE, {
             return(NULL)
         }
         
+        tmp.df <- cbind(qdata.names = input$choose_quantitative_columns,
+                        metacell.names = colNamesForMetacell)
+        
         if (input$convert_reorder == 'Yes') {
-            rv$newOrder <- match(rv$hot[, 'Sample.name'], colnames(rv$tab1))
-            tmp.df <- cbind(qdata.names = input$choose_quantitative_columns,
-                            metacell.names = colNamesForMetacell)
             new.order <- match(rv$hot[, 'Sample.name'], tmp.df[,1])
             tmp.df <- tmp.df[new.order,]
-            colNamesForMetacell <- tmp.df[,'metacell.names']
+           # colNamesForMetacell <- tmp.df[,'metacell.names']
             #f <- match(rv$hot[, 'Sample.name'], colnames(rv$tab1))
         }
         
@@ -808,7 +808,6 @@ observeEvent(input$createMSnsetButton, ignoreInit = TRUE, {
                 }
 
                 
-                #browser()
                 tmp <- DAPAR::createMSnset2(
                     file = rv$tab1,
                     metadata = metadata,
