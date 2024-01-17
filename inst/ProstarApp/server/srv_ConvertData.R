@@ -717,21 +717,41 @@ output$warningCreateMSnset <- renderUI({
 #######################################
 observeEvent(input$createMSnsetButton, ignoreInit = TRUE, {
     
+    tmp.df <- NULL
+    
+    #----------------------------------------------------
+    
     colNamesForMetacell <- NULL
     if (isTRUE(as.logical(input$selectIdent))) {
         n <- length(input$choose_quantitative_columns)
-
+        
         colNamesForMetacell <- unlist(lapply(seq_len(n), function(x) {
             input[[paste0("colForOriginValue_", x)]]}))
         if (length(which(colNamesForMetacell == "None")) > 0) {
             return(NULL)
         }
-        if (!is.null(rv$newOrder)) {
-            colNamesForMetacell <- colNamesForMetacell[rv$newOrder]
+        
+        if (input$convert_reorder == 'Yes') {
+            rv$newOrder <- match(rv$hot[, 'Sample.name'], colnames(rv$tab1))
+            tmp.df <- cbind(qdata.names = input$choose_quantitative_columns,
+                            metacell.names = colNamesForMetacell)
+            new.order <- match(rv$hot[, 'Sample.name'], tmp.df[,1])
+            tmp.df <- tmp.df[new.order,]
+            colNamesForMetacell <- tmp.df[,'metacell.names']
+            #f <- match(rv$hot[, 'Sample.name'], colnames(rv$tab1))
         }
+        
+        # if (!is.null(rv$newOrder)) {
+        #     new.order.metacell <- match(input$choose_quantitative_columns,  
+        #                                 rv$hot[, 'Sample.name'])
+        #     colNamesForMetacell <- colNamesForMetacell[new.order.metacell]
+        #     indexForEData <- match(rv$hot[, 'Sample.name'], colnames(rv$tab1))
+        # }
     }
+    
+    #----------------------------------------------------
 
-    isolate({
+    #isolate({
         result <- try({
                 ext <- GetExtension(input$file1$name)
                 txtTab <- paste("tab1 <- read.csv(\"", input$file1$name,
@@ -757,28 +777,26 @@ observeEvent(input$createMSnsetButton, ignoreInit = TRUE, {
                 input$filenameToCreate
                 rv$tab1
                 
+                
                # browser()
-                indexForEData <- match(rv$hot[, 'Sample.name'], colnames(rv$tab1))
+                #indexForEData <- match(rv$hot[, 'Sample.name'], colnames(rv$tab1))
                 # .chooseCols <- input$choose_quantitative_columns
                 # indexForEData <- match(.chooseCols,colnames(rv$tab1))
                 # if (!is.null(rv$newOrder)) {
                 #     indexForEData <- rv$newOrder
                 # }
 
-                indexForFData <- seq(1, ncol(rv$tab1))[-indexForEData]
+                #indexForFData <- seq(1, ncol(rv$tab1))[-indexForEData]
 
 
 
                 
-                indexForMetacell <- NULL
-                if (!is.null(colNamesForMetacell) &&
-                    (length(grep("None", colNamesForMetacell)) == 0) &&
-                    (sum(is.na(colNamesForMetacell)) == 0)) {
-                    indexForMetacell <- match(
-                        colNamesForMetacell,
-                        colnames(rv$tab1)
-                    )
-                }
+                # indexForMetacell <- NULL
+                # if (!is.null(colNamesForMetacell) &&
+                #     (length(grep("None", colNamesForMetacell)) == 0) &&
+                #     (sum(is.na(colNamesForMetacell)) == 0)) {
+                #     indexForMetacell <- match(colNamesForMetacell, colnames(rv$tab1))
+                # }
 
                 options(digits = 15)
 
@@ -791,12 +809,12 @@ observeEvent(input$createMSnsetButton, ignoreInit = TRUE, {
 
                 
                 #browser()
-                tmp <- DAPAR::createMSnset(
+                tmp <- DAPAR::createMSnset2(
                     file = rv$tab1,
                     metadata = metadata,
-                    indExpData = indexForEData,
+                    qdataNames = tmp.df[, 'qdata.names'],
                     colnameForID = input$colnameForID,
-                    indexForMetacell = indexForMetacell,
+                    metacellNames = tmp.df[, 'metacell.names'],
                     logData = (rv$widgets$Convert$checkDataLogged== "no"),
                     replaceZeros = input$replaceAllZeros,
                     pep_prot_data = rv$widgets$Convert$typeOfDataset,
@@ -833,7 +851,7 @@ observeEvent(input$createMSnsetButton, ignoreInit = TRUE, {
         }
         
 
-    })
+   # })
     
     
     observe({

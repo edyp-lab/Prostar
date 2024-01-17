@@ -50,10 +50,10 @@ observeEvent(input$btn_checkConds, {
     input$convert_reorder
 
     req(length(grep("Bio.Rep", colnames(rv$hot))) == 0)
-
+    #browser()
     if (input$convert_reorder == "Yes") {
         rv$hot <- setorder(rv$hot, Condition)
-       # browser()
+        
         rv$newOrder <- match(rv$hot[, 'Sample.name'], colnames(rv$tab1))
 
     }

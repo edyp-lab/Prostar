@@ -2,7 +2,7 @@ Package: Prostar
 Type: Package
 Title: Provides a GUI for DAPAR
 Version: 1.35.1
-Date: 2024-01-14
+Date: 2024-01-17
 Authors@R: c(
     person("Thomas", "Burger", email = "thomas.burger@cea.fr", role = c("aut")),
     person("Florence", "Combes", email = "florence.combes@cea.fr", 
@@ -23,7 +23,7 @@ License: Artistic-2.0
 Depends: R (>= 4.3.1)
 Suggests: BiocStyle, BiocManager, testthat, shinyTree, knitr, colourpicker, 
     gtools, XML, R.utils, RColorBrewer, DT, shinyWidgets, sass, rclipboard
-Imports: DAPAR (>= 1.34.5), DAPARdata (>= 1.30.0), rhandsontable, 
+Imports: DAPAR (>= 1.3.1), DAPARdata (>= 1.30.0), rhandsontable, 
     data.table, shiny, shinyBS, shinyAce, highcharter, htmlwidgets, webshot, 
     shinythemes, later, shinycssloaders, future, promises,  shinyjqui, tibble, 
     ggplot2, gplots, shinyjs, vioplot, Biobase
