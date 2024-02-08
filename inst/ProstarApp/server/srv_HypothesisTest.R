@@ -174,6 +174,28 @@ GetSwapShinyValue <- reactive({
 })
 
 
+enable_Limma <- reactive({
+    req(rv$current.obj)
+    
+    enable <- TRUE
+    
+    nConds <-length(unique(pData(rv$current.obj)$Condition))
+    nLevel <- DAPAR::getDesignLevel(pData(rv$current.obj))   
+    enable <- (nConds <= 26 && nLevel == 1) ||
+        (nConds < 10 && (nLevel%in% c(2,3)))
+    
+    enable
+})
+
+
+output$info_Limma_disabled <- renderUI({
+    req(!enable_Limma())
+    p('The Limma option has been disabled because the design of your dataset:
+      * is of level 1 and contains more than 26 conditions,
+      * is of level 2 or 3 and contains more than 9 conditions.
+      Prostar does not currently handle these cases.')
+})
+
 # First screen
 output$screenHypoTest1 <- renderUI({
     if (!requireNamespace("shinyBS", quietly = TRUE)) {
@@ -188,16 +210,8 @@ output$screenHypoTest1 <- renderUI({
         
         anaDiffMethod_Choices <- c("None" = "None",
                                    "t-tests" = "ttests")
-        
-        nConds <-length(unique(pData(rv$current.obj)$Condition))
-        nLevel <- DAPAR::getDesignLevel(pData(rv$current.obj))   
-        if (nConds <= 26 && nLevel == 1)
+        if(enable_Limma())
             anaDiffMethod_Choices <- c(anaDiffMethod_Choices, "Limma" = "Limma")
-        
-        if (nConds < 10 && (nLevel%in% c(2,3)))
-            anaDiffMethod_Choices <- c(anaDiffMethod_Choices, "Limma" = "Limma")
-        
-        
         
         design_choices <- c("None" = "None", 
                             "One vs One" = "OnevsOne",
@@ -263,6 +277,8 @@ output$screenHypoTest1 <- renderUI({
                         uiOutput("perform_btn")
                     )
                 ),
+                
+                uiOutput('info_Limma_disabled'),
                 tags$hr(),
                 shinyBS::bsCollapse(
                     id = "collapseExample",
