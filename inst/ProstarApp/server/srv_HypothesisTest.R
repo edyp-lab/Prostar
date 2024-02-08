@@ -186,28 +186,22 @@ output$screenHypoTest1 <- renderUI({
     
     isolate({
         
-        anaDiffMethod_Choices <- NULL
-        if (length(unique(pData(rv$current.obj)$Condition)) > 26 ||
-            DAPAR::getDesignLevel(pData(rv$current.obj)) > 1)
-            anaDiffMethod_Choices <- c(
-                "None" = "None",
-                "t-tests" = "ttests"
-            )
-        else
-            anaDiffMethod_Choices <- c(
-                "None" = "None",
-                "Limma" = "Limma",
-                "t-tests" = "ttests"
-            )
+        anaDiffMethod_Choices <- c("None" = "None",
+                                   "t-tests" = "ttests")
+        
+        nConds <-length(unique(pData(rv$current.obj)$Condition))
+        nLevel <- DAPAR::getDesignLevel(pData(rv$current.obj))   
+        if (nConds <= 26 && nLevel == 1)
+            anaDiffMethod_Choices <- c(anaDiffMethod_Choices, "Limma" = "Limma")
+        
+        if (nConds < 10 && (nLevel%in% c(2,3)))
+            anaDiffMethod_Choices <- c(anaDiffMethod_Choices, "Limma" = "Limma")
+        
+        
         
         design_choices <- c("None" = "None", 
                             "One vs One" = "OnevsOne",
                             "One vs All" = "OnevsAll")
-        
-        
-        
-        
-        
         
         m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
                             pattern = c("Missing", "Missing POV", "Missing MEC"),
@@ -226,8 +220,7 @@ output$screenHypoTest1 <- renderUI({
                 uiOutput("warning_conditions_ui"),
                 tags$div(
                     tags$div(
-                        style = "display:inline-block; vertical-align: middle;
-          padding-right: 20px;",
+                        style = "display:inline-block; vertical-align: middle; padding-right: 20px;",
                         selectInput("anaDiff_Design", "Contrast",
                                     choices = design_choices,
                                     selected = .widgets$design,
@@ -235,8 +228,7 @@ output$screenHypoTest1 <- renderUI({
                         )
                     ),
                     tags$div(
-                        style = "display:inline-block; vertical-align: middle;
-          padding-right: 20px;",
+                        style = "display:inline-block; vertical-align: middle; padding-right: 20px;",
                         selectInput("diffAnaMethod", "Statistical test",
                                     choices = anaDiffMethod_Choices,
                                     selected = .widgets$method,
@@ -244,8 +236,7 @@ output$screenHypoTest1 <- renderUI({
                         )
                     ),
                     tags$div(
-                        style = "display:inline-block; vertical-align: middle;
-          padding-right: 20px;",
+                        style = "display:inline-block; vertical-align: middle; padding-right: 20px;",
                         hidden(
                             radioButtons("ttest_options", "t-tests options",
                                          choices = c("Student", "Welch"),
@@ -255,8 +246,7 @@ output$screenHypoTest1 <- renderUI({
                         )
                     ),
                     tags$div(
-                        style = "display:inline-block; vertical-align: middle;
-          padding-right: 20px;",
+                        style = "display:inline-block; vertical-align: middle; padding-right: 20px;",
                         textInput("seuilLogFC",
                                   "log(FC) threshold",
                                   value = .widgets$th_logFC,
