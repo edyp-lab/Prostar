@@ -190,10 +190,14 @@ enable_Limma <- reactive({
 
 output$info_Limma_disabled <- renderUI({
     req(!enable_Limma())
-    p('The Limma option has been disabled because the design of your dataset:
-      * is of level 1 and contains more than 26 conditions,
-      * is of level 2 or 3 and contains more than 9 conditions.
-      Prostar does not currently handle these cases.')
+    tagList(
+        tags$p('Info: Limma has been disabled because the design of your dataset:'),
+        tags$ul(
+            tags$li(p('is of level 1 and contains more than 26 conditions,')),
+            tags$li('is of level 2 or 3 and contains more than 9 conditions.')
+        ),
+        tags$p('Prostar does not currently handle these cases.')
+    )
 })
 
 # First screen
