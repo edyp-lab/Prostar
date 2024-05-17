@@ -94,7 +94,7 @@ shinyServer(
          source(system.file("ProstarApp/server", "srv_Home.R", package = 'Prostar'), local = TRUE)$value
          source(system.file("ProstarApp/server", "srv_Settings.R", package = 'Prostar'), local = TRUE)$value
          source(system.file("ProstarApp/server", "srv_ParamsManager.R", package = 'Prostar'), local = TRUE)$value
-    
+
          # source(file.path(".", "modules/Plots/modulePlots.R"),  local = TRUE)$value
          source(system.file("ProstarApp/modules/Plots/moduleCC.R", package = 'Prostar'), local = TRUE)$value
          #stop('simulated error')

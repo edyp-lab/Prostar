@@ -533,6 +533,8 @@ mod_cc_server <- function(id, obj, cc) {
 
 
             BuildOne2OneTab <- reactive({
+                
+
                 GetCC(obj())$allPep
                 df <- cbind(
                     cbind(
@@ -749,15 +751,9 @@ mod_cc_server <- function(id, obj, cc) {
                     colnames(df) <- c("Proteins Ids", "Peptides Ids")
                     df
                 }),
-                name = reactive({
-                    "CC_OneOne"
-                }),
-                colors = reactive({
-                    NULL
-                }),
-                df.tags = reactive({
-                    NULL
-                })
+                name = reactive({"CC_OneOne"}),
+                colors = reactive({NULL}),
+                df.tags = reactive({NULL})
             )
 
 
@@ -765,6 +761,7 @@ mod_cc_server <- function(id, obj, cc) {
                 req(GetCC(obj())$allPep)
                 df <- BuildOne2OneTab()
                 colnames(df) <- c("Proteins Ids", "Peptides Ids")
+
                 dat <- DT::datatable(df,
                     selection = "single",
                     rownames = FALSE,
@@ -779,11 +776,11 @@ mod_cc_server <- function(id, obj, cc) {
                         scroller = TRUE,
                         orderClasses = TRUE,
                         autoWidth = FALSE,
-                        columns.searchable = F,
-                        columnDefs = list(list(
-                            width = c("60px"),
-                            targets = c(list(0), list(1), list(2))
-                        ))
+                        columns.searchable = FALSE
+                        # columnDefs = list(list(
+                        #     width = c("60px"),
+                        #     targets = c(list(0), list(1), list(2))
+                        # ))
                     )
                 )
 

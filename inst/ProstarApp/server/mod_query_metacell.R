@@ -409,7 +409,9 @@ mod_query_metacell_server <- function(id,
             
             output$metacellFilter_warning_ui <- renderUI({
                 warn.txt <- ''
+             
                 nb <- Check_NbValues_In_Columns(exprs(obj()))
+                
                 nb.empty.cols <- length(which(nb == 0))
                 nb.one.val.cols <- length(which(nb == 1))
                 

@@ -235,7 +235,7 @@ Get_Dataset_to_Analyze <- reactive({
     #req(rv$widgets$anaDiff$Comparison != "None")
     #req(rv$current.obj)
 
- 
+
     datasetToAnalyze <- NULL
 if (rv$widgets$anaDiff$Comparison == "None" || is.null(rv$current.obj))
   return(NULL)
@@ -1083,10 +1083,14 @@ Get_FDR <- reactive({
     adj.pval <- Build_pval_table()$Adjusted_PValue
     logpval <- Build_pval_table()$Log_PValue
     upitems_logpval <- which(logpval >= rv$widgets$anaDiff$th_pval)
-    
+    if (length(upitems_logpval) > 0){
     fdr <- max(adj.pval[upitems_logpval], na.rm = TRUE)
     rv$widgets$anaDiff$FDR <- as.numeric(fdr)
-    as.numeric(fdr)
+    } else {
+        rv$widgets$anaDiff$FDR <- NULL
+    }
+    
+    rv$widgets$anaDiff$FDR
 })
 
 observeEvent(input$validate_pval,{
