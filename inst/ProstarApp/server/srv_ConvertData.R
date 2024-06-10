@@ -732,12 +732,15 @@ observeEvent(input$createMSnsetButton, ignoreInit = TRUE, {
         tmp.df <- cbind(qdata.names = input$choose_quantitative_columns,
                         metacell.names = colNamesForMetacell)
     } else {
-        tmp.df <- cbind(qdata.names = input$choose_quantitative_columns)
+        tmp.df <- as.data.frame(cbind(qdata.names = input$choose_quantitative_columns))
 
     }
+    
+
         if (input$convert_reorder == 'Yes') {
             new.order <- match(rv$hot[, 'Sample.name'], tmp.df[,1])
-            tmp.df <- tmp.df[new.order,]
+            tmp.df <- as.data.frame(tmp.df[new.order,])
+            colnames(tmp.df) <- 'Sample.name'
            # colNamesForMetacell <- tmp.df[,'metacell.names']
             #f <- match(rv$hot[, 'Sample.name'], colnames(rv$tab1))
         }
@@ -754,6 +757,7 @@ observeEvent(input$createMSnsetButton, ignoreInit = TRUE, {
 
     #isolate({
         result <- try({
+            
                 ext <- GetExtension(input$file1$name)
                 txtTab <- paste("tab1 <- read.csv(\"", input$file1$name,
                     "\",header=TRUE, sep=\"\t\", as.is=T)",
@@ -812,7 +816,7 @@ observeEvent(input$createMSnsetButton, ignoreInit = TRUE, {
                 tmp <- DAPAR::createMSnset2(
                     file = rv$tab1,
                     metadata = metadata,
-                    qdataNames = tmp.df[, 'qdata.names'],
+                    qdataNames = tmp.df[, 'Sample.name'],
                     colnameForID = input$colnameForID,
                     metacellNames = if ('metacell.names' %in% colnames(tmp.df)) tmp.df[, 'metacell.names'] else NULL,
                     logData = (rv$widgets$Convert$checkDataLogged== "no"),
