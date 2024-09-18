@@ -718,7 +718,7 @@ output$warningCreateMSnset <- renderUI({
 observeEvent(input$createMSnsetButton, ignoreInit = TRUE, {
     
     tmp.df <- NULL
-
+   
     colNamesForMetacell <- NULL
     if (isTRUE(as.logical(input$selectIdent))) {
         n <- length(input$choose_quantitative_columns)
@@ -729,10 +729,10 @@ observeEvent(input$createMSnsetButton, ignoreInit = TRUE, {
             return(NULL)
         }
         
-        tmp.df <- cbind(qdata.names = input$choose_quantitative_columns,
+        tmp.df <- cbind(Sample.name = input$choose_quantitative_columns,
                         metacell.names = colNamesForMetacell)
     } else {
-        tmp.df <- as.data.frame(cbind(qdata.names = input$choose_quantitative_columns))
+        tmp.df <- as.data.frame(cbind(Sample.name = input$choose_quantitative_columns))
 
     }
     
@@ -743,6 +743,9 @@ observeEvent(input$createMSnsetButton, ignoreInit = TRUE, {
             colnames(tmp.df) <- 'Sample.name'
            # colNamesForMetacell <- tmp.df[,'metacell.names']
             #f <- match(rv$hot[, 'Sample.name'], colnames(rv$tab1))
+        } else {
+            
+            
         }
         
         # if (!is.null(rv$newOrder)) {

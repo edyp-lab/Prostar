@@ -3,7 +3,8 @@
 #' @author Samuel Wieczorek
 #' @examples
 #' if (interactive()) {
-#'     Prostar()
+#' library(Prostar)
+#' Prostar()
 #' }
 #'
 #' @export
