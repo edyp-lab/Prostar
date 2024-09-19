@@ -718,7 +718,7 @@ output$warningCreateMSnset <- renderUI({
 observeEvent(input$createMSnsetButton, ignoreInit = TRUE, {
     
     tmp.df <- NULL
-   
+   #browser()
     colNamesForMetacell <- NULL
     if (isTRUE(as.logical(input$selectIdent))) {
         n <- length(input$choose_quantitative_columns)
@@ -739,8 +739,9 @@ observeEvent(input$createMSnsetButton, ignoreInit = TRUE, {
 
         if (input$convert_reorder == 'Yes') {
             new.order <- match(rv$hot[, 'Sample.name'], tmp.df[,1])
+            prev.colnames <- colnames(tmp.df)
             tmp.df <- as.data.frame(tmp.df[new.order,])
-            colnames(tmp.df) <- 'Sample.name'
+            colnames(tmp.df) <- prev.colnames
            # colNamesForMetacell <- tmp.df[,'metacell.names']
             #f <- match(rv$hot[, 'Sample.name'], colnames(rv$tab1))
         } else {
