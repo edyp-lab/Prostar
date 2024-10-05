@@ -125,9 +125,10 @@ shinyUI(
                                 local = TRUE
                             )$value,
                             source(file.path("ui", "ui_ReleaseNotes.R"), local = TRUE)$value,
-                            source(file.path("ui", "ui_CheckForUpdates.R"),
-                                local = TRUE
-                            )$value
+                            tabPanel("Check for updates",
+                                value = "checkForUpdatesTab",
+                                mod_checkUpdates_ui('updates')
+                            )
                         ),
                         navbarMenu(
                             "Data manager",

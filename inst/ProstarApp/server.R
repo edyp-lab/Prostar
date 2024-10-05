@@ -211,7 +211,7 @@ shinyServer(
             #   local = TRUE)$value,
             #
             faqTab = source(file.path("server", "srv_FAQ.R"), local = TRUE)$value,
-            checkForUpdatesTab = source(file.path("server", "srv_CheckForUpdates.R"), local = TRUE)$value,
+            checkForUpdatesTab = mod_checkUpdates_server('updates'),
             usefulLinksTab = source(file.path("server", "srv_UsefulLinks.R"), local = TRUE)$value,
             ReleaseNotesTab = source(file.path("server", "srv_ReleaseNotes.R"), local = TRUE)$value,
             bugReportTab = source(file.path("server", "srv_BugReport.R"), local = TRUE)$value,

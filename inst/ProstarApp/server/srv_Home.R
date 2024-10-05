@@ -80,7 +80,7 @@ output$versionsText <- renderUI({
 
 
 output$NoteForNewVersion <- renderUI({
-
+browser()
     # df <- getPackagesVersions2()
     df <- getPackagesVersions()
     if (sum(grepl("(Out of date)", df[, 1])) >= 1) {
