@@ -2,7 +2,7 @@
 #' @return A new window in the default internet browser
 #' @author Samuel Wieczorek
 #' @examples
-#' if (interactive()) {
+#' \dontrun{
 #'     Prostar()
 #' }
 #'

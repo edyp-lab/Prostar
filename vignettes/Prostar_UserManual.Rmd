@@ -15,7 +15,7 @@ abstract: >
     `r BiocStyle::pkg_ver('DAPARdata')`.
 date: "`r Sys.Date()`"
 output:
-    BiocStyle::pdf_document:
+    BiocStyle::html_document:
         highlight: tango
 vignette: >
     %\VignetteIndexEntry{Prostar User Manual}

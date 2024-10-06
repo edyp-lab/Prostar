@@ -13,7 +13,7 @@ A new window in the default internet browser
 Prostar
 }
 \examples{
-if (interactive()) {
+\dontrun{
     Prostar()
 }
 
