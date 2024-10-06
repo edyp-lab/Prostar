@@ -13,8 +13,9 @@ A new window in the default internet browser
 Prostar
 }
 \examples{
-if (interactive()) {
-    Prostar()
+\dontrun{
+library(Prostar)
+Prostar()
 }
 
 }
