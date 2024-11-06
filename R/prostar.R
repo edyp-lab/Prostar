@@ -3,7 +3,8 @@
 #' @author Samuel Wieczorek
 #' @examples
 #' \dontrun{
-#'     Prostar()
+#' library(Prostar)
+#' Prostar()
 #' }
 #'
 #' @export

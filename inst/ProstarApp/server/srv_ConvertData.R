@@ -718,9 +718,7 @@ output$warningCreateMSnset <- renderUI({
 observeEvent(input$createMSnsetButton, ignoreInit = TRUE, {
     
     tmp.df <- NULL
-    
-    #----------------------------------------------------
-    
+   #browser()
     colNamesForMetacell <- NULL
     if (isTRUE(as.logical(input$selectIdent))) {
         n <- length(input$choose_quantitative_columns)
@@ -731,14 +729,24 @@ observeEvent(input$createMSnsetButton, ignoreInit = TRUE, {
             return(NULL)
         }
         
-        tmp.df <- cbind(qdata.names = input$choose_quantitative_columns,
+        tmp.df <- cbind(Sample.name = input$choose_quantitative_columns,
                         metacell.names = colNamesForMetacell)
-        
+    } else {
+        tmp.df <- as.data.frame(cbind(Sample.name = input$choose_quantitative_columns))
+
+    }
+    
+
         if (input$convert_reorder == 'Yes') {
             new.order <- match(rv$hot[, 'Sample.name'], tmp.df[,1])
-            tmp.df <- tmp.df[new.order,]
+            prev.colnames <- colnames(tmp.df)
+            tmp.df <- as.data.frame(tmp.df[new.order,])
+            colnames(tmp.df) <- prev.colnames
            # colNamesForMetacell <- tmp.df[,'metacell.names']
             #f <- match(rv$hot[, 'Sample.name'], colnames(rv$tab1))
+        } else {
+            
+            
         }
         
         # if (!is.null(rv$newOrder)) {
@@ -747,12 +755,13 @@ observeEvent(input$createMSnsetButton, ignoreInit = TRUE, {
         #     colNamesForMetacell <- colNamesForMetacell[new.order.metacell]
         #     indexForEData <- match(rv$hot[, 'Sample.name'], colnames(rv$tab1))
         # }
-    }
+    
     
     #----------------------------------------------------
 
     #isolate({
         result <- try({
+            
                 ext <- GetExtension(input$file1$name)
                 txtTab <- paste("tab1 <- read.csv(\"", input$file1$name,
                     "\",header=TRUE, sep=\"\t\", as.is=T)",
@@ -807,13 +816,13 @@ observeEvent(input$createMSnsetButton, ignoreInit = TRUE, {
                     protId <- input$convert_proteinId
                 }
 
-                
+
                 tmp <- DAPAR::createMSnset2(
                     file = rv$tab1,
                     metadata = metadata,
-                    qdataNames = tmp.df[, 'qdata.names'],
+                    qdataNames = tmp.df[, 'Sample.name'],
                     colnameForID = input$colnameForID,
-                    metacellNames = tmp.df[, 'metacell.names'],
+                    metacellNames = if ('metacell.names' %in% colnames(tmp.df)) tmp.df[, 'metacell.names'] else NULL,
                     logData = (rv$widgets$Convert$checkDataLogged== "no"),
                     replaceZeros = input$replaceAllZeros,
                     pep_prot_data = rv$widgets$Convert$typeOfDataset,

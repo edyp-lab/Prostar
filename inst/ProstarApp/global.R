@@ -67,6 +67,7 @@ loadLibraries <- function() {
 source(file.path(".", "modulesUI.R"), local = TRUE)$value
 source(file.path(".", "moduleProcessUI.R"), local = TRUE)$value
 source(file.path("server", "mod_insert_md.R"), local = TRUE)$value
+source(file.path("server", "mod_checkForUpdate.R"), local = TRUE)$value
 
 
 base_URL <- "http://www.prostar-proteomics.org/md/"

@@ -94,7 +94,7 @@ shinyServer(
          source(system.file("ProstarApp/server", "srv_Home.R", package = 'Prostar'), local = TRUE)$value
          source(system.file("ProstarApp/server", "srv_Settings.R", package = 'Prostar'), local = TRUE)$value
          source(system.file("ProstarApp/server", "srv_ParamsManager.R", package = 'Prostar'), local = TRUE)$value
-    
+
          # source(file.path(".", "modules/Plots/modulePlots.R"),  local = TRUE)$value
          source(system.file("ProstarApp/modules/Plots/moduleCC.R", package = 'Prostar'), local = TRUE)$value
          #stop('simulated error')
@@ -211,7 +211,7 @@ shinyServer(
             #   local = TRUE)$value,
             #
             faqTab = source(file.path("server", "srv_FAQ.R"), local = TRUE)$value,
-            checkForUpdatesTab = source(file.path("server", "srv_CheckForUpdates.R"), local = TRUE)$value,
+            checkForUpdatesTab = mod_checkUpdates_server('updates'),
             usefulLinksTab = source(file.path("server", "srv_UsefulLinks.R"), local = TRUE)$value,
             ReleaseNotesTab = source(file.path("server", "srv_ReleaseNotes.R"), local = TRUE)$value,
             bugReportTab = source(file.path("server", "srv_BugReport.R"), local = TRUE)$value,

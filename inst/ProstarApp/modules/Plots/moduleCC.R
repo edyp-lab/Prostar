@@ -242,7 +242,7 @@ mod_cc_server <- function(id, obj, cc) {
 
 
 
-            output$CCMultiMulti <- DT::renderDataTable(server = TRUE, {
+            output$CCMultiMulti <- DT::renderDataTable(server = FALSE, {
                 req(input$searchCC == "tabular")
                 
                 df <- GetDataFor_CCMultiMulti()
@@ -317,7 +317,7 @@ mod_cc_server <- function(id, obj, cc) {
                 )
             })
 
-            output$CCDetailedProt <- DT::renderDataTable(server = TRUE, {
+            output$CCDetailedProt <- DT::renderDataTable(server = FALSE, {
                 req(rvCC$selectedCC)
                 rvCC$detailedselectedNode
                 if (is.null(rvCC$detailedselectedNode$protLabels)) {
@@ -348,7 +348,7 @@ mod_cc_server <- function(id, obj, cc) {
 
             #######
 
-            output$CCDetailedSharedPep <- DT::renderDataTable(server = TRUE, {
+            output$CCDetailedSharedPep <- DT::renderDataTable(server = FALSE, {
                 rvCC$detailedselectedNode
                 input$pepInfo
 
@@ -411,7 +411,7 @@ mod_cc_server <- function(id, obj, cc) {
 
 
             ##### -----------
-            output$CCDetailedSpecPep <- DT::renderDataTable(server = TRUE, {
+            output$CCDetailedSpecPep <- DT::renderDataTable(server = FALSE, {
                 rvCC$detailedselectedNode
                 input$pepInfo
                 req(rvCC$detailedselectedNode$specPepLabels)
@@ -533,6 +533,8 @@ mod_cc_server <- function(id, obj, cc) {
 
 
             BuildOne2OneTab <- reactive({
+                
+
                 GetCC(obj())$allPep
                 df <- cbind(
                     cbind(
@@ -635,7 +637,7 @@ mod_cc_server <- function(id, obj, cc) {
             )
 
 
-            output$OneMultiDT <- DT::renderDataTable(server = TRUE, {
+            output$OneMultiDT <- DT::renderDataTable(server = FALSE, {
                 req(GetCC(obj())$allPep)
                 df <- BuildOne2MultiTab()
                 colnames(df) <- c("Proteins Ids", "nPep", "Peptides Ids")
@@ -699,7 +701,7 @@ mod_cc_server <- function(id, obj, cc) {
             })
 
 
-            output$OneMultiDTDetailed <- DT::renderDataTable(server = TRUE, {
+            output$OneMultiDTDetailed <- DT::renderDataTable(server = FALSE, {
                 input$pepInfo
                 req(input$OneMultiDT_rows_selected)
 
@@ -749,22 +751,17 @@ mod_cc_server <- function(id, obj, cc) {
                     colnames(df) <- c("Proteins Ids", "Peptides Ids")
                     df
                 }),
-                name = reactive({
-                    "CC_OneOne"
-                }),
-                colors = reactive({
-                    NULL
-                }),
-                df.tags = reactive({
-                    NULL
-                })
+                name = reactive({"CC_OneOne"}),
+                colors = reactive({NULL}),
+                df.tags = reactive({NULL})
             )
 
 
-            output$OneOneDT <- DT::renderDataTable(server = TRUE, {
+            output$OneOneDT <- DT::renderDataTable(server = FALSE, {
                 req(GetCC(obj())$allPep)
                 df <- BuildOne2OneTab()
                 colnames(df) <- c("Proteins Ids", "Peptides Ids")
+
                 dat <- DT::datatable(df,
                     selection = "single",
                     rownames = FALSE,
@@ -779,11 +776,11 @@ mod_cc_server <- function(id, obj, cc) {
                         scroller = TRUE,
                         orderClasses = TRUE,
                         autoWidth = FALSE,
-                        columns.searchable = F,
-                        columnDefs = list(list(
-                            width = c("60px"),
-                            targets = c(list(0), list(1), list(2))
-                        ))
+                        columns.searchable = FALSE
+                        # columnDefs = list(list(
+                        #     width = c("60px"),
+                        #     targets = c(list(0), list(1), list(2))
+                        # ))
                     )
                 )
 
@@ -817,7 +814,7 @@ mod_cc_server <- function(id, obj, cc) {
             })
 
 
-            output$OneOneDTDetailed <- DT::renderDataTable(server = TRUE, {
+            output$OneOneDTDetailed <- DT::renderDataTable(server = FALSE, {
                 req(GetCC(obj())$allPep)
                 req(input$OneOneDT_rows_selected)
                 data <- GetDataFor_OneOneDTDetailed()

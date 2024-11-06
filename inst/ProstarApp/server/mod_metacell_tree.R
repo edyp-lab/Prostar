@@ -564,8 +564,7 @@ reactive({dataOut})
 
 
 
-# Example
-#
+mod_metacell_tree <- function(obj){
 ui <- fluidPage(
     tagList(
         mod_metacell_tree_ui('tree'),
@@ -575,11 +574,10 @@ ui <- fluidPage(
 
 server <- function(input, output) {
     
-     utils::data('Exp1_R25_pept', package='DAPARdata')
-    obj <- Exp1_R25_pept
-    tags <- mod_metacell_tree_server('tree', obj = reactive({obj}))
+     tags <- mod_metacell_tree_server('tree', 
+         obj = reactive({obj}))
 
 }
 
-shinyApp(ui = ui, server = server)
-
+app <- shiny::shinyApp(ui = ui, server = server)
+}

@@ -18,6 +18,7 @@ mod_set_pval_threshold_ui <- function(id) {
         tags$style("#pvalPanel {width: 100%;}"),
     wellPanel(id = 'pvalPanel',
         useShinyjs(),
+        uiOutput(ns('warn_NULL_fdr_UI')),
         popover_for_help_ui(ns("modulePopover_pValThreshold")),
         br(),
         tags$div(style = "align: center;display:inline-block; vertical-align: top;",
@@ -70,6 +71,17 @@ mod_set_pval_threshold_server <- function(id,
                                                       "<li>", .pt3, "</li>",
                                                       "</ul>"))
         )
+        
+        
+        
+        output$warn_NULL_fdr_UI <- renderUI({
+            req(is.null(fdr()))
+            
+            mod_SweetAlert_server('sweetAlert_fdr',
+                text = "FDR cannot be computed which this threshold.",
+                showClipBtn = TRUE,
+                type = 'warning')
+        })
         
         output$thresholdType_UI <- renderUI({
             radioButtons(ns('thresholdType'), NULL, 
