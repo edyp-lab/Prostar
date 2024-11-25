@@ -120,13 +120,8 @@ output$showConds <- renderUI({
             div(style = .style, p(gsub("[()]", "", ll.conds[1]))),
             div(style = .style, p(gsub("[()]", "", ll.conds[3]))),
             div(style = .style,
-                actionButton(paste0("compswap", i), "",
-                             icon("sync", lib = "font-awesome"),
-                             style = "border-width: 0px; padding: 0px",
-                             width = "30px",
-                             height = "30px",
-                             class = actionBtnClass
-                )
+                checkboxInput(paste0("compswap", i), "",
+                    value = rv.ht$swap.history[i])
             )
         )
     })
@@ -134,32 +129,36 @@ output$showConds <- renderUI({
 })
 
 
-observeEvent(req(sum(GetSwapShinyValue()) > 0), {
-    req(rv$res_AllPairwiseComparisons)
-    swap <- GetSwapShinyValue()
+observeEvent(GetSwapShinyValue(), ignoreInit = TRUE,{
+    #req(rv$res_AllPairwiseComparisons)
+    ind.swap <- which(GetSwapShinyValue() != rv.ht$swap.history)
+    req(length(ind.swap) > 0)
+    rv.ht$swap.history <- GetSwapShinyValue()
     
-    isolate({
-        ind.swap <- which(swap != rv.ht$swap.history)
-        rv.ht$swap.history <- swap
-        if (length(ind.swap) > 0) {
-            for (i in ind.swap) {
-                current.comp <- colnames(rv$res_AllPairwiseComparisons$logFC)[i]
-                
-                # Swap comparisons names
-                ll <- unlist(strsplit(current.comp, split = "_"))
-                tmp.cond1 <- gsub("[( )]", "", ll[1])
-                tmp.cond2 <- gsub("[( )]", "", ll[3])
-                tmp.logFC <- paste0("(", tmp.cond2, ")_vs_(", tmp.cond1, ")_logFC" )
-                tmp.pval <- paste0( "(",  tmp.cond2, ")_vs_(", tmp.cond1, ")_pval" )
-                colnames(rv$res_AllPairwiseComparisons$logFC)[i] <- tmp.logFC
-                colnames(rv$res_AllPairwiseComparisons$P_Value)[i] <- tmp.pval
-                
-                # Swap logFC values
-                .logFC <- rv$res_AllPairwiseComparisons$logFC
-                rv$res_AllPairwiseComparisons$logFC[, i] <- -.logFC[, i]
-            }
-        }
-    })
+
+    current.comp <- colnames(rv$res_AllPairwiseComparisons$logFC)[ind.swap]
+    
+    # Swap comparisons names
+    ll <- unlist(strsplit(current.comp, split = "_"))
+    tmp.cond1 <- gsub("[( )]", "", ll[1])
+    tmp.cond2 <- gsub("[( )]", "", ll[3])
+    #tmp.logFC <- paste0("(", tmp.cond2, ")_vs_(", tmp.cond1, ")_logFC" )
+    #tmp.pval <- paste0( "(",  tmp.cond2, ")_vs_(", tmp.cond1, ")_pval" )
+    
+    #tmp.logFC <- paste0(tmp.cond2, "_vs_", tmp.cond1, "_logFC" )
+    #tmp.pval <- paste0(tmp.cond2, "_vs_", tmp.cond1, "_pval" )
+    
+    tmp.logFC <- paste0("(", tmp.cond2, ")_vs_(", tmp.cond1, ")_logFC" )
+    tmp.pval <- paste0( "(",  tmp.cond2, ")_vs_(", tmp.cond1, ")_pval" )
+    
+    colnames(rv$res_AllPairwiseComparisons$logFC)[ind.swap] <- tmp.logFC
+    colnames(rv$res_AllPairwiseComparisons$P_Value)[ind.swap] <- tmp.pval
+    
+    # Swap logFC values
+    .logFC <- rv$res_AllPairwiseComparisons$logFC
+    rv$res_AllPairwiseComparisons$logFC[, ind.swap] <- -.logFC[, ind.swap]
+
+
 })
 
 
