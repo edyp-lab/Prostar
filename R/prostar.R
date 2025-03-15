@@ -23,7 +23,8 @@
 #' @import DAPAR
 # #' @import R.utils
 #' @import rhandsontable
-#' @import future
+#' @importFrom parallelly supportsMulticore
+#' @importFrom future plan multicore multisession
 #' @import DAPARdata
 #' @import shinyjs
 #' @import htmlwidgets
