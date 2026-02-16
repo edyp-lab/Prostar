@@ -4,11 +4,14 @@ Title: Provides a GUI for DAPAR
 Version: 1.38.1
 Date: 2024-11-25
 Authors@R: c(
-    person("Thomas", "Burger", email = "thomas.burger@cea.fr", role = c("aut")),
+    person("DaparToolshed Package Maintainer",
+    email = "prostar-proteomics@cea.fr",
+    role = c("cre")),
+person("Thomas", "Burger", email = "thomas.burger@cea.fr", role = c("aut")),
     person("Florence", "Combes", email = "florence.combes@cea.fr", 
     role = "aut"),
     person("Samuel", "Wieczorek", email = "samuel.wieczorek@cea.fr", 
-    role = c("cre", "aut"))
+    role = c("aut"))
     )
 Description: This package provides a GUI interface for the DAPAR package. The 
     package Prostar (Proteomics statistical analysis with R) is a Bioconductor 
