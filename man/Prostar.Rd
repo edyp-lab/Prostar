@@ -14,7 +14,8 @@ Prostar
 }
 \examples{
 \dontrun{
-    Prostar()
+library(Prostar)
+Prostar()
 }
 
 }

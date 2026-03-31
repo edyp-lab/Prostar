@@ -52,7 +52,7 @@ loadLibraries <- function() {
     library(future)
     library(promises)
     #plan(multiprocess)
-    if (future::supportsMulticore()) {
+    if (parallelly::supportsMulticore()) {
         future::plan(future::multicore)
     } else {
         future::plan(future::multisession)

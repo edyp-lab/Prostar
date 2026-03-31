@@ -29,7 +29,8 @@ Imports: DAPAR (>= 1.35.1), DAPARdata (>= 1.30.0), rhandsontable,
     data.table, shiny, shinyBS, shinyAce, highcharter, htmlwidgets, webshot, 
     shinythemes, later, shinycssloaders, future, promises,  shinyjqui, tibble, 
     ggplot2, gplots, shinyjs, vioplot, Biobase, DT, R.utils, RColorBrewer, XML, 
-    colourpicker, gtools, markdown, rclipboard, sass, shinyTree, shinyWidgets
+    colourpicker, gtools, markdown, rclipboard, sass, shinyTree, shinyWidgets,
+    parallelly
 NeedsCompilation: no
 RoxygenNote: 7.3.2
 Packaged: 2017-10-13 06:25:55 UTC; sw175264
