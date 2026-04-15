@@ -20,7 +20,7 @@
 #' @import DAPAR
 # #' @import R.utils
 #' @import rhandsontable
-#' @import future
+# #' @import future
 #' @import DAPARdata
 #' @import shinyjs
 #' @import htmlwidgets
@@ -32,7 +32,7 @@
 #' @import tibble
 # #' @import MSnbase
 # #' @import RColorBrewer
-#' @import ggplot2
+# #' @import ggplot2
 #' @import gplots
 #' @import vioplot
 # #' @import gtools
