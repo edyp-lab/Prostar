@@ -2,7 +2,7 @@ mod_Boxplot_ui <- function(id) {
     ns <- NS(id)
     tagList(
         useShinyjs(),
-        highchartOutput(ns("BoxPlot")),
+        plotlyOutput(ns("BoxPlot")),
         imageOutput(ns("viewViolinPlot")),
         selectInput(ns("choosePlot"),
                     "Choose plot",
@@ -46,7 +46,7 @@ mod_Boxplot_server <- function(id,
     })
     
     
-    output$BoxPlot <- renderHighchart({
+    output$BoxPlot <- renderPlotly({
         obj()
         params()
         

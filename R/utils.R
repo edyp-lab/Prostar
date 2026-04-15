@@ -10,7 +10,12 @@
 #' xxxx
 #'
 #' @param obj xx
-#'
+#' 
+#' @return xxx
+#' 
+#' @examples
+#' NULL
+#' 
 #' @export
 BuildColorStyles <- function(obj) {
     styles <- list(
@@ -35,6 +40,11 @@ BuildColorStyles <- function(obj) {
 #' @param obj xx
 #' @param digits xxx
 #'
+#' @return xxx
+#' 
+#' @examples
+#' NULL
+#' 
 #' @export
 #'
 getDataForExprs <- function(obj, digits = NULL) {

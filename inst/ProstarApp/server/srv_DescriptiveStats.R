@@ -91,7 +91,7 @@ output$plotsCorM <- renderUI({
             )
         ),
         withProgress(message = "", detail = "", value = 1, {
-            highchartOutput("corrMatrix", width = plotWidth, height = plotHeight)
+            plotlyOutput("corrMatrix", width = plotWidth, height = plotHeight)
         })
     )
 })
@@ -133,7 +133,7 @@ output$plotsDistCV <- renderUI({
         helpText("For better visualization, it is possible to zoom in by
       click-and-drag."),
         withProgress(message = "", detail = "", value = 1, {
-            highchartOutput("viewDistCV", width = plotWidth, height = plotHeight)
+            plotlyOutput("viewDistCV", width = plotWidth, height = plotHeight)
         })
     )
 })
@@ -175,7 +175,7 @@ output$plotsPCA <- renderUI({
             column(width = 6, imageOutput("pcaPlotInd", width = "auto", height = "auto"))
         ),
         fluidRow(
-            column(width = 6, highchartOutput("pcaPlotEigen")),
+            column(width = 6, plotlyOutput("pcaPlotEigen")),
             column(width = 6, format_DT_ui("PCAvarCoord"))
         )
     )
@@ -229,7 +229,7 @@ output$pcaPlotVar <- renderImage(
 
 
 
-output$pcaPlotEigen <- renderHighchart({
+output$pcaPlotEigen <- renderPlotly({
     req(rv$res.pca)
     plotPCA_Eigen_hc(rv$res.pca)
 })
@@ -513,7 +513,7 @@ output$heatmap <- renderImage(
 ##' distribution of the variance in current.obj
 ##'
 ##' @author Samuel Wieczorek
-output$viewDistCV <- renderHighchart({
+output$viewDistCV <- renderPlotly({
     viewDistCV()
 })
 
@@ -522,6 +522,6 @@ output$viewDistCV <- renderHighchart({
 ##' Draw a correlation matrix of intensities in current.obj
 ##'
 ##' @author Samuel Wieczorek
-output$corrMatrix <- renderHighchart({
+output$corrMatrix <- renderPlotly({
     corrMatrix()
 })

@@ -184,7 +184,7 @@ output$screenNormalization1 <- renderUI({
                     detail = "",
                     value = 0,
                     {
-                        highchartOutput("viewComparisonNorm_HC")
+                        plotlyOutput("viewComparisonNorm_HC")
                     }
                 ))
             )
@@ -486,7 +486,7 @@ output$ChooseLegendForNormTabPanel <- renderUI({
 #######################
 
 
-output$viewComparisonNorm_HC <- renderHighchart({
+output$viewComparisonNorm_HC <- renderPlotly({
     # rv$PlotParams$paletteForConditions
     req(rv$current.obj)
     # req(length(rv$dataset > 1))

@@ -177,11 +177,11 @@ output$screenGO2 <- renderUI({
         tags$hr(),
         withProgress(message = "Building plot", detail = "", value = 0, {
             incProgress(1 / 3, detail = "Goup level 2")
-            highchartOutput("GOplotGroup_level2", width = "80%")
+            plotlyOutput("GOplotGroup_level2", width = "80%")
             incProgress(2 / 3, detail = "Goup level 3")
-            highchartOutput("GOplotGroup_level3", width = "80%")
+            plotlyOutput("GOplotGroup_level3", width = "80%")
             incProgress(3 / 3, detail = "Goup level 4")
-            highchartOutput("GOplotGroup_level4", width = "80%")
+            plotlyOutput("GOplotGroup_level4", width = "80%")
         })
     )
 })
@@ -218,9 +218,9 @@ output$screenGO3 <- renderUI({
         tags$hr(),
         withProgress(message = "Building plot", detail = "", value = 0, {
             incProgress(1 / 3, detail = "Bar plot")
-            highchartOutput("GObarplotEnrich", width = "80%")
+            plotlyOutput("GObarplotEnrich", width = "80%")
             incProgress(1 / 3, detail = "Dotplot")
-            highchartOutput("GOdotplotEnrich", width = "80%")
+            plotlyOutput("GOdotplotEnrich", width = "80%")
         })
     )
 })
@@ -500,7 +500,7 @@ GOplotGroup_level2 <- reactive({
 })
 
 ##########################################
-output$GOplotGroup_level2 <- renderHighchart({
+output$GOplotGroup_level2 <- renderPlotly({
     GOplotGroup_level2()
 })
 
@@ -523,7 +523,7 @@ GOplotGroup_level3 <- reactive({
 })
 
 
-output$GOplotGroup_level3 <- renderHighchart({
+output$GOplotGroup_level3 <- renderPlotly({
     GOplotGroup_level3()
 })
 
@@ -544,7 +544,7 @@ GOplotGroup_level4 <- reactive({
 })
 
 
-output$GOplotGroup_level4 <- renderHighchart({
+output$GOplotGroup_level4 <- renderPlotly({
     GOplotGroup_level4()
 })
 
@@ -553,7 +553,7 @@ GObarplotEnrich <- reactive({
     barplotEnrichGO_HC(rv$widgets$go$enrichGO_data)
 })
 
-output$GObarplotEnrich <- renderHighchart({
+output$GObarplotEnrich <- renderPlotly({
     GObarplotEnrich()
 })
 
@@ -563,7 +563,7 @@ GOdotplotEnrich <- reactive({
     scatterplotEnrichGO_HC(rv$widgets$go$enrichGO_data)
 })
 
-output$GOdotplotEnrich <- renderHighchart({
+output$GOdotplotEnrich <- renderPlotly({
     GOdotplotEnrich()
 })
 

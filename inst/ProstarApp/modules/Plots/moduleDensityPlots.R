@@ -1,6 +1,6 @@
 module_DensityplotU_ui <- function(id) {
     ns <- NS(id)
-    highchartOutput(ns("Densityplot"))
+    plotlyOutput(ns("Densityplot"))
 }
 
 
@@ -16,7 +16,7 @@ module_Densityplot_server <- function(id, obj = reactive({NULL})) {
         )
         
         
-    output$Densityplot <- renderHighchart({
+    output$Densityplot <- renderPlotly({
         obj()
         rv$PlotParams$paletteForConditions
         rv$PlotParams$legendForSamples

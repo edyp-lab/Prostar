@@ -12,7 +12,7 @@
 mod_volcanoplot_ui <- function(id) {
     ns <- NS(id)
     tagList(
-        highchartOutput(ns("volcanoPlot"), width = "600px", height = "600px"),
+        plotlyOutput(ns("volcanoPlot"), width = "600px", height = "600px"),
         uiOutput(ns("quantiDT"))
     )
 }
@@ -339,7 +339,7 @@ mod_volcanoplot_server <- function(id,
         })
         
         ## ---------------------------------------------------------------------
-        output$volcanoPlot <- renderHighchart({
+        output$volcanoPlot <- renderPlotly({
             rv$widgets$anaDiff$th_pval
             rv$widgets$hypothesisTest$th_logFC
             rv$colorsVolcanoplot

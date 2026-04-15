@@ -507,7 +507,7 @@ output$screenAnaDiff2 <- renderUI({
                     style = "height:400px;",
                     imageOutput("calibrationPlot", height = "400px")
                 ),
-                fluidRow(style = "height:400px;", highchartOutput("histPValue"))
+                fluidRow(style = "height:400px;", plotlyOutput("histPValue"))
             )
         )
     )
@@ -584,7 +584,7 @@ histPValue <- reactive({
     # })
 })
 
-output$histPValue <- renderHighchart({
+output$histPValue <- renderPlotly({
     histPValue()
 })
 

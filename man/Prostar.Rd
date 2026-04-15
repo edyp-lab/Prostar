@@ -13,9 +13,7 @@ A new window in the default internet browser
 Prostar
 }
 \examples{
-\dontrun{
-    Prostar()
-}
+NULL
 
 }
 \author{

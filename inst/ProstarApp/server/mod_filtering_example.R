@@ -1,7 +1,7 @@
 
 library(shiny)
 library(shinyBS)
-library(highcharter)
+library(plotly)
 
 mod_filtering_example_ui <- function(id) {
     ns <- NS(id)

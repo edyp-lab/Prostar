@@ -9,6 +9,13 @@ BuildColorStyles(obj)
 \arguments{
 \item{obj}{xx}
 }
+\value{
+xxx
+}
 \description{
 xxxx
+}
+\examples{
+NULL
+
 }

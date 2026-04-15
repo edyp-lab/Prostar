@@ -50,7 +50,7 @@ mod_cc_ui <- function(id) {
                     ),
                     fluidRow(
                         column(width = 6, tagList(
-                            highchartOutput(ns("jiji")),
+                            plotlyOutput(ns("jiji")),
                             uiOutput(ns("CCMultiMulti_DL_btns_ui")),
                             #shinyjs::hidden(
                                 DT::dataTableOutput(ns("CCMultiMulti"))
@@ -150,7 +150,7 @@ mod_cc_server <- function(id, obj, cc) {
             })
 
 
-            output$jiji <- renderHighchart({
+            output$jiji <- renderPlotly({
                 req(input$searchCC == "graphical")
                 tooltip <- NULL
 

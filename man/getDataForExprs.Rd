@@ -11,6 +11,13 @@ getDataForExprs(obj, digits = NULL)
 
 \item{digits}{xxx}
 }
+\value{
+xxx
+}
 \description{
 xxxx
+}
+\examples{
+NULL
+
 }

@@ -54,7 +54,7 @@ output$plotcorrMatrixlarge <- renderUI({
             )
         ),
         withProgress(message = "Building plot...", detail = "", value = 1, {
-            highchartOutput(ns("corrMatrix"),
+            plotlyOutput(ns("corrMatrix"),
                 width = plotWidth,
                 height = plotHeight
             )
@@ -81,6 +81,6 @@ corrMatrix <- reactive({
 })
 
 
-output$corrMatrix <- renderHighchart({
+output$corrMatrix <- renderPlotly({
     corrMatrix()
 })

@@ -32,7 +32,7 @@ loadLibraries <- function() {
     #library(shinythemes)
 
     #library(DT)
-    library(highcharter)
+    library(plotly)
     library(rclipboard)
     library(shinyjs)
     #library(shinyBS)

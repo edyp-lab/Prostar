@@ -7,13 +7,13 @@ mod_plotsMetacellHistos_ui <- function(id) {
         uiOutput(ns('chooseTagUI')),
         fluidRow(
             column(width = 4,
-                   highchartOutput(ns("histo_Metacell")), height = "600px"
+                   plotlyOutput(ns("histo_Metacell")), height = "600px"
                    ),
             column(width = 4,
-                   highchartOutput(ns("histo_Metacell_per_lines"))
+                   plotlyOutput(ns("histo_Metacell_per_lines"))
                    ),
             column(width = 4,
-                   highchartOutput(ns("histo_Metacell_per_lines_per_conditions"))
+                   plotlyOutput(ns("histo_Metacell_per_lines_per_conditions"))
                    )
             )
         )
@@ -76,7 +76,7 @@ mod_plotsMetacellHistos_server <- function(id,
                 mod_metacell_tree_ui(ns('tree_plot_metacell'))
              })
 
-            output$histo_Metacell <- renderHighchart({
+            output$histo_Metacell <- renderPlotly({
                tmp <- NULL
                #browser()
                tmp <- metacellHisto_HC(obj = obj(),
@@ -88,7 +88,7 @@ mod_plotsMetacellHistos_server <- function(id,
 
 
 
-            output$histo_Metacell_per_lines <- renderHighchart({
+            output$histo_Metacell_per_lines <- renderPlotly({
                tmp <- NULL
                 tmp <-
                     metacellPerLinesHisto_HC(obj = obj(),
@@ -102,7 +102,7 @@ mod_plotsMetacellHistos_server <- function(id,
 
 
 
-            output$histo_Metacell_per_lines_per_conditions <- renderHighchart({
+            output$histo_Metacell_per_lines_per_conditions <- renderPlotly({
                tmp <- NULL
                 # isolate({
                 # pattern <- paste0(GetCurrentObjName(),".MVplot2")

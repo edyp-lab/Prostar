@@ -30,7 +30,7 @@ vignette: >
 
 \newcommand{\bordurefigure}[1]{\fbox{\includegraphics{#1}}}
 
-```{r echo=FALSE}
+```{r init, echo=FALSE}
 BiocStyle::markdown()
 ```
 
@@ -1809,6 +1809,6 @@ manager} menu, either in MSnSet or in Excel format.
 
 \section{Session information}\label{sec:sessionInfo}
 
-```{r}
+```{r sessioninfo}
 sessionInfo()
 ```

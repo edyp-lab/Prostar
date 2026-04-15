@@ -1,4 +1,6 @@
-# Prostar 1.23.1
+# Prostar 1.43.1
+
+- Updated plots to use plotly instead of highcharter
 
 - Enjoy the [Zero-install version of Prostar](#zero-install) as well as the new [Online demo](#online-demo)!**
 

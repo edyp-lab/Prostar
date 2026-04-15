@@ -9,7 +9,7 @@ NUM_PAGES_FILTERING <- 3
 #     ns <- NS(id)
 #     tagList(
 #         uiOutput(ns("nbSelectedItems")),
-#         highchartOutput(ns("volcanoPlot"), width = "600px", height = "600px"),
+#         plotlyOutput(ns("volcanoPlot"), width = "600px", height = "600px"),
 #         uiOutput(ns("quantiDT"))
 #     )
 # }
@@ -38,15 +38,15 @@ missingValuesPlotsUI <- function(id) {
     fluidRow(
         column(
             width = 4,
-            highchartOutput(ns("histo_MV")), height = "600px"
+            plotlyOutput(ns("histo_MV")), height = "600px"
         ),
         column(
             width = 4,
-            highchartOutput(ns("histo_MV_per_lines"))
+            plotlyOutput(ns("histo_MV_per_lines"))
         ),
         column(
             width = 4,
-            highchartOutput(ns("histo_MV_per_lines_per_conditions"))
+            plotlyOutput(ns("histo_MV_per_lines_per_conditions"))
         )
     )
 }
@@ -54,7 +54,7 @@ missingValuesPlotsUI <- function(id) {
 
 moduleDensityplotUI <- function(id) {
     ns <- NS(id)
-    highchartOutput(ns("Densityplot"))
+    plotlyOutput(ns("Densityplot"))
 }
 
 
@@ -65,7 +65,7 @@ moduleMVPlotsUI <- function(id) {
         tags$div(
             tags$div(
                 style = "display:inline-block; vertical-align: top; padding-right: 20px;",
-                highchartOutput(ns("plot_viewNAbyMean"), width = "600px")
+                plotlyOutput(ns("plot_viewNAbyMean"), width = "600px")
             ),
             tags$div(
                 style = "display:inline-block; vertical-align: top; padding-right: 20px;",
@@ -91,7 +91,7 @@ moduleDesignExampleUI <- function(id) {
 moduleBoxplotUI <- function(id) {
     ns <- NS(id)
     tagList(
-        highchartOutput(ns("BoxPlot")),
+        plotlyOutput(ns("BoxPlot")),
         imageOutput(ns("viewViolinPlot")),
         selectInput(ns("choosePlot"),
             "Choose plot",

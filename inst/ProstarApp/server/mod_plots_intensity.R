@@ -28,7 +28,7 @@ mod_plots_intensity_ui <- function(id) {
         tags$div(
             tags$div(
                 style = "display:inline-block; vertical-align: middle;",
-                highchartOutput(ns("BoxPlot")),
+                plotlyOutput(ns("BoxPlot")),
                 shinyjs::hidden(imageOutput(ns("viewViolinPlot")))
             ),
             tags$div(
@@ -143,7 +143,7 @@ mod_plots_intensity_server <- function(input, output, session,
 
 
 
-    output$BoxPlot <- renderHighchart({
+    output$BoxPlot <- renderPlotly({
         dataIn()
         rv.modboxplot$indices
         tmp <- NULL

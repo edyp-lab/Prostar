@@ -2,16 +2,14 @@
 #' @return A new window in the default internet browser
 #' @author Samuel Wieczorek
 #' @examples
-#' \dontrun{
-#'     Prostar()
-#' }
+#' NULL
 #'
 #' @export
 #'
 #' @import shinycssloaders
 #' @import shinythemes
 # #' @import DT
-#' @import highcharter
+#' @import plotly
 #' @import shinyBS
 #' @import shinyAce
 # #' @import shinyWidgets

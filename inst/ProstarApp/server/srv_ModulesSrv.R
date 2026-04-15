@@ -115,7 +115,7 @@ moduleDesignExample <- function(input, output, session, n) {
 
 #------------------------------------------------------------
 moduleDensityplot <- function(input, output, session, data) {
-    output$Densityplot <- renderHighchart({
+    output$Densityplot <- renderPlotly({
         data()
         rv$PlotParams$paletteForConditions
         rv$PlotParams$legendForSamples
@@ -152,7 +152,7 @@ moduleBoxplot <- function(input, output, session, data, pal) {
     })
 
 
-    output$BoxPlot <- renderHighchart({
+    output$BoxPlot <- renderPlotly({
         # req(rv$current.obj)
         data()
         rv$current.obj.name
@@ -215,7 +215,7 @@ moduleBoxplot <- function(input, output, session, data, pal) {
 
 
 moduleMVPlots <- function(input, output, session, data, title, pal, pattern) {
-    output$plot_viewNAbyMean <- renderHighchart({
+    output$plot_viewNAbyMean <- renderPlotly({
         req(data())
 
         #browser()

@@ -275,7 +275,7 @@ output$screenHypoTest1 <- renderUI({
                         style = "info"
                     )
                 ),
-                highchartOutput("FoldChangePlot", height = "100%")
+                plotlyOutput("FoldChangePlot", height = "100%")
             )
         }
     })
@@ -342,8 +342,8 @@ observeEvent(rv$widgets$hypothesisTest$method, {
 })
 
 
-# Highcharts plot
-output$FoldChangePlot <- renderHighchart({
+# Plotly plot
+output$FoldChangePlot <- renderPlotly({
     req(rv$res_AllPairwiseComparisons)
     .params <- rv$current.obj@experimentData@other$Params$HypothesisTest.protein
     name <- .params$HypothesisTest$AllPairwiseCompNames$logFC

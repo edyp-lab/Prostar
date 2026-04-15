@@ -22,7 +22,7 @@ output$plotvarDistlarge <- renderUI({
         helpText("For better visualization, it is possible to zoom in
       by click-and-drag."),
         withProgress(message = "", detail = "", value = 1, {
-            highchartOutput(ns("viewDistCV"),
+            plotlyOutput(ns("viewDistCV"),
                 width = plotWidth,
                 height = plotHeight
             )
@@ -46,6 +46,6 @@ viewDistCV <- reactive({
 })
 
 
-output$viewDistCV <- renderHighchart({
+output$viewDistCV <- renderPlotly({
     viewDistCV()
 })

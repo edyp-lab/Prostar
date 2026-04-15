@@ -198,7 +198,7 @@ mod_DescriptiveStatistics_server <- function(id,
                 )
             ),
             withProgress(message = "", detail = "", value = 1, {
-                highchartOutput(ns("corrMatrix"), width = plotWidth, height = plotHeight)
+                plotlyOutput(ns("corrMatrix"), width = plotWidth, height = plotHeight)
             })
         )
     })
@@ -237,7 +237,7 @@ mod_DescriptiveStatistics_server <- function(id,
             helpText("For better visualization, it is possible to zoom in by
       click-and-drag."),
             withProgress(message = "", detail = "", value = 1, {
-                highchartOutput(ns("viewDistCV"), width = plotWidth, height = plotHeight)
+                plotlyOutput(ns("viewDistCV"), width = plotWidth, height = plotHeight)
             })
         )
     })
@@ -279,7 +279,7 @@ mod_DescriptiveStatistics_server <- function(id,
                 column(width = 6, imageOutput(ns("pcaPlotInd")))
             ),
             fluidRow(
-                column(width = 6, highchartOutput(ns("pcaPlotEigen"))),
+                column(width = 6, plotlyOutput(ns("pcaPlotEigen"))),
                 column(width = 6, format_DT_ui(ns("PCAvarCoord")))
             )
         )
@@ -333,7 +333,7 @@ mod_DescriptiveStatistics_server <- function(id,
     
     
     
-    output$pcaPlotEigen <- renderHighchart({
+    output$pcaPlotEigen <- renderPlotly({
         req(rv_ds$res.pca)
         plotPCA_Eigen_hc(rv_ds$res.pca)
     })
@@ -608,7 +608,7 @@ mod_DescriptiveStatistics_server <- function(id,
     ##' distribution of the variance in current.obj
     ##'
     ##' @author Samuel Wieczorek
-    output$viewDistCV <- renderHighchart({
+    output$viewDistCV <- renderPlotly({
         viewDistCV()
     })
     
@@ -617,7 +617,7 @@ mod_DescriptiveStatistics_server <- function(id,
     ##' Draw a correlation matrix of intensities in current.obj
     ##'
     ##' @author Samuel Wieczorek
-    output$corrMatrix <- renderHighchart({
+    output$corrMatrix <- renderPlotly({
         corrMatrix()
     })
     

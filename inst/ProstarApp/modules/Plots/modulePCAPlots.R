@@ -10,7 +10,7 @@ pcaPlotsUI <- function(id) {
             column(width = 6, imageOutput(ns("pcaPlotInd")))
         ),
         fluidRow(
-            column(width = 6, highchartOutput(ns("pcaPlotEigen"))),
+            column(width = 6, plotlyOutput(ns("pcaPlotEigen"))),
             column(width = 6, format_DT_ui(ns("PCAvarCoord")))
         )
     )
@@ -163,7 +163,7 @@ pcaPlots <- function(input, output, session, data) {
     )
 
 
-    output$pcaPlotEigen <- renderHighchart({
+    output$pcaPlotEigen <- renderPlotly({
         req(rv.pca$res.pca)
         plotPCA_Eigen_hc(rv.pca$res.pca)
     })

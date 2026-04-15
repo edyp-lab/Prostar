@@ -1,14 +1,17 @@
 Package: Prostar
 Type: Package
 Title: Provides a GUI for DAPAR
-Version: 1.37.0
-Date: 2024-01-17
+Version: 1.43.1
+Date: 2026-04-14
 Authors@R: c(
-    person("Thomas", "Burger", email = "thomas.burger@cea.fr", role = c("aut")),
+    person("Thomas", "Burger", email = "thomas.burger@cea.fr", 
+    role = c("aut")),
     person("Florence", "Combes", email = "florence.combes@cea.fr", 
     role = "aut"),
     person("Samuel", "Wieczorek", email = "samuel.wieczorek@cea.fr", 
-    role = c("cre", "aut"))
+    role = c("cre", "aut")),
+    person("Manon", "Gaudin", email = "manon.gaudin@cea.fr", 
+    role = c("ctb"))
     )
 Description: This package provides a GUI interface for the DAPAR package. The 
     package Prostar (Proteomics statistical analysis with R) is a Bioconductor 
@@ -20,15 +23,15 @@ Description: This package provides a GUI interface for the DAPAR package. The
 biocViews: Proteomics, MassSpectrometry, Normalization, Preprocessing, 
     Software, GUI
 License: Artistic-2.0
-Depends: R (>= 4.4.0)
+Depends: R (>= 4.5.0)
 Suggests: BiocStyle, BiocManager, testthat, knitr
 Imports: DAPAR (>= 1.35.1), DAPARdata (>= 1.30.0), rhandsontable, 
-    data.table, shiny, shinyBS, shinyAce, highcharter, htmlwidgets, webshot, 
+    data.table, shiny, shinyBS, shinyAce, plotly, htmlwidgets, webshot, 
     shinythemes, later, shinycssloaders, future, promises,  shinyjqui, tibble, 
     ggplot2, gplots, shinyjs, vioplot, Biobase, DT, R.utils, RColorBrewer, XML, 
     colourpicker, gtools, markdown, rclipboard, sass, shinyTree, shinyWidgets
 NeedsCompilation: no
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Packaged: 2017-10-13 06:25:55 UTC; sw175264
 Encoding: UTF-8
 URL: http://www.prostar-proteomics.org/

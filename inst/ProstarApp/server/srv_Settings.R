@@ -112,7 +112,7 @@ output$defineColorsForConditionsUI <- renderUI({
             ),
             column(
                 width = 6,
-                highchartOutput("displayPalette")
+                plotlyOutput("displayPalette")
             )
         ),
         #uiOutput("choosePalette_UI"),
@@ -291,25 +291,25 @@ observeEvent(input$colVolcanoOut, {
     rv$colorsVolcanoplot$Out <- input$colVolcanoOut
 })
 
-output$displayPalette <- renderHighchart({
+output$displayPalette <- renderPlotly({
     req(rv$PlotParams$paletteForConditions)
     nbConds <- length(unique(Biobase::pData(rv$current.obj)$Condition))
 
-    highchart() %>%
-        my_hc_chart(chartType = "column") %>%
-        hc_add_series(
-            data = data.frame(
-                y = abs(1 + rnorm(ncol(Biobase::exprs(rv$current.obj))))
-            ),
-            type = "column",
-            colorByPoint = TRUE
-        ) %>%
-        hc_colors(rv$PlotParams$paletteForConditions) %>%
-        hc_plotOptions(
-            column = list(stacking = "normal"),
-            animation = list(duration = 1)
-        ) %>%
-        hc_legend(enabled = FALSE) %>%
-        hc_xAxis(categories = 1:nbConds, title = list(text = "")) %>%
-        hc_yAxis(title = list(text = ""))
+    df <- data.frame(
+        x = 1:nbConds,
+        y = abs(1 + rnorm(ncol(exprs(rv$current.obj))))
+    )
+    
+    plotly::plot_ly(
+        data = df,
+        x = ~x,
+        y = ~y,
+        type = "bar",
+        marker = list(color = rv$PlotParams$paletteForConditions)
+    ) |>
+        plotly::layout(
+            showlegend = FALSE,
+            xaxis = list(title = "", tickmode = "array", tickvals = df$x),
+            yaxis = list(title = ""),
+            barmode = "stack" )
 })
